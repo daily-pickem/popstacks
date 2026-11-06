@@ -138,7 +138,7 @@
         figurineCounts: { 'fig-01': 1 }, // Tracks duplicates (×2, ×3...)
         equippedFigurineId: 'fig-01',    // Pokémon GO–style Equipped Buddy (transforms board & disc style/colors)
         starChestsClaimed: 0,
-        gachaPullCount: 0,         // Total Japanese Gashapon pulls (tracks 5-pull SR+ & 10-pull 天井 SSR/UR pity)
+        gachaPullCount: 0,         // Total Blind-Box pulls (tracks 5-pull Rare+ & 10-pull Epic+ pity)
         recentPullIds: ['fig-01'], // Anti-repeat history for cross-series gacha variety
         featuredFigurineId: 'fig-01',
         shelfTheme: 'oak',
@@ -714,32 +714,28 @@
         case 'mythic':
           return {
             grade: 'UR',
-            jp: '超激レア',
-            badgeText: 'UR · 超激レア (MYTHIC)',
+            badgeText: 'UR · MYTHIC',
             shellClass: 'cap-ur',
             tierClass: 'mythic'
           };
         case 'legendary':
           return {
             grade: 'SSR',
-            jp: 'SSレア',
-            badgeText: 'SSR · SSレア (LEGENDARY)',
+            badgeText: 'SSR · LEGENDARY',
             shellClass: 'cap-ssr',
             tierClass: 'legendary'
           };
         case 'epic':
           return {
             grade: 'SR',
-            jp: 'Sレア',
-            badgeText: 'SR · Sレア (EPIC)',
+            badgeText: 'SR · EPIC',
             shellClass: 'cap-sr',
             tierClass: 'epic'
           };
         case 'rare':
           return {
             grade: 'R',
-            jp: 'レア',
-            badgeText: 'R · レア (RARE)',
+            badgeText: 'R · RARE',
             shellClass: 'cap-r',
             tierClass: 'rare'
           };
@@ -747,8 +743,7 @@
         default:
           return {
             grade: 'N',
-            jp: 'ノーマル',
-            badgeText: 'N · ノーマル (COMMON)',
+            badgeText: 'N · COMMON',
             shellClass: 'cap-n',
             tierClass: 'common'
           };
@@ -2417,8 +2412,9 @@
       if (buddyKit) {
         const shortKit = String(kit.kitTitle || 'Studio Kit').split('·')[0].trim();
         const buddyPerk = this.getEquippedBuddyPerk();
+        const kitTheme = shortKit.replace(/Kit|Series/gi, '').trim() || 'Custom';
         buddyKit.textContent = eqFig
-          ? `+${Math.round((buddyPerk.scoreMult - 1) * 100)}% Score · +${Math.round((buddyPerk.feverMult - 1) * 100)}% Fever · ${shortKit}`
+          ? `+${Math.round((buddyPerk.scoreMult - 1) * 100)}% Score · +${Math.round((buddyPerk.feverMult - 1) * 100)}% Fever · ${kitTheme}`
           : `${shortKit}`;
       }
       if (buddySwatches) {

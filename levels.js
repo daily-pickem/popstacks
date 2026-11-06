@@ -1786,7 +1786,7 @@
         ['Yuzu Mochi Bun', 'Common', '#F4B942', '#2EC4B6', '#FF5964', 'sprout', 'diamond', 'Squishy matte vinyl finish scented with imaginary citrus zest.'],
         ['Raku Teapot Golem', 'Rare', '#CD5F28', '#2EC4B6', '#FFF9F5', 'golem', 'hexagon', 'Crackle-glazed terracotta body that loves adjacent 10-disc bursts.'],
         ['Sakura Wagashi Spirit', 'Rare', '#FF8A92', '#2EC4B6', '#F4B942', 'spirit', 'cross', 'Delicate pastel petals pressed with an artisan wooden confections mold.'],
-        ['Cast-Iron Tetsubin Owl', 'Epic', '#1A3958', '#2EC4B6', '#F4B942', 'owl', 'triangle', 'Textured hobnail surface inspired by heritage南部鉄器 kettles.'],
+        ['Cast-Iron Tetsubin Owl', 'Epic', '#1A3958', '#2EC4B6', '#F4B942', 'owl', 'triangle', 'Textured hobnail surface inspired by heritage Nanbu cast-iron kettles.'],
         ['Grandmaster Sencha Fox', 'Legendary', '#1E968B', '#F4B942', '#FF5964', 'fox', 'star', 'Pours liquid gold glaze that thaws frozen clay on contact.']
       ]
     },
@@ -2215,30 +2215,30 @@
    */
   const RARITY_DROP_RATES = {
     firstPull: [
-      { rarity: 'Rare', gachaGrade: 'R', jpLabel: 'レア', weight: 100 }
+      { rarity: 'Rare', gachaGrade: 'R', gradeLabel: 'Rare', weight: 100 }
     ],
     standard: [
-      { rarity: 'Common', gachaGrade: 'N', jpLabel: 'ノーマル', weight: 85 },
-      { rarity: 'Rare', gachaGrade: 'R', jpLabel: 'レア', weight: 10 },
-      { rarity: 'Epic', gachaGrade: 'SR', jpLabel: 'Sレア', weight: 3.5 },
-      { rarity: 'Legendary', gachaGrade: 'SSR', jpLabel: 'SSレア', weight: 1.2 },
-      { rarity: 'Mythic', gachaGrade: 'UR', jpLabel: '超激レア', weight: 0.3 }
+      { rarity: 'Common', gachaGrade: 'N', gradeLabel: 'Common', weight: 85 },
+      { rarity: 'Rare', gachaGrade: 'R', gradeLabel: 'Rare', weight: 10 },
+      { rarity: 'Epic', gachaGrade: 'SR', gradeLabel: 'Epic', weight: 3.5 },
+      { rarity: 'Legendary', gachaGrade: 'SSR', gradeLabel: 'Legendary', weight: 1.2 },
+      { rarity: 'Mythic', gachaGrade: 'UR', gradeLabel: 'Mythic', weight: 0.3 }
     ],
     boosted: [
-      { rarity: 'Common', gachaGrade: 'N', jpLabel: 'ノーマル', weight: 76 },
-      { rarity: 'Rare', gachaGrade: 'R', jpLabel: 'レア', weight: 15 },
-      { rarity: 'Epic', gachaGrade: 'SR', jpLabel: 'Sレア', weight: 6 },
-      { rarity: 'Legendary', gachaGrade: 'SSR', jpLabel: 'SSレア', weight: 2.3 },
-      { rarity: 'Mythic', gachaGrade: 'UR', jpLabel: '超激レア', weight: 0.7 }
+      { rarity: 'Common', gachaGrade: 'N', gradeLabel: 'Common', weight: 76 },
+      { rarity: 'Rare', gachaGrade: 'R', gradeLabel: 'Rare', weight: 15 },
+      { rarity: 'Epic', gachaGrade: 'SR', gradeLabel: 'Epic', weight: 6 },
+      { rarity: 'Legendary', gachaGrade: 'SSR', gradeLabel: 'Legendary', weight: 2.3 },
+      { rarity: 'Mythic', gachaGrade: 'UR', gradeLabel: 'Mythic', weight: 0.7 }
     ],
     pitySR: [
-      { rarity: 'Epic', gachaGrade: 'SR', jpLabel: 'Sレア', weight: 65 },
-      { rarity: 'Legendary', gachaGrade: 'SSR', jpLabel: 'SSレア', weight: 27 },
-      { rarity: 'Mythic', gachaGrade: 'UR', jpLabel: '超激レア', weight: 8 }
+      { rarity: 'Epic', gachaGrade: 'SR', gradeLabel: 'Epic', weight: 65 },
+      { rarity: 'Legendary', gachaGrade: 'SSR', gradeLabel: 'Legendary', weight: 27 },
+      { rarity: 'Mythic', gachaGrade: 'UR', gradeLabel: 'Mythic', weight: 8 }
     ],
     pitySSR: [
-      { rarity: 'Legendary', gachaGrade: 'SSR', jpLabel: 'SSレア', weight: 78 },
-      { rarity: 'Mythic', gachaGrade: 'UR', jpLabel: '超激レア', weight: 22 }
+      { rarity: 'Legendary', gachaGrade: 'SSR', gradeLabel: 'Legendary', weight: 78 },
+      { rarity: 'Mythic', gachaGrade: 'UR', gradeLabel: 'Mythic', weight: 22 }
     ]
   };
 

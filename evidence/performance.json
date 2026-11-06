@@ -1,6 +1,6 @@
 {
   "game": "PopStacks: Art Toy Atelier",
-  "evaluatedAt": "2026-11-06T06:18:43.402Z",
+  "evaluatedAt": "2026-11-06T06:58:17.145Z",
   "viewport": {
     "width": 390,
     "height": 844,
@@ -9,22 +9,22 @@
     "hasTouch": true
   },
   "metrics": {
-    "coldStartWallMs": 1050,
-    "engineBootColdStartMs": 178,
+    "coldStartWallMs": 1063,
+    "engineBootColdStartMs": 35,
     "coldStartRequirementMs": 2000,
     "coldStartPassed": true,
-    "touchToVisualLatencyMs": 23.9,
+    "touchToVisualLatencyMs": 24.5,
     "touchLatencyRequirementMs": 50,
     "touchLatencyPassed": true,
-    "cascadeBurstFps": 41,
-    "cascadeSampleFrames": 30,
+    "cascadeBurstFps": 23,
+    "cascadeSampleFrames": 14,
     "fpsTarget": 60,
     "fpsStabilityPassed": false,
-    "rewardedAdHeapBeforeBytes": 27083330,
-    "rewardedAdHeapAfterBytes": 27574704,
-    "rewardedAdHeapDeltaKB": 480,
+    "rewardedAdHeapBeforeBytes": 25771755,
+    "rewardedAdHeapAfterBytes": 23770026,
+    "rewardedAdHeapDeltaKB": -1955,
     "zeroMemoryLeaksAfterAd": true,
-    "consoleErrorsCount": 1,
+    "consoleErrorsCount": 0,
     "pageErrorsCount": 0,
     "failedLocalAssetRequestsCount": 0
   },
@@ -89,9 +89,7 @@
       "figurinesCount": 60
     }
   },
-  "consoleErrors": [
-    "Failed to load resource: net::ERR_PROXY_CONNECTION_FAILED"
-  ],
+  "consoleErrors": [],
   "pageErrors": [],
   "failedLocalRequests": []
 }

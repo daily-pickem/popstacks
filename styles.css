@@ -4316,8 +4316,8 @@ p { text-wrap: pretty; }
 
 .gallery-buddy-card.has-equipped-buddy {
   border: 2.5px solid var(--buddy-primary);
-  box-shadow: 0 5px 0 var(--buddy-secondary), 0 10px 24px rgba(35, 25, 15, 0.12);
-  background: linear-gradient(135deg, #FFFFFF 0%, #FFFDF8 68%, color-mix(in srgb, var(--buddy-primary) 14%, #FFFFFF) 100%);
+  box-shadow: 0 4px 16px rgba(35, 25, 15, 0.08), 0 1px 3px rgba(35, 25, 15, 0.05);
+  background: linear-gradient(135deg, #FFFFFF 0%, #FFFDF8 68%, color-mix(in srgb, var(--buddy-primary) 12%, #FFFFFF) 100%);
 }
 
 .gallery-buddy-card.equip-celebrate-burst {
@@ -4326,7 +4326,7 @@ p { text-wrap: pretty; }
 
 @keyframes buddyCardEquipPop {
   0% { transform: scale(0.93); box-shadow: 0 0 0 0 rgba(255, 183, 3, 0.75); }
-  45% { transform: scale(1.035); box-shadow: 0 6px 0 var(--buddy-secondary), 0 0 0 12px rgba(255, 183, 3, 0); }
+  45% { transform: scale(1.035); box-shadow: 0 6px 16px rgba(35, 25, 15, 0.15), 0 0 0 12px rgba(255, 183, 3, 0); }
   100% { transform: scale(1); }
 }
 
@@ -5753,31 +5753,29 @@ p { text-wrap: pretty; }
   background: linear-gradient(135deg, #FFF8E6 0%, #FFE8B3 100%);
   border: 2px solid #F59E0B;
   border-radius: 18px;
-  padding: 10px 12px;
+  padding: 11px 13px;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+  flex-direction: column;
+  gap: 8px;
   box-shadow: 0 4px 12px rgba(217, 119, 6, 0.12);
   flex-shrink: 0;
 }
 
-.gallery-gasha-copy {
+.gallery-gasha-header {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
   min-width: 0;
-  flex: 1 1 auto;
 }
 
-.gallery-gasha-top {
+.gallery-gasha-title-group {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 6px;
-  flex-wrap: wrap;
 }
 
-.gallery-gasha-top strong {
+.gallery-gasha-title {
   font-size: 13.5px;
   font-weight: 800;
   color: #231F20;
@@ -5801,18 +5799,21 @@ p { text-wrap: pretty; }
 }
 
 .gasha-spin-cta {
-  flex: 0 0 auto;
-  min-height: 40px;
-  padding: 6px 12px;
-  border-radius: 999px;
+  width: 100% !important;
+  min-height: 40px !important;
+  padding: 6px 14px !important;
+  border-radius: 999px !important;
   border: 2px solid #231F20;
-  background: linear-gradient(180deg, #FFB703 0%, #F59E0B 100%);
+  background: linear-gradient(180deg, #FFB703 0%, #F59E0B 100%) !important;
   box-shadow: 0 3px 0 #B45309;
   color: #231F20;
-  font-size: 11.5px;
-  font-weight: 900;
+  font-size: 13px !important;
+  font-weight: 900 !important;
   white-space: nowrap;
   cursor: pointer;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 .shop-currency-explainer {

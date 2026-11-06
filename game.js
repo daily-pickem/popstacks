@@ -394,9 +394,9 @@
           return 1;
         },
         rivals: [
-          { handle: 'Hana S.', badge: `⭐⭐⭐ (${Math.max(2, par3Moves - 1)} turns)`, moves: Math.max(2, par3Moves - 1), score: Math.round(star3 * 1.18), maxCombo: 5 },
-          { handle: 'Leo C.', badge: `⭐⭐⭐ (${par3Moves} turns · Par)`, moves: par3Moves, score: Math.round(star3 * 1.02), maxCombo: 3 },
-          { handle: 'Community Avg', badge: `⭐⭐ (${par2Moves - 1} turns)`, moves: par2Moves - 1, score: Math.round(star2 * 1.04), maxCombo: 2 }
+          { handle: 'Hana S.', badge: `★★★ (${Math.max(2, par3Moves - 1)} turns)`, moves: Math.max(2, par3Moves - 1), score: Math.round(star3 * 1.18), maxCombo: 5 },
+          { handle: 'Leo C.', badge: `★★★ (${par3Moves} turns · Par)`, moves: par3Moves, score: Math.round(star3 * 1.02), maxCombo: 3 },
+          { handle: 'Community Avg', badge: `★★ (${par2Moves - 1} turns)`, moves: par2Moves - 1, score: Math.round(star2 * 1.04), maxCombo: 2 }
         ],
         computeTopPercent: (_sc, movesTaken = par3Moves) => {
           const m = Number(movesTaken) || par3Moves;
@@ -507,7 +507,7 @@
       if (banner && bannerTitle && bannerSub) {
         if (fig) {
           bannerTitle.textContent = `${fig.name} Equipped!`;
-          bannerSub.textContent = `${shortKitName} · 🎵 ${trackLabel}`;
+          bannerSub.textContent = `${shortKitName} · ${trackLabel}`;
           banner.style.setProperty('--equip-accent', vibrantColor);
         } else {
           bannerTitle.textContent = 'Classic Studio Birch Active';
@@ -596,7 +596,7 @@
           ? 0.25
           : 0.2;
       return {
-        label: `⚡ +${Math.round(scoreBonus * 100)}% Score · +${Math.round(feverBonus * 100)}% 🔥`,
+        label: `+${Math.round(scoreBonus * 100)}% Score`,
         scoreMult: 1 + scoreBonus,
         feverMult: 1 + feverBonus
       };
@@ -607,6 +607,7 @@
       const scaled = Math.round(baseAmount * (perk.feverMult || 1));
       if (this.overdriveMovesLeft > 0) {
         this.kilnFever = 100;
+        this.updateHUD();
         return;
       }
       this.kilnFever = Math.min(100, (this.kilnFever || 0) + scaled);
@@ -615,17 +616,18 @@
         this.overdriveMovesLeft = 3;
         this.overdriveTotalTriggered = (this.overdriveTotalTriggered || 0) + 1;
         this.triggerBoardShake(6.5, 240);
-        this.setOllieReaction('🔥 KILN OVERDRIVE! 2× Score for 3 Moves!', 'cheer');
+        this.setOllieReaction('◆ KILN OVERDRIVE! 2× Score for 3 Moves!', 'cheer');
         this.floatingTexts.push({
           x: this.boardCenterX,
           y: this.boardCenterY - 38,
-          text: '🔥 KILN OVERDRIVE!',
+          text: '◆ KILN OVERDRIVE!',
           subText: '2× SCORE & THERMAL BLAST (3 MOVES)',
           color: '#FF5964',
           life: 0,
           maxLife: 1050
         });
       }
+      this.updateHUD();
     }
 
     triggerBoardShake(intensity = 5, durationMs = 180) {
@@ -660,7 +662,7 @@
             buddyDot.style.borderColor = kit.figurine.accentColor || '#231F20';
           }
           if (buddyName) {
-            buddyName.textContent = `🎵 ${kit.figurine.name}`;
+            buddyName.textContent = kit.figurine.name;
           }
           if (buddyPerkEl) {
             buddyPerkEl.textContent = this.getEquippedBuddyPerk().label;
@@ -674,19 +676,19 @@
     getFeaturedPickupSeries() {
       const seriesList = Catalog.FIGURINE_SERIES || [];
       if (seriesList.length === 0) {
-        return { seriesId: 'series-2', seriesName: 'Kitsune & Folklore', emoji: '⛩️' };
+        return { seriesId: 'series-2', seriesName: 'Kitsune & Folklore', emoji: '◆' };
       }
       const seriesIcons = {
-        'series-1': '🌿',
-        'series-2': '⛩️',
-        'series-3': '🪐',
-        'series-4': '🍵',
-        'series-5': '🏺',
-        'series-6': '🌙',
-        'series-7': '⚙️',
-        'series-8': '🐚',
-        'series-9': '🦢',
-        'series-10': '👑'
+        'series-1': '♦',
+        'series-2': '◆',
+        'series-3': '★',
+        'series-4': '●',
+        'series-5': '▲',
+        'series-6': '★',
+        'series-7': '✚',
+        'series-8': '●',
+        'series-9': '◆',
+        'series-10': '★'
       };
       // Rotate pickup banner across all 10 series based on pull count + current level chapter,
       // prioritizing series where the player has unlocked fewer figurines!
@@ -701,7 +703,7 @@
       return {
         seriesId: chosen.seriesId,
         seriesName: chosen.seriesName,
-        emoji: seriesIcons[chosen.seriesId] || '✨'
+        emoji: seriesIcons[chosen.seriesId] || '★'
       };
     }
 
@@ -1008,6 +1010,7 @@
       const btnTopHearts = document.getElementById('btn-top-hearts');
       const btnTopCollection = document.getElementById('btn-top-collection');
       const btnTopKeys = document.getElementById('btn-top-keys');
+      const btnTopPrisms = document.getElementById('btn-top-prisms');
       if (btnTopHearts) {
         btnTopHearts.addEventListener('click', () => {
           this.audio.playUiClick();
@@ -1028,6 +1031,12 @@
         btnTopKeys.addEventListener('click', () => {
           this.audio.playUiClick();
           this.setScreen('gallery');
+        });
+      }
+      if (btnTopPrisms) {
+        btnTopPrisms.addEventListener('click', () => {
+          this.audio.playUiClick();
+          this.setScreen('shop');
         });
       }
 
@@ -1060,7 +1069,7 @@
       const syncMusicUI = (playing) => {
         if (btnBoardMusic) {
           btnBoardMusic.classList.toggle('music-off', !playing);
-          btnBoardMusic.textContent = playing ? '🎵' : '🔇';
+          btnBoardMusic.textContent = playing ? '♪' : '✕';
         }
         if (setBgm) {
           setBgm.checked = !!playing;
@@ -1075,7 +1084,7 @@
             (this.audio.currentTrack && this.audio.currentTrack.instrumentLabel) ||
             'Focus Soundtrack';
           this.setOllieReaction(
-            isPlaying ? `🎶 ${trackLbl} ON!` : '🔇 Studio music paused',
+            isPlaying ? `♪ ${trackLbl} ON!` : 'Studio music paused',
             isPlaying ? 'excited' : 'happy'
           );
         });
@@ -1695,7 +1704,7 @@
         }
       }
       if (cVal) cVal.textContent = this.profile.coins.toLocaleString();
-      if (pVal) pVal.textContent = String(this.profile.prisms);
+      if (pVal) pVal.textContent = this.profile.prisms.toLocaleString();
       if (kVal) kVal.textContent = `${this.profile.keys}/3`;
       if (colVal) colVal.textContent = `${this.profile.unlockedFigurines.length}/60`;
     }
@@ -1713,7 +1722,7 @@
         case 'hexagon':
           return '⬣';
         case 'leaf':
-          return '🌿';
+          return '♦';
         case 'circle':
         default:
           return '●';
@@ -1742,7 +1751,7 @@
       const ISLAND_THEMES = {
         1: {
           islandName: 'Botanical Spirits',
-          shortBadge: '🌿 Botanical Island',
+          shortBadge: 'Botanical Island',
           headerBg: '#22A06B',
           headerLip: '#166E48',
           stepTop: '#2EC4B6',
@@ -1753,7 +1762,7 @@
         },
         2: {
           islandName: 'Kitsune Shrine',
-          shortBadge: '⛩️ Kitsune Island',
+          shortBadge: 'Kitsune Island',
           headerBg: '#D9383A',
           headerLip: '#9E1F22',
           stepTop: '#EF476F',
@@ -1764,7 +1773,7 @@
         },
         3: {
           islandName: 'Astral Voyagers',
-          shortBadge: '🪐 Astral Island',
+          shortBadge: 'Astral Island',
           headerBg: '#4361EE',
           headerLip: '#2A3EB1',
           stepTop: '#38BDF8',
@@ -1775,7 +1784,7 @@
         },
         4: {
           islandName: 'Matcha Tea Garden',
-          shortBadge: '🍵 Matcha Island',
+          shortBadge: 'Matcha Island',
           headerBg: '#588157',
           headerLip: '#3A5A40',
           stepTop: '#70A970',
@@ -1786,7 +1795,7 @@
         },
         5: {
           islandName: 'Terracotta Kiln',
-          shortBadge: '🏺 Terracotta Island',
+          shortBadge: 'Terracotta Island',
           headerBg: '#C85A32',
           headerLip: '#8F391A',
           stepTop: '#F4845F',
@@ -1797,7 +1806,7 @@
         },
         6: {
           islandName: 'Velvet Nocturne',
-          shortBadge: '🌙 Nocturne Island',
+          shortBadge: 'Nocturne Island',
           headerBg: '#7209B7',
           headerLip: '#4C067D',
           stepTop: '#9D4EDD',
@@ -1808,7 +1817,7 @@
         },
         7: {
           islandName: 'Clockwork Brass',
-          shortBadge: '⚙️ Clockwork Island',
+          shortBadge: 'Clockwork Island',
           headerBg: '#B45309',
           headerLip: '#78350F',
           stepTop: '#F59E0B',
@@ -1819,7 +1828,7 @@
         },
         8: {
           islandName: 'Coral Reef Lagoon',
-          shortBadge: '🐚 Coral Lagoon',
+          shortBadge: 'Coral Lagoon',
           headerBg: '#008B9E',
           headerLip: '#005F6B',
           stepTop: '#00B4D8',
@@ -1830,7 +1839,7 @@
         },
         9: {
           islandName: 'Origami Washi',
-          shortBadge: '🦢 Origami Island',
+          shortBadge: 'Origami Island',
           headerBg: '#2B59C3',
           headerLip: '#1B3B82',
           stepTop: '#4EA8DE',
@@ -1841,7 +1850,7 @@
         },
         10: {
           islandName: "Golden Founder's Vault",
-          shortBadge: '👑 Golden Vault',
+          shortBadge: 'Golden Vault',
           headerBg: '#C27803',
           headerLip: '#854D0E',
           stepTop: '#FBBF24',
@@ -1852,7 +1861,7 @@
         },
         11: {
           islandName: 'Endless Grand Atelier',
-          shortBadge: '♾️ Endless Island',
+          shortBadge: 'Endless Island',
           headerBg: '#374151',
           headerLip: '#1F2937',
           stepTop: '#F59E0B',
@@ -1875,7 +1884,7 @@
       }
       const jumpBtn = document.getElementById('btn-hub-jump-current');
       if (jumpBtn) {
-        jumpBtn.textContent = `🎯 Lv. ${currLvl}`;
+        jumpBtn.textContent = `Lv. ${currLvl} ▸`;
         jumpBtn.onclick = () => {
           this.audio.playUiClick();
           this.scrollToCurrentHubLevel(true);
@@ -1906,7 +1915,7 @@
               : `ISLAND ${chapterNum} · LEVELS ${startL}–${endL}`;
         }
         if (unitTitle) unitTitle.textContent = theme.islandName;
-        if (unitStars) unitStars.textContent = `⭐ ${chStars}/30`;
+        if (unitStars) unitStars.textContent = `★ ${chStars}/30`;
       };
 
       // Helper: Build Option C Contiguous 3D Hex Island Cluster SVG under a Figurine Sprite
@@ -2250,7 +2259,7 @@
       if (gridBadge) gridBadge.textContent = `${dailyCfg.gridSlots}-Slot`;
       if (modName) modName.textContent = dailyCfg.modifierName;
       if (modDesc) modDesc.textContent = dailyCfg.modifierDesc;
-      if (streakPill) streakPill.textContent = `🔥 ${this.profile.dailyStreak}`;
+      if (streakPill) streakPill.textContent = `★ ${this.profile.dailyStreak}`;
 
       // Monthly Calendar Grid (31 days)
       const calGrid = document.getElementById('daily-calendar-grid');
@@ -2274,7 +2283,7 @@
         rows.push({
           rank: 4,
           handle: 'You (Atelier Sculptor)',
-          badge: '👑 Studio Host',
+          badge: '★ Studio Host',
           moves: Math.max(16, this.movesTaken || 20),
           bursts: Math.max(6, this.bursts10 || 7),
           score: Math.max(4180, this.bestScore),
@@ -2346,7 +2355,7 @@
         buddyCard.style.setProperty('--buddy-rim', kit.rimFill || '#E8DBC5');
       }
       if (buddyKicker) {
-        buddyKicker.textContent = eqFig ? `✨ ACTIVE COMPANION` : '🪵 STUDIO DEFAULT';
+        buddyKicker.textContent = eqFig ? `★ ACTIVE COMPANION` : '◆ STUDIO DEFAULT';
       }
 
       if (buddyAvatar) {
@@ -2357,7 +2366,7 @@
             this.inspectFigurine(eqFig.id);
           };
         } else {
-          buddyAvatar.innerHTML = `<span class="buddy-classic-icon">🪵</span>`;
+          buddyAvatar.innerHTML = `<span class="buddy-classic-icon">◆</span>`;
           buddyAvatar.onclick = null;
         }
       }
@@ -2368,7 +2377,7 @@
         const shortKit = String(kit.kitTitle || 'Studio Kit').split('·')[0].trim();
         const trackLabel =
           this.audio && this.audio.currentTrack && this.audio.currentTrack.instrumentLabel
-            ? ` · 🎵 ${this.audio.currentTrack.instrumentLabel}`
+            ? ` · ♪ ${this.audio.currentTrack.instrumentLabel}`
             : '';
         buddyKit.textContent = `${shortKit}${trackLabel}`;
       }
@@ -2400,7 +2409,7 @@
         `;
       }
       if (buddyToggleBtn) {
-        buddyToggleBtn.textContent = eqFig ? '🪵 Classic Birch' : '✨ Equip Buddy';
+        buddyToggleBtn.textContent = eqFig ? '◆ Classic Birch' : '★ Equip Buddy';
         buddyToggleBtn.onclick = () => {
           this.audio.playUiClick();
           if (eqFig) {
@@ -2422,19 +2431,19 @@
       const pickup = this.getFeaturedPickupSeries();
       if (gashaPityTag) {
         if (nextPullNum % 10 === 0) {
-          gashaPityTag.textContent = '🔥 NEXT: SSR/UR 確定!';
+          gashaPityTag.textContent = '★ NEXT: SSR/UR 確定!';
         } else if (nextPullNum % 5 === 0) {
-          gashaPityTag.textContent = '✨ NEXT: SR+ 確定!';
+          gashaPityTag.textContent = '★ NEXT: SR+ 確定!';
         } else {
           gashaPityTag.textContent = `天井 ${inFive}/5 to SR+`;
         }
       }
       if (gashaSub) {
-        gashaSub.textContent = `🪙 ${this.profile.keys || 0}/3 Tokens · ${pickup.emoji} ${pickup.seriesName}`;
+        gashaSub.textContent = `★ ${this.profile.keys || 0}/3 Keys · ${pickup.seriesName}`;
       }
       if (gashaBtnLabel) {
         gashaBtnLabel.textContent =
-          (this.profile.keys || 0) >= 3 ? '💊 SPIN (3🪙)' : '💊 120 💎';
+          (this.profile.keys || 0) >= 3 ? '★ SPIN (3 KEYS)' : '★ 120 PRISMS';
       }
 
       // 2. Series Filter Strip
@@ -2496,11 +2505,11 @@
             isUnlocked ? `${fig.name}, ${fig.rarity}${isEquipped ? ', Equipped' : ''}` : `Locked mystery figurine silhouette`
           );
           card.innerHTML = `
-            ${isEquipped ? `<span class="cubby-equipped-badge">✨ Equipped</span>` : ''}
+            ${isEquipped ? `<span class="cubby-equipped-badge">★ Equipped</span>` : ''}
             ${isUnlocked && dupCount > 1 ? `<span class="cubby-dup-count-badge">×${dupCount}</span>` : ''}
             ${trophyMarkup(fig, { locked: !isUnlocked, size: 'card' })}
             <div class="cubby-fig-name">${isUnlocked ? fig.name : '???'}</div>
-            <div class="trophy-tier-label tier-${tier}">${isUnlocked ? fig.rarity : '🔒 ' + fig.rarity}</div>
+            <div class="trophy-tier-label tier-${tier}">${isUnlocked ? fig.rarity : 'Locked · ' + fig.rarity}</div>
           `;
           card.addEventListener('click', () => {
             this.audio.playUiClick();
@@ -2540,16 +2549,16 @@
       if (uBadge) {
         uBadge.textContent = unlockedNow
           ? isEquipped
-            ? '✨ Equipped Buddy'
+            ? '★ Equipped Buddy'
             : dupCount > 1
             ? `✓ Owned ×${dupCount}`
             : '✓ In Collection'
-          : '🔒 Mystery Silhouette';
+          : 'Mystery Silhouette';
       }
       if (blurb) {
         blurb.textContent = unlockedNow
           ? fig.blurb
-          : 'Locked Mystery Figurine — Unbox from a Blind-Box Chest (every 5 levels, every 12 ⭐ earned, or 🎁 Hidden Board Capsules)!';
+          : 'Locked Mystery Figurine — Unbox from a Blind-Box Chest (every 5 levels, every 12 ★ earned, or Hidden Board Capsules)!';
       }
       if (spinHint) {
         spinHint.classList.toggle('hidden', !unlockedNow);
@@ -2563,7 +2572,7 @@
           }
           const trackInfo =
             this.audio && this.audio.currentTrack
-              ? ` · 🎵 ${this.audio.currentTrack.instrumentLabel} (${this.audio.currentTrack.bpm} BPM)`
+              ? ` · ♪ ${this.audio.currentTrack.instrumentLabel} (${this.audio.currentTrack.bpm} BPM)`
               : '';
           const swatchesHtml = (figKit.discPalette || [])
             .map(
@@ -2572,7 +2581,7 @@
             )
             .join('');
           cosmeticPreview.innerHTML = `
-            <span class="turntable-cosmetic-label">🎨 ${figKit.kitTitle}${trackInfo}</span>
+            <span class="turntable-cosmetic-label">◆ ${figKit.kitTitle}${trackInfo}</span>
             <div class="buddy-swatch-row">
               <span class="buddy-swatch-board" style="background:${figKit.rimFill};border-color:${figKit.rimStroke};">Board</span>
               ${swatchesHtml}
@@ -2589,7 +2598,7 @@
         if (equipBtnText) {
           equipBtnText.textContent = isEquipped
             ? '✓ Equipped Buddy (Tap for Classic)'
-            : '✨ Equip Figurine (Board & Discs)';
+            : '★ Equip Figurine (Board & Discs)';
         }
       }
 
@@ -2620,12 +2629,12 @@
       const passStatus = document.getElementById('shop-pass-status');
       const passCta = document.getElementById('btn-pass-cta-text');
       if (passStatus) {
-        passStatus.textContent = this.profile.collectorPass ? '👑 VIP ACTIVE' : 'READY TO CLAIM';
+        passStatus.textContent = this.profile.collectorPass ? '★ VIP ACTIVE' : 'READY TO CLAIM';
       }
       if (passCta) {
         passCta.textContent = this.profile.collectorPass
-          ? '👑 VIP PASS ACTIVE ✓ (WATCH AD FOR +100 💎)'
-          : '🎬 WATCH AD — ACTIVATE VIP PASS';
+          ? '★ VIP PASS ACTIVE ✓ (WATCH AD FOR +100 PRISMS)'
+          : '▶ WATCH AD — ACTIVATE VIP PASS';
       }
       this.updateMetaTopBar();
     }
@@ -2826,7 +2835,7 @@
 
       if (title) {
         title.textContent = def.isEndless
-          ? `♾️ ENDLESS #${levelNum - 100}`
+          ? `∞ ENDLESS #${levelNum - 100}`
           : `LEVEL ${levelNum}`;
       }
       if (sub) sub.textContent = `${def.name}`;
@@ -3017,7 +3026,7 @@
           });
         }
 
-        // Option 3: Embed 1 Hidden Gasha Token Capsule (💊) ONLY on 5-level milestone stages (Levels 5, 10, 15...)
+        // Option 3: Embed 1 Hidden Gasha Key Capsule ONLY on 5-level milestone stages (Levels 5, 10, 15...)
         if ((levelDef.level || 1) % 5 === 0) {
           const frozenCandidates = this.cellList.filter((c) => !c.isAnvil && c.iceHp > 0 && c.stack.length > 0);
           const stackCandidates = this.cellList
@@ -3113,13 +3122,13 @@
       this.floatingTexts.push({
         x: x || this.boardCenterX,
         y: (y || this.boardCenterY) - 24,
-        text: '💊 GASHA TOKEN +1!',
-        subText: `🪙 ${this.profile.keys}/3 TOKENS TOWARD GASHAPON!`,
+        text: '★ GASHA KEY +1!',
+        subText: `${this.profile.keys}/3 KEYS TOWARD GASHAPON!`,
         color: '#FF9F1C',
         life: 0,
         maxLife: 1050
       });
-      this.logCascade(`💊 Hidden Gasha Token Collected! (${this.profile.keys}/3 Tokens)`);
+      this.logCascade(`★ Hidden Gasha Key Collected! (${this.profile.keys}/3 Keys)`);
     }
 
     getSeriesMasteryMultiplier(colorId) {
@@ -3239,12 +3248,12 @@
 
       if (bHammer) {
         const hasH = this.profile.boosters.hammer > 0;
-        bHammer.textContent = hasH ? String(this.profile.boosters.hammer) : '🎬 AD';
+        bHammer.textContent = hasH ? String(this.profile.boosters.hammer) : '▶ AD';
         bHammer.classList.toggle('ad-refill', !hasH);
       }
       if (bSwap) {
         const hasS = this.profile.boosters.swap > 0;
-        bSwap.textContent = hasS ? String(this.profile.boosters.swap) : '🎬 AD';
+        bSwap.textContent = hasS ? String(this.profile.boosters.swap) : '▶ AD';
         bSwap.classList.toggle('ad-refill', !hasS);
       }
       if (bExtra) {
@@ -3253,7 +3262,7 @@
           ? '✓'
           : this.profile.boosters.extraslot > 0
           ? String(this.profile.boosters.extraslot)
-          : '🎬 AD';
+          : '▶ AD';
         bExtra.classList.toggle('ad-refill', !hasE);
       }
 
@@ -3309,12 +3318,12 @@
 
       if (overlay) overlay.classList.remove('hidden');
       if (type === 'hammer') {
-        if (iconEl) iconEl.textContent = '🔨';
+        if (iconEl) iconEl.textContent = '◆';
         if (titleEl) titleEl.textContent = 'Ceramic Hammer';
         if (descEl) descEl.textContent = 'Tap any stack on the board to smash it';
         if (btnReroll) btnReroll.classList.add('hidden');
       } else if (type === 'swap') {
-        if (iconEl) iconEl.textContent = '🔄';
+        if (iconEl) iconEl.textContent = '↻';
         if (titleEl) titleEl.textContent = 'Spatula Swap';
         if (descEl) descEl.textContent = 'Tap stack → empty hex, or Reroll';
         if (btnReroll) btnReroll.classList.remove('hidden');
@@ -3518,7 +3527,7 @@
       this.floatingTexts.push({
         x: targetPos.x,
         y: targetPos.y - 24,
-        text: bestMove.combined >= BURST_THRESHOLD ? '💡 BURST MOVE!' : '💡 BEST MERGE!',
+        text: bestMove.combined >= BURST_THRESHOLD ? '★ BURST MOVE!' : '★ BEST MERGE!',
         subText: `DROP SLOT #${bestMove.trayIndex + 1} HERE`,
         color: '#2EC4B6',
         life: 0,
@@ -3526,8 +3535,8 @@
       });
       this.setOllieReaction(
         bestMove.combined >= BURST_THRESHOLD
-          ? `💡 Drop Slot #${bestMove.trayIndex + 1} on the glowing hex for a 10-Burst!`
-          : `💡 Drop Slot #${bestMove.trayIndex + 1} on the glowing hex!`,
+          ? `★ Drop Slot #${bestMove.trayIndex + 1} on the glowing hex for a 10-Burst!`
+          : `★ Drop Slot #${bestMove.trayIndex + 1} on the glowing hex!`,
         'excited'
       );
       return bestMove;
@@ -3936,7 +3945,7 @@
           const thawed = adj.iceHp === 0;
           if (thawed) {
             this.frozenCleared++;
-            this.logCascade(`❄️ Frozen Clay Thawed at (${adj.q},${adj.r})!`);
+            this.logCascade(`❄ Frozen Clay Thawed at (${adj.q},${adj.r})!`);
             if (adj.hasCapsule) {
               const adjPos = this.axialToPixel(adj.q, adj.r);
               this.collectBoardCapsule(adjPos.x, adjPos.y);
@@ -3945,7 +3954,7 @@
               this.enqueueCell(adj.q, adj.r, 'thawed-frozen-clay');
             }
           } else {
-            this.logCascade(`❄️ Frozen Clay Cracked at (${adj.q},${adj.r}) (${adj.iceHp} HP left)`);
+            this.logCascade(`❄ Frozen Clay Cracked at (${adj.q},${adj.r}) (${adj.iceHp} HP left)`);
           }
 
           if (playAudioAndParticles) {
@@ -4394,9 +4403,9 @@
                 this.updateDebugUI();
 
                 this.logCascade(
-                  `💥 ${burstCount}-BURST at (${cell.q},${cell.r}): ${burstCount}x ${col.name} (+${pointsEarned} · ×${this.activeMultiplier})`
+                  `★ ${burstCount}-BURST at (${cell.q},${cell.r}): ${burstCount}x ${col.name} (+${pointsEarned} · ×${this.activeMultiplier})`
                 );
-                this.setOllieReaction(`💥 ${burstCount}-Stack Pop! +${pointsEarned} pts!`, 'cheer');
+                this.setOllieReaction(`★ ${burstCount}-Stack Pop! +${pointsEarned} pts!`, 'cheer');
 
                 const burstVisualY = pos.y - (target.stack.length + 2) * this.discThickness;
                 this.audio.playBurst10(this.activeMultiplier);
@@ -4556,9 +4565,9 @@
 
       const subLabel =
         burstCount >= 12
-          ? `💥 ${burstCount}-STACK MEGA ×${combo}!`
+          ? `★ ${burstCount}-STACK MEGA ×${combo}!`
           : combo > 1
-          ? `🔥 COMBO ×${combo}!`
+          ? `◆ COMBO ×${combo}!`
           : '10-STACK BURST!';
 
       this.floatingTexts.push({
@@ -4697,7 +4706,7 @@
         if (!this.lowSpaceWarned) {
           this.lowSpaceWarned = true;
           this.audio.playDeadlockWarning();
-          this.setOllieReaction('⚠️ Only 1 hex left! Use a booster!', 'warn');
+          this.setOllieReaction('! Only 1 hex left! Use a booster!', 'warn');
         }
       } else {
         if (lowSpaceBanner) lowSpaceBanner.classList.add('hidden');
@@ -4706,7 +4715,7 @@
 
       if (emptyCount === 0 && hasTrayStacks && !this.isLevelWon) {
         this.isDeadlocked = true;
-        this.logCascade('🔒 DEADLOCK DETECTED: 0 empty placeable sockets remain.');
+        this.logCascade('! DEADLOCK DETECTED: 0 empty placeable sockets remain.');
         this.audio.playDeadlock();
         this.triggerDeadlockModal();
         return true;
@@ -4819,10 +4828,10 @@
       this.audio.playLevelComplete(earnedStarsThisRun);
       this.setOllieReaction(
         earnedStarsThisRun === 3
-          ? `⭐⭐⭐ 3-Star Par Clear (${turnsUsed}/${par3Moves} turns)!`
+          ? `★★★ 3-Star Par Clear (${turnsUsed}/${par3Moves} turns)!`
           : earnedStarsThisRun === 2
-          ? `⭐⭐ 2-Star Solve (${turnsUsed} turns)!`
-          : `⭐ Cleared in ${turnsUsed} turns! Beat ≤${par3Moves} turns for 3⭐!`,
+          ? `★★ 2-Star Solve (${turnsUsed} turns)!`
+          : `★ Cleared in ${turnsUsed} turns! Beat ≤${par3Moves} turns for 3★!`,
         'cheer'
       );
 
@@ -4840,8 +4849,8 @@
       this.profile.prisms += rewPrisms;
 
       // Japanese Gashapon Pacing (No more every-level figurine spam!):
-      // Earn +1 Gasha Token (🪙) only on 3-Star Par Clears or every 3rd level milestone.
-      // A Gashapon Machine Spin triggers ONLY when reaching 3/3 Gasha Tokens, clearing a 10-Level Island Boss,
+      // Earn +1 Gasha Key only on 3-Star Par Clears or every 3rd level milestone.
+      // A Gashapon Machine Spin triggers ONLY when reaching 3/3 Gasha Keys, clearing a 10-Level Island Boss,
       // hitting an 18-Star milestone, or completing the Daily Challenge (~once every 6–8 levels).
       if (earnedStarsThisRun >= 3 || this.currentLevelNum % 3 === 0) {
         this.profile.keys = Math.min(3, (this.profile.keys || 0) + 1);
@@ -4881,7 +4890,7 @@
         starSpans.forEach((sp, idx) => {
           const earned = idx < earnedStarsThisRun;
           sp.classList.toggle('earned', earned);
-          sp.textContent = earned ? '⭐' : '☆';
+          sp.textContent = earned ? '★' : '☆';
         });
       }
 
@@ -4901,7 +4910,7 @@
           starReqNoteEl.classList.add('hidden');
         } else {
           starReqNoteEl.classList.remove('hidden');
-          starReqNoteEl.textContent = `Finish in ≤ ${par3Moves} turns for 3⭐`;
+          starReqNoteEl.textContent = `Finish in ≤ ${par3Moves} turns for 3★`;
         }
       }
 
@@ -4914,15 +4923,15 @@
 
       if (turnsValEl) turnsValEl.textContent = `${turnsUsed}`;
       if (turnsParSubEl) {
-        turnsParSubEl.textContent = `3⭐ Par: ≤ ${par3Moves}`;
+        turnsParSubEl.textContent = `3★ Par: ≤ ${par3Moves}`;
       }
       if (finalScoreEl) finalScoreEl.textContent = this.score.toLocaleString();
       if (scoreSubEl) {
-        scoreSubEl.textContent = isNewRecord ? '🏆 New Best' : `Max ×${this.maxCombo} Combo`;
+        scoreSubEl.textContent = isNewRecord ? '★ New Best' : `Max ×${this.maxCombo} Combo`;
       }
       if (nextLabel) nextLabel.textContent = 'CONTINUE';
       if (unboxLabel) {
-        unboxLabel.textContent = '🎁 OPEN CAPSULE';
+        unboxLabel.textContent = '★ OPEN CAPSULE';
       }
 
       const btnUnbox = document.getElementById('btn-win-unbox-now');
@@ -4938,7 +4947,7 @@
         btnWinAd2x.classList.remove('hidden');
       }
       if (btnWinAd2xText) {
-        btnWinAd2xText.textContent = '🎬 Watch Ad: 2× Score & +1 Gasha Key 🪙';
+        btnWinAd2xText.textContent = '▶ Watch Ad · 2× Score & +1 Key';
       }
 
       this.updateHUD();
@@ -4953,7 +4962,7 @@
       const titleTag = this.isDailyMode
         ? `PopStacks Daily Challenge`
         : `PopStacks Level ${this.currentLevelNum}`;
-      const text = `🎨 ${titleTag}: ${this.score.toLocaleString()} pts (🔥 Max ×${this.maxCombo} Combo · ${this.movesTaken || 1} Moves · 🏅 Top ${topPct}%)! Can you beat my stack setup?`;
+      const text = `★ ${titleTag}: ${this.score.toLocaleString()} pts (Max ×${this.maxCombo} Combo · ${this.movesTaken || 1} Moves · Top ${topPct}%)! Can you beat my stack setup?`;
 
       if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
         navigator.clipboard.writeText(text).catch(() => {});
@@ -5264,13 +5273,13 @@
       }
       if (titleEl && this.capsuleTapStep === 0) {
         if (rKey === 'mythic') {
-          titleEl.textContent = '🌈 Mythic Vessel! Tap to crack!';
+          titleEl.textContent = '★ Mythic Vessel! Tap to crack!';
         } else if (rKey === 'legendary') {
-          titleEl.textContent = '👑 Legendary Vessel! Tap to crack!';
+          titleEl.textContent = '★ Legendary Vessel! Tap to crack!';
         } else if (rKey === 'epic') {
-          titleEl.textContent = '🔥 Epic Vessel! Tap to crack!';
+          titleEl.textContent = '★ Epic Vessel! Tap to crack!';
         } else if (rKey === 'rare') {
-          titleEl.textContent = '✨ Rare Vessel! Tap to crack!';
+          titleEl.textContent = '★ Rare Vessel! Tap to crack!';
         } else {
           titleEl.textContent = 'Tap to crack open!';
         }
@@ -5459,7 +5468,7 @@
       if (equipNowBtn) {
         const isAlreadyEquipped = this.profile.equippedFigurineId === fig.id;
         equipNowBtn.classList.toggle('hidden', isAlreadyEquipped);
-        equipNowBtn.textContent = `✨ EQUIP`;
+        equipNowBtn.textContent = `★ EQUIP`;
       }
       const bonusSpinBtn = document.getElementById('btn-unbox-watch-ad-spin');
       if (bonusSpinBtn) {
@@ -5480,7 +5489,7 @@
           dupBadge.textContent = `×${newCount}`;
         } else {
           dupBadge.classList.add('is-new');
-          dupBadge.textContent = `✨ NEW`;
+          dupBadge.textContent = `★ NEW`;
         }
       }
       const unboxHost = document.getElementById('unbox-trophy');
@@ -5538,10 +5547,10 @@
         return;
       }
 
-      if (sponsorTag) sponsorTag.textContent = '📺 BETWEEN-ROUND SPONSOR BREAK';
+      if (sponsorTag) sponsorTag.textContent = '▶ BETWEEN-ROUND SPONSOR BREAK';
       if (titleEl) titleEl.textContent = 'Art Toy Atelier — Next Round Loading';
       if (descEl) {
-        descEl.textContent = 'Thanks for supporting PopStacks! Bonus +15 💎 Prisms added.';
+        descEl.textContent = 'Thanks for supporting PopStacks! Bonus +15 Prisms added.';
       }
       modal.classList.remove('hidden');
 
@@ -5586,20 +5595,20 @@
 
       if (!modal) return;
       modal.classList.remove('hidden');
-      if (sponsorTag) sponsorTag.textContent = '🎬 OPT-IN REWARDED VIDEO';
+      if (sponsorTag) sponsorTag.textContent = '▶ OPT-IN REWARDED VIDEO';
       if (titleEl) titleEl.textContent = 'Art Toy Atelier — Golden Kiln Showcase';
 
       const REWARD_COPY = {
         deadlock_rescue: 'Reward unlocking: Free Revive (+1 Extra Slot & Clear 3 Crowded Stacks)!',
-        win_2x_prisms: 'Reward unlocking: 2× Round Score, +50 💎 Prisms & +1 Gasha Key 🪙!',
+        win_2x_prisms: 'Reward unlocking: 2× Round Score, +50 Prisms & +1 Gasha Key!',
         unbox_bonus_spin: 'Reward unlocking: Instant Bonus Gacha Capsule Spin!',
-        booster_hammer: 'Reward unlocking: +2 🔨 Ceramic Hammers!',
-        booster_swap: 'Reward unlocking: +2 🔄 Spatula Swaps!',
+        booster_hammer: 'Reward unlocking: +2 Ceramic Hammers!',
+        booster_swap: 'Reward unlocking: +2 Spatula Swaps!',
         booster_extraslot: 'Reward unlocking: Unlock 4th Tray Slot + 1 Extra Slot Booster!',
-        vip_pass: 'Reward unlocking: 👑 Atelier VIP Pass (Unlimited Hearts, 4th Slot & +200 💎)!',
-        starter_crate: 'Reward unlocking: Supply Crate (+150 💎 Prisms & +1 of Every Booster)!',
-        shop_prisms_vault: 'Reward unlocking: +150 💎 Prisms & +1 Gasha Key 🪙!',
-        shop_prisms_hammer: 'Reward unlocking: +75 💎 Prisms, +1 🪙 Key & +1 🔨 Hammer!'
+        vip_pass: 'Reward unlocking: Atelier VIP Pass (Unlimited Hearts, 4th Slot & +200 Prisms)!',
+        starter_crate: 'Reward unlocking: Supply Crate (+150 Prisms & +1 of Every Booster)!',
+        shop_prisms_vault: 'Reward unlocking: +150 Prisms & +1 Gasha Key!',
+        shop_prisms_hammer: 'Reward unlocking: +75 Prisms, +1 Key & +1 Hammer!'
       };
       if (descEl) {
         descEl.textContent = REWARD_COPY[rewardType] || REWARD_COPY.shop_prisms_hammer;
@@ -5940,7 +5949,12 @@
           continue;
         }
 
-        if (previewInfo && previewInfo.cellKey === cell.key && cell.stack.length === 0) {
+        if (
+          previewInfo &&
+          previewInfo.cellKey === cell.key &&
+          cell.stack.length === 0 &&
+          !this.dragState.active
+        ) {
           this.drawVinylStack(
             ctx,
             previewInfo.x,
@@ -5948,7 +5962,7 @@
             previewInfo.discs,
             1,
             1,
-            0.55,
+            0.65,
             true
           );
         } else if (cell.stack.length > 0) {
@@ -5963,12 +5977,12 @@
             cell.iceHp === 0
           );
 
-          // If cell is encased in Frozen Clay (`cell.iceHp > 0`), render the cracked glaze shell + ❄️ badge
+          // If cell is encased in Frozen Clay (`cell.iceHp > 0`), render the cracked glaze shell + frost badge
           if (cell.iceHp > 0) {
             this.drawFrozenClayShell(ctx, pos.x, pos.y, cell, now);
           }
 
-          // Option 3: Render Hidden Clay Capsule (🎁) badge on the stack
+          // Option 3: Render Hidden Clay Capsule badge on the stack
           if (cell.hasCapsule) {
             this.drawBoardCapsuleBadge(ctx, pos.x, pos.y, cell, now);
           }
@@ -6013,7 +6027,12 @@
         this.drawFtueGuidingHand(ctx, ftueStep, now);
       }
 
-      // 10. Draw Active Dragged Stack Floating Above Finger (42px offset)
+      // 10. Draw Neighbor Match Preview Rings & Arcs (underneath dragged stack)
+      if (previewInfo) {
+        this.drawNeighborMatchPreview(ctx, previewInfo, now, false);
+      }
+
+      // 11. Draw Active Dragged Stack Floating Above Finger (42px offset)
       if (this.dragState.active && this.tray[this.dragState.trayIndex]) {
         const draggedSlot = this.tray[this.dragState.trayIndex];
         ctx.save();
@@ -6036,16 +6055,16 @@
           this.dragState.dragX,
           this.dragState.dragY,
           draggedSlot.discs,
-          1.1,
-          1.1,
+          1.06,
+          1.06,
           1.0,
           true
         );
       }
 
-      // 11. Draw Neighbor Match Previews & Merge/Burst Pill on top
+      // 12. Draw Neighbor Match Foresight Pill on top of everything
       if (previewInfo) {
-        this.drawNeighborMatchPreview(ctx, previewInfo, now);
+        this.drawNeighborMatchPreview(ctx, previewInfo, now, true);
       }
 
       ctx.restore();
@@ -6243,24 +6262,35 @@
     drawBoardCapsuleBadge(ctx, baseX, baseY, cell, now) {
       const stackH = Math.max(1, cell.stack.length) * this.discThickness;
       const topY = baseY - stackH + this.discThickness;
-      const bob = Math.sin(now * 0.007) * 2.5;
-      const bx = baseX - this.hexRadius * 0.56;
-      const by = topY + this.hexRadius * Y_TILT * 0.32 + bob;
+      const bob = Math.sin(now * 0.007) * 2.0;
+      const bx = baseX - this.hexRadius * 0.34;
+      const by = topY - this.hexRadius * Y_TILT * 0.18 + bob;
 
       ctx.save();
-      ctx.fillStyle = '#FF9F1C';
-      ctx.strokeStyle = '#231F20';
-      ctx.lineWidth = 1.6;
+      // 2-Tone Gashapon Capsule Sphere Badge (Red top, Ivory bottom, Gold center clasp)
+      const r = 7.5;
       ctx.beginPath();
-      ctx.roundRect(bx - 12, by - 9, 24, 18, 9);
+      ctx.arc(bx, by, r, Math.PI, 0);
+      ctx.fillStyle = '#FF5964';
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(bx, by, r, 0, Math.PI);
+      ctx.fillStyle = '#FFFDF7';
+      ctx.fill();
+      ctx.lineWidth = 1.6;
+      ctx.strokeStyle = '#231F20';
+      ctx.beginPath();
+      ctx.arc(bx, by, r, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(bx - r, by);
+      ctx.lineTo(bx + r, by);
+      ctx.stroke();
+      ctx.fillStyle = '#FFD166';
+      ctx.beginPath();
+      ctx.arc(bx, by, 2.8, 0, Math.PI * 2);
       ctx.fill();
       ctx.stroke();
-
-      ctx.font = '800 10.5px "Plus Jakarta Sans", sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillStyle = '#231F20';
-      ctx.fillText('🎁', bx, by + 0.5);
       ctx.restore();
     }
 
@@ -6299,17 +6329,30 @@
       ctx.strokeStyle = '#734F1A';
       ctx.stroke();
 
-      // Anvil emblem
-      ctx.fillStyle = '#231F20';
-      ctx.font = `800 ${Math.max(10, Math.round(this.hexRadius * 0.38))}px sans-serif`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('🔨', cx, topY);
+      // Vector Forged Brass Anvil Lock Emblem (0 emoji dependency)
+      const ew = rx * 0.36;
+      const eh = ry * 0.36;
+      ctx.fillStyle = '#5C3D10';
+      ctx.strokeStyle = '#231F20';
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.moveTo(cx, topY - eh);
+      ctx.lineTo(cx + ew, topY);
+      ctx.lineTo(cx, topY + eh);
+      ctx.lineTo(cx - ew, topY);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#FFFDF7';
+      ctx.beginPath();
+      ctx.arc(cx, topY, Math.max(2, rx * 0.08), 0, Math.PI * 2);
+      ctx.fill();
       ctx.restore();
     }
 
     /**
-     * Renders the Cracked Celadon/Frost Glaze Shell + `❄️ N` badge over a Frozen Clay Tile (`cell.iceHp > 0`)
+     * Renders the Cracked Celadon/Frost Glaze Shell + `❄ N` badge over a Frozen Clay Tile (`cell.iceHp > 0`)
      */
     drawFrozenClayShell(ctx, baseX, baseY, cell, now) {
       const rx = this.hexRadius * 0.9;
@@ -6347,7 +6390,7 @@
       ctx.lineWidth = 1.8;
       ctx.stroke();
 
-      // Floating `❄️ N` Ice HP Badge
+      // Floating `❄ N` Ice HP Badge
       const pulse = 1 + 0.04 * Math.sin(now * 0.008);
       const pillW = 34 * pulse;
       const pillH = 17 * pulse;
@@ -6365,7 +6408,7 @@
       ctx.font = '800 10px "Plus Jakarta Sans", sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(`❄️${cell.iceHp}`, baseX, badgeY + 0.5);
+      ctx.fillText(`❄ ${cell.iceHp}`, baseX, badgeY + 0.5);
       ctx.restore();
     }
 
@@ -6426,11 +6469,30 @@
       ctx.lineWidth = 3;
       ctx.stroke();
 
-      // Animated Sculptor Hand pill
-      ctx.font = '26px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('👆', hx + 8, hy + 14);
+      // Vector Sculptor Pointer Cursor (0 emoji dependency)
+      ctx.save();
+      ctx.translate(hx + 6, hy + 8);
+      ctx.fillStyle = '#FFFDF7';
+      ctx.strokeStyle = '#231F20';
+      ctx.lineWidth = 2.2;
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(0, 22);
+      ctx.lineTo(6, 16);
+      ctx.lineTo(11, 25);
+      ctx.lineTo(15, 23);
+      ctx.lineTo(10, 14);
+      ctx.lineTo(18, 14);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#FF9F1C';
+      ctx.beginPath();
+      ctx.arc(0, 0, 4.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
       ctx.restore();
     }
 
@@ -6468,7 +6530,7 @@
       return null;
     }
 
-    drawNeighborMatchPreview(ctx, previewInfo, now) {
+    drawNeighborMatchPreview(ctx, previewInfo, now, pillOnly = false) {
       const topCol = getTopColor(previewInfo.discs);
       const matches = this.getMatchingNeighbors(previewInfo.q, previewInfo.r, topCol);
       if (matches.length === 0) return;
@@ -6479,47 +6541,53 @@
       const targetTopY = previewInfo.y - stackHeightPx;
 
       let totalCombined = getTopContiguousCount(previewInfo.discs);
-
-      ctx.save();
       matches.forEach((nCell) => {
         totalCombined += getTopContiguousCount(nCell.stack);
-        const nPos = this.axialToPixel(nCell.q, nCell.r);
-        const nTopY = nPos.y - (nCell.stack.length - 1) * this.discThickness;
-
-        this.traceIsoHex(
-          ctx,
-          nPos.x,
-          nTopY,
-          this.hexRadius * 0.92,
-          this.hexRadius * 0.92 * Y_TILT,
-          0.2
-        );
-        ctx.strokeStyle = '#FFFDF7';
-        ctx.lineWidth = 4;
-        ctx.stroke();
-        ctx.strokeStyle = colorObj.top;
-        ctx.lineWidth = 2.2;
-        ctx.stroke();
-
-        const midX = (nPos.x + previewInfo.x) * 0.5;
-        const midY = Math.min(nTopY, targetTopY) - 20;
-
-        ctx.beginPath();
-        ctx.moveTo(nPos.x, nTopY);
-        ctx.quadraticCurveTo(midX, midY, previewInfo.x, targetTopY);
-        ctx.strokeStyle = '#231F20';
-        ctx.lineWidth = 4.5;
-        ctx.setLineDash([6, 4]);
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(nPos.x, nTopY);
-        ctx.quadraticCurveTo(midX, midY, previewInfo.x, targetTopY);
-        ctx.strokeStyle = colorObj.rim;
-        ctx.lineWidth = 2.8 * pulse;
-        ctx.setLineDash([6, 4]);
-        ctx.stroke();
       });
+
+      ctx.save();
+      if (!pillOnly) {
+        matches.forEach((nCell) => {
+          const nPos = this.axialToPixel(nCell.q, nCell.r);
+          const nTopY = nPos.y - (nCell.stack.length - 1) * this.discThickness;
+
+          this.traceIsoHex(
+            ctx,
+            nPos.x,
+            nTopY,
+            this.hexRadius * 0.92,
+            this.hexRadius * 0.92 * Y_TILT,
+            0.2
+          );
+          ctx.strokeStyle = '#FFFDF7';
+          ctx.lineWidth = 4;
+          ctx.stroke();
+          ctx.strokeStyle = colorObj.top;
+          ctx.lineWidth = 2.2;
+          ctx.stroke();
+
+          const midX = (nPos.x + previewInfo.x) * 0.5;
+          const midY = Math.min(nTopY, targetTopY) - 20;
+
+          ctx.beginPath();
+          ctx.moveTo(nPos.x, nTopY);
+          ctx.quadraticCurveTo(midX, midY, previewInfo.x, targetTopY);
+          ctx.strokeStyle = '#231F20';
+          ctx.lineWidth = 4.5;
+          ctx.setLineDash([6, 4]);
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.moveTo(nPos.x, nTopY);
+          ctx.quadraticCurveTo(midX, midY, previewInfo.x, targetTopY);
+          ctx.strokeStyle = colorObj.rim;
+          ctx.lineWidth = 2.8 * pulse;
+          ctx.setLineDash([6, 4]);
+          ctx.stroke();
+        });
+        ctx.restore();
+        return;
+      }
 
       ctx.setLineDash([]);
       const willBurst = totalCombined >= BURST_THRESHOLD;
@@ -6552,13 +6620,13 @@
       const projMult = Math.max(1, 1 + this.burstStreak + surroundBonus + overstackBonus) * overdriveMult;
       const badgeLabel = willBurst
         ? willChain
-          ? `💥 ${totalCombined}/10 + 🔗 CHAIN ×${projMult + 1}!`
+          ? `★ ${totalCombined}/10 + CHAIN ×${projMult + 1}!`
           : matches.length >= 2
-          ? `💥 ${totalCombined}/10 (${matches.length}-WAY · ×${projMult}!)`
-          : `💥 ${totalCombined}/10 BURST (×${projMult})`
+          ? `★ ${totalCombined}/10 (${matches.length}-WAY · ×${projMult}!)`
+          : `★ ${totalCombined}/10 BURST (×${projMult})`
         : matches.length >= 2
-        ? `⚡ ${totalCombined}/10 (${matches.length}-WAY · ×${projMult})`
-        : `✨ ${totalCombined}/10 MERGE`;
+        ? `▲ ${totalCombined}/10 (${matches.length}-WAY · ×${projMult})`
+        : `▲ ${totalCombined}/10 MERGE`;
       const dragTopY = this.dragState.active
         ? this.dragState.dragY - stackHeightPx
         : targetTopY;
@@ -7180,8 +7248,8 @@
     }
 
     drawStackCountBadge(ctx, cx, cy, rx, ry, topCount, subColorMeta = null) {
-      const bx = cx + rx * 0.56;
-      const by = cy - ry * 0.48;
+      const bx = cx + rx * 0.36;
+      const by = cy - ry * 0.32;
       const isNearBurst = topCount >= 7;
       const label = isNearBurst ? `${topCount}/10` : `${topCount}`;
       const hasSubDot = !!subColorMeta;
@@ -7189,34 +7257,29 @@
       ctx.save();
       ctx.font = '800 9.5px "Plus Jakarta Sans", sans-serif';
       const textW = ctx.measureText(label).width;
-      const dotExtra = hasSubDot ? 8 : 0;
-      const pillW = Math.max(16, textW + 7 + dotExtra);
-      const pillH = 14;
+      const pillW = Math.max(16, textW + 9);
+      const pillH = hasSubDot ? 16 : 14;
 
       ctx.fillStyle = isNearBurst ? '#FF9F1C' : '#231F20';
       ctx.strokeStyle = '#FAF7F2';
       ctx.lineWidth = 1.4;
 
       ctx.beginPath();
-      ctx.roundRect(bx - pillW / 2, by - pillH / 2, pillW, pillH, 7);
+      ctx.roundRect(bx - pillW / 2, by - pillH / 2, pillW, pillH, 6);
       ctx.fill();
       ctx.stroke();
 
       if (hasSubDot) {
-        const dotX = bx - pillW / 2 + 6;
         ctx.fillStyle = subColorMeta.top;
-        ctx.strokeStyle = '#FFFDF7';
-        ctx.lineWidth = 1.1;
         ctx.beginPath();
-        ctx.arc(dotX, by, 3.1, 0, Math.PI * 2);
+        ctx.roundRect(bx - pillW / 2 + 2.5, by + pillH / 2 - 4, pillW - 5, 2.5, 1.5);
         ctx.fill();
-        ctx.stroke();
       }
 
       ctx.fillStyle = isNearBurst ? '#231F20' : '#FAF7F2';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(label, bx + (hasSubDot ? 3.5 : 0), by + 0.5);
+      ctx.fillText(label, bx, by + (hasSubDot ? -1 : 0.5));
       ctx.restore();
     }
 
@@ -7347,8 +7410,8 @@
             ctx.drawImage(extraImg, pos.x - 15, pos.y - 17, 30, 30);
           } else {
             ctx.fillStyle = '#231F20';
-            ctx.font = '800 13px sans-serif';
-            ctx.fillText('➕', pos.x, pos.y - 3);
+            ctx.font = '800 13px "Plus Jakarta Sans", sans-serif';
+            ctx.fillText('✚', pos.x, pos.y - 3);
           }
         } else {
           const slot = this.tray[i];
@@ -7727,9 +7790,9 @@
         const par2 = bm.par2Moves || 12;
         const m = this.movesTaken || 0;
         const liveStars = m <= par3 ? 3 : m <= par2 ? 2 : 1;
-        const starStr = '⭐'.repeat(liveStars) + '☆'.repeat(Math.max(0, 3 - liveStars));
+        const starStr = '★'.repeat(liveStars) + '☆'.repeat(Math.max(0, 3 - liveStars));
         const parTarget = liveStars === 3 ? par3 : liveStars === 2 ? par2 : par2;
-        starsLiveEl.textContent = `${starStr} ${m}/${parTarget}T`;
+        starsLiveEl.textContent = `${starStr} ${m}/${parTarget}`;
       }
 
       const multBadge = document.getElementById('hud-mult-badge');
@@ -7747,24 +7810,23 @@
         const isOverdrive = this.overdriveMovesLeft > 0;
         feverRow.classList.toggle('overdrive-active', isOverdrive);
         if (isOverdrive) {
-          feverLabel.textContent = `🔥 OVERDRIVE ×2 (${this.overdriveMovesLeft} MOVES)`;
+          feverLabel.textContent = `◆ OVERDRIVE ×2 (${this.overdriveMovesLeft} MOVES)`;
           feverFill.style.width = '100%';
         } else {
           const fPct = Math.max(0, Math.min(100, Math.round(this.kilnFever || 0)));
-          feverLabel.textContent = `🔥 FEVER ${fPct}%`;
+          feverLabel.textContent = `◆ FEVER ${fPct}%`;
           feverFill.style.width = `${fPct}%`;
         }
       }
 
       if (comboEl) {
         if (this.overdriveMovesLeft > 0) {
-          comboEl.textContent = `🔥 KILN OVERDRIVE ×2 (${this.overdriveMovesLeft} MOVES LEFT!)`;
-          comboEl.classList.remove('hidden');
+          comboEl.classList.add('hidden');
         } else if (liveMult > 1) {
           comboEl.textContent =
             this.burstStreak > 0
-              ? `🔥 ×${liveMult} COMBO · ${this.burstStreak} STREAK!`
-              : `⚡ ×${liveMult} COMBO!`;
+              ? `◆ ×${liveMult} STREAK`
+              : `★ ×${liveMult} COMBO`;
           comboEl.classList.remove('hidden');
         } else {
           comboEl.classList.add('hidden');

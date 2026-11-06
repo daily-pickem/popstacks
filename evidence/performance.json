@@ -1,6 +1,6 @@
 {
   "game": "PopStacks: Art Toy Atelier",
-  "evaluatedAt": "2026-11-06T05:27:25.943Z",
+  "evaluatedAt": "2026-11-06T05:59:52.211Z",
   "viewport": {
     "width": 390,
     "height": 844,
@@ -9,20 +9,20 @@
     "hasTouch": true
   },
   "metrics": {
-    "coldStartWallMs": 1263,
-    "engineBootColdStartMs": 90,
+    "coldStartWallMs": 1262,
+    "engineBootColdStartMs": 102,
     "coldStartRequirementMs": 2000,
     "coldStartPassed": true,
-    "touchToVisualLatencyMs": 27.7,
+    "touchToVisualLatencyMs": 29,
     "touchLatencyRequirementMs": 50,
     "touchLatencyPassed": true,
-    "cascadeBurstFps": 42,
+    "cascadeBurstFps": 41,
     "cascadeSampleFrames": 30,
     "fpsTarget": 60,
     "fpsStabilityPassed": false,
-    "rewardedAdHeapBeforeBytes": 21694862,
-    "rewardedAdHeapAfterBytes": 22187237,
-    "rewardedAdHeapDeltaKB": 481,
+    "rewardedAdHeapBeforeBytes": 21546769,
+    "rewardedAdHeapAfterBytes": 22037026,
+    "rewardedAdHeapDeltaKB": 479,
     "zeroMemoryLeaksAfterAd": true,
     "consoleErrorsCount": 0,
     "pageErrorsCount": 0,
@@ -39,13 +39,13 @@
       "hintFound": true,
       "placedMoveIncremented": true,
       "buddyPerk": {
-        "label": "⚡ +15% Score · +20% 🔥",
+        "label": "+15% Score",
         "scoreMult": 1.15,
         "feverMult": 1.2
       }
     },
     "boosterAdRefillCheck": {
-      "badgeTextZero": "🎬 AD"
+      "badgeTextZero": "▶ AD"
     },
     "deadlockAdBtnVisible": true,
     "winModalAdBtnVisible": true,

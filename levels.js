@@ -1948,7 +1948,7 @@
       moves: 18,
       bursts: 9,
       country: 'JP',
-      badge: '🏆 Gold Mold'
+      badge: '★ Gold Mold'
     },
     {
       rank: 2,
@@ -1960,7 +1960,7 @@
       moves: 19,
       bursts: 8,
       country: 'KR',
-      badge: '✨ 6x Chain'
+      badge: '★ 6x Chain'
     },
     {
       rank: 3,
@@ -1972,7 +1972,7 @@
       moves: 21,
       bursts: 8,
       country: 'DE',
-      badge: '🔥 Thaw Pro'
+      badge: '◆ Thaw Pro'
     },
     {
       rank: 4,
@@ -1984,7 +1984,7 @@
       moves: 22,
       bursts: 7,
       country: 'US',
-      badge: '🎨 6-Color'
+      badge: '◆ 6-Color'
     },
     {
       rank: 5,
@@ -1996,7 +1996,7 @@
       moves: 24,
       bursts: 7,
       country: 'CA',
-      badge: '⚡ Speed Cast'
+      badge: '▲ Speed Cast'
     },
     {
       rank: 6,
@@ -2008,7 +2008,7 @@
       moves: 25,
       bursts: 6,
       country: 'GB',
-      badge: '🌟 Collector'
+      badge: '★ Collector'
     },
     {
       rank: 7,
@@ -2020,7 +2020,7 @@
       moves: 27,
       bursts: 6,
       country: 'TW',
-      badge: '🍵 Tea House'
+      badge: '● Tea House'
     }
   ];
 
@@ -2087,9 +2087,9 @@
    * solver move targets, and social rivals for any puzzle level (`1..100+`).
    *
    * Star Rating Mechanics (Turn-Based Par):
-   *  - 3⭐ (Master Sculptor): Completed in `<= par3Moves` turns (calibrated from solver test on static levels 1..100)
-   *  - 2⭐ (Skilled Artisan): Completed in `<= par2Moves` turns
-   *  - 1⭐ (Round Cleared):   Completed in `> par2Moves` turns
+   *  - 3★ (Master Sculptor): Completed in `<= par3Moves` turns (calibrated from solver test on static levels 1..100)
+   *  - 2★ (Skilled Artisan): Completed in `<= par2Moves` turns
+   *  - 1★ (Round Cleared):   Completed in `> par2Moves` turns
    */
   function getLevelSocialBenchmark(levelNumber = 1, customLevelDef = null) {
     const passedObj =
@@ -2150,28 +2150,28 @@
     const rivals = [
       {
         handle: names[0],
-        badge: `⭐⭐⭐ (${Math.max(2, par3Moves - 1)} turns)`,
+        badge: `★★★ (${Math.max(2, par3Moves - 1)} turns)`,
         moves: Math.max(2, par3Moves - 1),
         score: Math.round((star3 * 1.18 + (h % 90)) / 10) * 10,
         maxCombo: 4 + (h % 3)
       },
       {
         handle: names[1],
-        badge: `⭐⭐⭐ (${par3Moves} turns · Par)`,
+        badge: `★★★ (${par3Moves} turns · Par)`,
         moves: par3Moves,
         score: Math.round((star3 * 1.02 + ((h >> 3) % 60)) / 10) * 10,
         maxCombo: 3 + (h % 2)
       },
       {
         handle: 'Community Avg',
-        badge: `⭐⭐ (${par2Moves - 1} turns)`,
+        badge: `★★ (${par2Moves - 1} turns)`,
         moves: par2Moves - 1,
         score: Math.round((star2 * 1.04 + ((h >> 5) % 50)) / 10) * 10,
         maxCombo: 2
       },
       {
         handle: names[2],
-        badge: `⭐ (${par2Moves + 3} turns)`,
+        badge: `★ (${par2Moves + 3} turns)`,
         moves: par2Moves + 3,
         score: Math.round((baseParScore * 0.92 + ((h >> 7) % 40)) / 10) * 10,
         maxCombo: 1

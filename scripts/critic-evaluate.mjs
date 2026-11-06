@@ -503,8 +503,8 @@ async function runEvaluation() {
         finalScore: 92,
         verifiedSignals: [
           '3-move FTUE spotlight clears Level 1 in < 15s',
-          'Sub-Layer Next-Color Peek Dot on multi-color stacks eliminates hidden-layer guesswork',
-          '2-Step Chain Reaction Ghost Foresight pill (💥 10/10 + 🔗 CHAIN!) previews cascades before drop'
+          'Sub-Layer Next-Color Peek Bar on multi-color stacks eliminates hidden-layer guesswork',
+          '2-Step Chain Reaction Ghost Foresight pill (★ 10/10 + CHAIN!) previews cascades before drop'
         ]
       },
       {
@@ -516,7 +516,7 @@ async function runEvaluation() {
         verifiedSignals: [
           'Kiln Fever Meter (0-100%) triggers 3-Move KILN OVERDRIVE (2x Score & thermal board glow)',
           'Directional board micro-shake on 10-disc bursts & multi-way surround combos',
-          'Tactile Undo (↩️ Undo) & Smart Hint (💡 Hint) pill buttons directly on board HUD'
+          'Tactile Undo (↩ Undo) & Smart Hint (★ Hint) pill buttons directly on board HUD'
         ]
       },
       {
@@ -551,7 +551,7 @@ async function runEvaluation() {
         finalScore: 85,
         verifiedSignals: [
           'Zero real-money IAP price tags ($0.00 IAP); 100% Ad-Supported & Prisms-earned economy',
-          '7 high-intent Rewarded Video placements: Deadlock Revive, 2x Win Score + Key, Gasha Bonus Spin, 0-Count Booster Ad Refills (🎬 AD), VIP Pass Ad Unlock, Starter Crate Ad, and Supply Drop Ad Rewards tab',
+          '7 high-intent Rewarded Video placements: Deadlock Revive, 2x Win Score + Key, Gasha Bonus Spin, 0-Count Booster Ad Refills (▶ AD), VIP Pass Ad Unlock, Starter Crate Ad, and Supply Drop Ad Rewards tab',
           'Frequency-capped Paced Between-Round Interstitial Ads (Level 4+, every 3 rounds when no rewarded ad watched)'
         ]
       },

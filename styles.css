@@ -5432,12 +5432,20 @@ p { text-wrap: pretty; }
 
 .gasha-footer-actions {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
   gap: 8px;
   width: 100%;
 }
 
-.gasha-footer-actions #btn-unbox-collect {
+.gasha-primary-row {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  width: 100%;
+}
+
+.gasha-primary-row #btn-unbox-collect {
   flex: 1 1 0% !important;
   width: auto !important;
   min-width: 0 !important;
@@ -5446,12 +5454,12 @@ p { text-wrap: pretty; }
 .gasha-equip-btn {
   flex: 0 0 auto;
   min-height: 56px !important;
-  padding: 8px 14px !important;
+  padding: 8px 16px !important;
   background: linear-gradient(180deg, #ECFDF5 0%, #A7F3D0 100%) !important;
   border: 2px solid #059669 !important;
   box-shadow: 0 5px 0 #047857 !important;
   color: #064E3B !important;
-  font-size: 12px !important;
+  font-size: 13px !important;
   font-weight: 900 !important;
   white-space: nowrap;
 }
@@ -5459,6 +5467,21 @@ p { text-wrap: pretty; }
 /* ============================================================================
    KILN FEVER OVERDRIVE, TACTICAL FORESIGHT HUD & AD REVENUE SYSTEM
    ============================================================================ */
+.hud-stars-live {
+  font-size: 11.5px !important;
+  letter-spacing: 0.5px !important;
+  color: #D97706;
+  font-weight: 800;
+  margin-right: 0 !important;
+  white-space: nowrap;
+}
+
+.hud-score-divider {
+  color: #B8A996;
+  margin: 0 2px;
+  font-weight: 800;
+}
+
 .hud-fever-row {
   display: flex;
   align-items: center;
@@ -5474,12 +5497,13 @@ p { text-wrap: pretty; }
   background: #FEF3C7;
   border: 1px solid #F59E0B;
   border-radius: 999px;
-  padding: 1px 7px;
+  padding: 1px 8px;
   white-space: nowrap;
   transition: transform 180ms ease, background 180ms ease, color 180ms ease;
 }
 
-.hud-fever-row.is-overdrive .hud-fever-label {
+.hud-fever-row.is-overdrive .hud-fever-label,
+.hud-fever-row.overdrive-active .hud-fever-label {
   background: linear-gradient(135deg, #FF5964 0%, #FFB703 100%);
   color: #FFFFFF;
   border-color: #231F20;
@@ -5488,7 +5512,7 @@ p { text-wrap: pretty; }
 
 @keyframes feverPulseTag {
   from { transform: scale(1); }
-  to   { transform: scale(1.07); }
+  to   { transform: scale(1.06); }
 }
 
 .hud-fever-track {
@@ -5508,9 +5532,75 @@ p { text-wrap: pretty; }
   transition: width 220ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.hud-fever-row.is-overdrive .hud-fever-fill {
+.hud-fever-row.is-overdrive .hud-fever-fill,
+.hud-fever-row.overdrive-active .hud-fever-fill {
   background: linear-gradient(90deg, #FF5964 0%, #FFD166 50%, #2EC4B6 100%);
   box-shadow: 0 0 10px rgba(255, 89, 100, 0.75);
+}
+
+/* Responsive non-overlapping sub-HUD row on Board */
+.canvas-hud-badges {
+  position: absolute !important;
+  top: 6px !important;
+  left: 0 !important;
+  right: 0 !important;
+  transform: none !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  padding: 0 12px !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 6px !important;
+  pointer-events: none;
+  z-index: 9;
+}
+
+/* Hide sub-HUD tools while Level 1 FTUE banner or Booster target banner is active so top of board is never crowded */
+#ftue-overlay:not(.hidden) ~ #stage-container #canvas-hud-badges,
+#booster-overlay:not(.hidden) ~ #stage-container #canvas-hud-badges {
+  display: none !important;
+}
+
+.board-buddy-pill {
+  pointer-events: auto;
+  flex: 0 1 auto !important;
+  min-width: 0 !important;
+  max-width: 58% !important;
+  min-height: 32px !important;
+  height: 32px !important;
+  padding: 3px 8px 3px 7px !important;
+  border-radius: 999px !important;
+  background: rgba(255, 253, 249, 0.95) !important;
+  border: 1.5px solid #D8C7AE !important;
+  box-shadow: 0 3px 6px rgba(35, 31, 32, 0.1) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  overflow: hidden !important;
+}
+
+.board-buddy-name {
+  font-size: 11px;
+  font-weight: 800;
+  color: #231F20;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.board-buddy-perk {
+  background: #059669;
+  color: #FFFFFF;
+  padding: 1.5px 6px;
+  border-radius: 999px;
+  font-size: 9.5px;
+  font-weight: 800;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .board-quick-tools {
@@ -5518,23 +5608,29 @@ p { text-wrap: pretty; }
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  flex-shrink: 0;
+  margin-left: auto;
 }
 
 .board-tool-pill {
   pointer-events: auto;
-  min-height: 32px;
-  padding: 4px 10px;
+  min-height: 32px !important;
+  height: 32px !important;
+  min-width: 0 !important;
+  padding: 0 10px !important;
   border-radius: 999px;
-  background: rgba(255, 253, 249, 0.94);
+  background: rgba(255, 253, 249, 0.95);
   border: 1.5px solid #D4A349;
-  box-shadow: 0 3px 0 rgba(140, 98, 35, 0.32);
+  box-shadow: 0 3px 0 rgba(140, 98, 35, 0.28);
   color: #231F20;
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 800;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 4px;
+  white-space: nowrap;
   transition: transform 120ms ease, opacity 120ms ease;
 }
 
@@ -5547,24 +5643,13 @@ p { text-wrap: pretty; }
   cursor: default;
 }
 
-.board-buddy-perk {
-  background: rgba(255, 209, 102, 0.24);
-  border: 1px solid rgba(255, 209, 102, 0.65);
-  color: #FFE082;
-  padding: 1px 6px;
-  border-radius: 999px;
-  font-size: 9.5px;
-  font-weight: 900;
-  margin-left: 2px;
-}
-
 .cta-rewarded-ad {
-  min-height: 54px;
+  min-height: 52px;
   padding: 10px 16px;
-  border-radius: 999px;
-  border: 2.5px solid #231F20;
+  border-radius: 20px;
+  border: none;
   background: linear-gradient(180deg, #34D399 0%, #059669 100%);
-  box-shadow: 0 5px 0 #065F46, inset 0 2px 0 rgba(255, 255, 255, 0.45);
+  box-shadow: 0 5px 0 #065F46, 0 8px 16px rgba(5, 150, 105, 0.22);
   color: #FFFFFF;
   font-family: var(--font-display);
   font-size: 15px;
@@ -5582,6 +5667,7 @@ p { text-wrap: pretty; }
   color: #FFFFFF;
   font-size: 14.5px;
   font-weight: 800;
+  line-height: 1.2;
 }
 
 .cta-rewarded-ad:active:not(:disabled) {
@@ -5596,20 +5682,66 @@ p { text-wrap: pretty; }
 }
 
 .gasha-bonus-spin-btn {
-  flex: 0 0 auto;
-  min-height: 56px !important;
-  padding: 8px 12px !important;
-  font-size: 11.5px !important;
-  white-space: nowrap;
+  min-height: 46px !important;
+  padding: 8px 14px !important;
+  font-size: 13px !important;
+}
+
+.gasha-bonus-spin-btn .cta-main-text {
+  font-size: 13.5px !important;
 }
 
 .booster-badge.ad-refill {
   background: linear-gradient(180deg, #34D399 0%, #059669 100%) !important;
   color: #FFFFFF !important;
-  font-size: 10px !important;
+  font-size: 9.5px !important;
   padding: 0 6px !important;
   letter-spacing: 0.02em;
 }
+
+/* Gold SVG/BMP Stars in Level Win Modal */
+.star-icon {
+  color: #DFD2BD;
+  font-size: 40px !important;
+  line-height: 1;
+  text-shadow: none;
+}
+
+.star-icon.earned {
+  color: #FFB703;
+  text-shadow: 0 3px 0 #B45309;
+  filter: drop-shadow(0 4px 6px rgba(217, 119, 6, 0.32));
+}
+
+.star-icon.big {
+  font-size: 52px !important;
+}
+
+/* Shop SVG tile icons & Bottom Nav SVG icons */
+.shop-tile-svg {
+  width: 52px;
+  height: 52px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-tab-btn .nav-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: currentColor;
+  filter: none !important;
+  opacity: 0.72;
+}
+
+.nav-tab-btn.active .nav-icon {
+  opacity: 1;
+  color: #B45309;
+}
+
 
 
 

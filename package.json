@@ -11,11 +11,14 @@
     "glb:hf": "python3 scripts/generate-glb-hf.py",
     "glb:cloud": "node scripts/generate-glb-cloud.mjs",
     "test": "node scripts/verify-100-levels.mjs",
-    "cap:sync": "npm run build && npx cap sync android"
+    "cap:sync": "npm run build && npx cap sync android",
+    "cap:sync:ios": "npm run build && npx cap sync ios",
+    "cap:sync:all": "npm run build && npx cap sync"
   },
   "dependencies": {
     "@capacitor/android": "8.5.3",
     "@capacitor/core": "8.5.3",
+    "@capacitor/ios": "^8.5.3",
     "three": "^0.186.1"
   },
   "devDependencies": {

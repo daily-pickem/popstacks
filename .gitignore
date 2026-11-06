@@ -29,3 +29,15 @@ android/.gradle/
 android/build/
 android/capacitor-cordova-android-plugins/build/
 android/local.properties
+android/app/signing.properties
+*.keystore
+*.jks
+artifacts/*.aab
+artifacts/*release*.apk
+
+# iOS build artifacts
+ios/App/Pods/
+ios/App/build/
+ios/App/App.xcworkspace/
+ios/App/*.xcworkspace/
+DerivedData/

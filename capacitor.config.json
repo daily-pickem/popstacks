@@ -3,6 +3,14 @@
   "appName": "PopStacks: Art Toy Atelier",
   "webDir": "dist",
   "server": {
-    "androidScheme": "https"
+    "androidScheme": "https",
+    "iosScheme": "capacitor"
+  },
+  "ios": {
+    "contentInset": "automatic",
+    "allowsLinkPreview": false,
+    "scrollEnabled": false,
+    "preferredContentMode": "mobile"
   }
 }
+

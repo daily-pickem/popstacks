@@ -2945,7 +2945,7 @@ p { text-wrap: pretty; }
   background: var(--clean-card);
   box-shadow: 0 -2px 20px rgba(80, 55, 30, 0.10);
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 4px;
 }
 .nav-tab-btn {
@@ -5455,6 +5455,162 @@ p { text-wrap: pretty; }
   font-weight: 900 !important;
   white-space: nowrap;
 }
+
+/* ============================================================================
+   KILN FEVER OVERDRIVE, TACTICAL FORESIGHT HUD & AD REVENUE SYSTEM
+   ============================================================================ */
+.hud-fever-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.hud-fever-label {
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  color: #B45309;
+  background: #FEF3C7;
+  border: 1px solid #F59E0B;
+  border-radius: 999px;
+  padding: 1px 7px;
+  white-space: nowrap;
+  transition: transform 180ms ease, background 180ms ease, color 180ms ease;
+}
+
+.hud-fever-row.is-overdrive .hud-fever-label {
+  background: linear-gradient(135deg, #FF5964 0%, #FFB703 100%);
+  color: #FFFFFF;
+  border-color: #231F20;
+  animation: feverPulseTag 550ms ease-in-out infinite alternate;
+}
+
+@keyframes feverPulseTag {
+  from { transform: scale(1); }
+  to   { transform: scale(1.07); }
+}
+
+.hud-fever-track {
+  flex: 1;
+  height: 6px;
+  background: #F1E9DC;
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.hud-fever-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #F59E0B 0%, #FF5964 100%);
+  transition: width 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hud-fever-row.is-overdrive .hud-fever-fill {
+  background: linear-gradient(90deg, #FF5964 0%, #FFD166 50%, #2EC4B6 100%);
+  box-shadow: 0 0 10px rgba(255, 89, 100, 0.75);
+}
+
+.board-quick-tools {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.board-tool-pill {
+  pointer-events: auto;
+  min-height: 32px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 253, 249, 0.94);
+  border: 1.5px solid #D4A349;
+  box-shadow: 0 3px 0 rgba(140, 98, 35, 0.32);
+  color: #231F20;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: transform 120ms ease, opacity 120ms ease;
+}
+
+.board-tool-pill:active:not(:disabled) {
+  transform: translateY(2px);
+}
+
+.board-tool-pill:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.board-buddy-perk {
+  background: rgba(255, 209, 102, 0.24);
+  border: 1px solid rgba(255, 209, 102, 0.65);
+  color: #FFE082;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 9.5px;
+  font-weight: 900;
+  margin-left: 2px;
+}
+
+.cta-rewarded-ad {
+  min-height: 54px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 2.5px solid #231F20;
+  background: linear-gradient(180deg, #34D399 0%, #059669 100%);
+  box-shadow: 0 5px 0 #065F46, inset 0 2px 0 rgba(255, 255, 255, 0.45);
+  color: #FFFFFF;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: transform 120ms ease, filter 120ms ease;
+}
+
+.cta-rewarded-ad .cta-main-text {
+  color: #FFFFFF;
+  font-size: 14.5px;
+  font-weight: 800;
+}
+
+.cta-rewarded-ad:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 #065F46;
+}
+
+.cta-rewarded-ad:disabled {
+  opacity: 0.55;
+  filter: grayscale(0.35);
+  cursor: default;
+}
+
+.gasha-bonus-spin-btn {
+  flex: 0 0 auto;
+  min-height: 56px !important;
+  padding: 8px 12px !important;
+  font-size: 11.5px !important;
+  white-space: nowrap;
+}
+
+.booster-badge.ad-refill {
+  background: linear-gradient(180deg, #34D399 0%, #059669 100%) !important;
+  color: #FFFFFF !important;
+  font-size: 10px !important;
+  padding: 0 6px !important;
+  letter-spacing: 0.02em;
+}
+
 
 
 

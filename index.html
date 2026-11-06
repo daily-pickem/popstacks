@@ -87,6 +87,12 @@
           <div class="obj-progress-bar">
             <div id="hud-obj-fill" class="obj-progress-fill" style="width: 0%"></div>
           </div>
+          <div class="hud-fever-row" id="hud-fever-row" title="Kiln Fever — Merge &amp; burst to trigger 3-Move Overdrive (2× Score &amp; Bonus Clears!)">
+            <span class="hud-fever-label" id="hud-fever-label">🔥 FEVER 0%</span>
+            <div class="hud-fever-track">
+              <div id="hud-fever-fill" class="hud-fever-fill" style="width: 0%"></div>
+            </div>
+          </div>
         </div>
 
         <button id="btn-board-settings" class="hud-square-btn tap-target" type="button" aria-label="Settings">⚙️</button>
@@ -135,13 +141,18 @@
       <div id="stage-container" class="stage-container">
         <canvas id="game-canvas"></canvas>
 
-        <!-- Floating Score / Combo Ribbons + Equipped Buddy + Zoom Reset Pill -->
+        <!-- Floating Score / Combo Ribbons + Equipped Buddy + Quick Tactical Tools + Zoom Reset Pill -->
         <div class="canvas-hud-badges">
           <button id="btn-board-buddy" class="board-buddy-pill tap-target hidden" type="button" title="Equipped Figurine Buddy — Tap to view Collection">
             <span class="board-buddy-dot" id="board-buddy-dot"></span>
             <span class="board-buddy-name" id="board-buddy-name">Mossy Sproutling</span>
+            <span class="board-buddy-perk" id="board-buddy-perk">+15% Score</span>
           </button>
           <span id="hud-combo" class="combo-pill hidden">x2 COMBO!</span>
+          <div class="board-quick-tools">
+            <button id="btn-undo" class="board-tool-pill tap-target" type="button" title="Undo last placement" aria-label="Undo last move">↩️ Undo</button>
+            <button id="btn-hint" class="board-tool-pill tap-target" type="button" title="Highlight best tactical move" aria-label="Smart Hint">💡 Hint</button>
+          </div>
           <button id="btn-zoom-reset" class="zoom-reset-pill tap-target hidden" type="button" aria-label="Reset board zoom">
             🔍 <span id="zoom-val-label">1.5×</span> · Reset
           </button>
@@ -263,35 +274,35 @@
     </section>
 
     <!-- ===================================================================
-         SCREEN 8: ATELIER SHOP & ETHICAL MONETIZATION TAB
+         SCREEN 8: ATELIER REWARDS & AD-SUPPORTED SUPPLY DROP TAB (IAP Deferred)
          =================================================================== -->
-    <section id="screen-shop" class="screen-view hidden" aria-label="Shop">
+    <section id="screen-shop" class="screen-view hidden" aria-label="Free Rewards">
       <div class="hub-scroll-content">
         <div class="atelier-card collector-pass-card">
           <div class="pass-badge-row">
-            <span class="gold-vip-tag">👑 COLLECTOR PASS</span>
-            <span class="pass-status-pill" id="shop-pass-status">NOT ACTIVE</span>
+            <span class="gold-vip-tag">👑 ATELIER VIP PASS · AD REWARD</span>
+            <span class="pass-status-pill" id="shop-pass-status">READY TO CLAIM</span>
           </div>
           <ul class="pass-perks-list">
-            <li>♾️ Unlimited hearts</li>
-            <li>➕ Permanent extra slot</li>
-            <li>🏺 Exclusive monthly figurine</li>
+            <li>♾️ Unlimited hearts &amp; zero wait</li>
+            <li>➕ Permanent 4th tray slot unlocked</li>
+            <li>🏺 +200 💎 Prisms &amp; +1 Gasha Key 🪙</li>
           </ul>
-          <button id="btn-buy-collector-pass" class="cta-primary-amber tap-target" type="button">
-            <span class="cta-main-text" id="btn-pass-cta-text">$4.99 / MONTH</span>
+          <button id="btn-buy-collector-pass" class="cta-rewarded-ad full-width tap-target" type="button">
+            <span class="cta-main-text" id="btn-pass-cta-text">🎬 WATCH AD — ACTIVATE VIP PASS</span>
           </button>
         </div>
 
         <div class="shop-grid-2x2">
-          <button id="btn-buy-starter-bundle" class="shop-tile tap-target" type="button">
+          <button id="btn-buy-starter-bundle" class="shop-tile shop-tile-free tap-target" type="button">
             <img src="assets/art/icon_chest.png" alt="" class="shop-tile-img" />
-            <strong>Starter Bundle</strong>
-            <span class="shop-tile-price">$2.99</span>
+            <strong>Supply Crate</strong>
+            <span class="shop-tile-price">🎬 WATCH AD</span>
           </button>
           <button id="btn-shop-watch-ad" class="shop-tile shop-tile-free tap-target" type="button">
             <span class="shop-tile-emoji">🎬</span>
-            <strong>+50 💎</strong>
-            <span class="shop-tile-price">FREE</span>
+            <strong>+75 💎 &amp; 🪙 Key</strong>
+            <span class="shop-tile-price">FREE AD</span>
           </button>
           <button id="btn-shop-buy-boosters" class="shop-tile tap-target" type="button">
             <img src="assets/art/icon_hammer.png" alt="" class="shop-tile-img" />
@@ -303,17 +314,17 @@
             <strong>Refill Hearts</strong>
             <span class="shop-tile-price">💎 50</span>
           </button>
-          <button id="btn-shop-buy-prisms" class="shop-tile tap-target" type="button">
+          <button id="btn-shop-buy-prisms" class="shop-tile shop-tile-free tap-target" type="button">
             <span class="shop-tile-emoji">💎</span>
-            <strong>300 Gems</strong>
-            <span class="shop-tile-price">$1.99</span>
+            <strong>150 Prisms Drop</strong>
+            <span class="shop-tile-price">🎬 WATCH AD</span>
           </button>
         </div>
       </div>
     </section>
 
     <!-- ===================================================================
-         PERSISTENT 3-TAB BOTTOM NAVIGATION BAR (56px+ height, >=48x48px tabs)
+         PERSISTENT 4-TAB BOTTOM NAVIGATION BAR (56px+ height, >=48x48px tabs)
          =================================================================== -->
     <nav id="bottom-nav-bar" class="bottom-nav-bar hidden" aria-label="Primary navigation">
       <button class="nav-tab-btn tap-target active" data-nav-screen="hub" type="button">
@@ -328,6 +339,10 @@
         <span class="nav-icon">📅</span>
         <span class="nav-label">Daily</span>
       </button>
+      <button class="nav-tab-btn tap-target" data-nav-screen="shop" type="button">
+        <span class="nav-icon">🎁</span>
+        <span class="nav-label">Rewards</span>
+      </button>
     </nav>
 
     <!-- ===================================================================
@@ -341,8 +356,11 @@
         <span class="hidden" id="deadlock-progress-sub"></span>
 
         <div class="rescue-actions-stack">
+          <button id="btn-rescue-watch-ad" class="cta-rewarded-ad full-width tap-target" type="button">
+            <span class="cta-main-text">🎬 Watch Ad: Free Revive (+1 Slot &amp; Clear 3)</span>
+          </button>
           <button id="btn-rescue-use-prisms" class="cta-primary-amber full-width tap-target" type="button">
-            <span class="cta-main-text">✨ Continue (+1 Slot &amp; Clear 2)</span>
+            <span class="cta-main-text">✨ Continue (+1 Slot &amp; Clear 2 · 💎 60)</span>
           </button>
           <div class="rescue-secondary-row">
             <button id="btn-modal-undo" class="ghost-btn tap-target" type="button">↩️ Undo</button>
@@ -380,6 +398,9 @@
         </div>
 
         <div class="win-cta-stack">
+          <button id="btn-win-watch-ad-2x" class="cta-rewarded-ad full-width tap-target" type="button">
+            <span class="cta-main-text" id="btn-win-watch-ad-2x-text">🎬 Watch Ad: 2× Score &amp; +1 Gasha Key 🪙</span>
+          </button>
           <button id="btn-win-unbox-now" class="cta-primary-amber game-play-giant-btn full-width tap-target hidden" type="button">
             <span class="shine-sweep" aria-hidden="true"></span>
             <span class="cta-main-text" id="btn-win-unbox-label">🎁 OPEN CAPSULE</span>
@@ -461,6 +482,9 @@
         <div class="unbox-footer-actions gasha-footer-actions">
           <button id="btn-unbox-equip-now" class="ghost-btn gasha-equip-btn tap-target hidden" type="button">
             ✨ EQUIP
+          </button>
+          <button id="btn-unbox-watch-ad-spin" class="cta-rewarded-ad gasha-bonus-spin-btn tap-target hidden" type="button">
+            🎬 BONUS SPIN
           </button>
           <button id="btn-unbox-collect" class="cta-primary-amber game-play-giant-btn full-width tap-target hidden" type="button">
             <span class="cta-main-text" id="btn-unbox-collect-text">CONTINUE</span>

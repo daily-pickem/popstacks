@@ -198,14 +198,43 @@
       this.burstStreak = 0;
       this.turnBurstsCount = 0;
       this.scoreBreakdown = { bursts: 0, merges: 0, overstack: 0, efficiency: 0 };
+      this.kilnFever = 0;            // 0..100% Kiln Fever Meter
+      this.overdriveMovesLeft = 0;   // 3 moves of 2x Score & Thermal Shockwave when Fever hits 100%
+      this.overdriveTotalTriggered = 0;
+      this.boardShake = 0;
+      this.hintsUsedThisRound = 0;
       this.chimeStep = 0;
       this.isDeadlocked = false;
       this.isLevelWon = false;
       this.unboxFromWin = false;
+      this.bonusSpinUsedThisUnbox = false;
       this.lowSpaceWarned = false;
       this.undoSnapshot = null;
       this.recommendedCellKey = null;
       this.ftueSkipped = false;
+
+      // Ad Revenue & Mediation Telemetry State (Rewarded Video + Paced Interstitials; IAP Deferred)
+      this.adStats = {
+        rewardedAdsWatched: 0,
+        interstitialAdsShown: 0,
+        estimatedRevenueUsd: 0,
+        watchedRewardedThisRound: false,
+        roundsSinceLastInterstitial: 0,
+        lastPlacement: null,
+        placements: {
+          deadlock_rescue: 0,
+          win_2x_prisms: 0,
+          unbox_bonus_spin: 0,
+          booster_hammer: 0,
+          booster_swap: 0,
+          booster_extraslot: 0,
+          vip_pass: 0,
+          starter_crate: 0,
+          shop_prisms_hammer: 0,
+          shop_prisms_vault: 0,
+          between_round_interstitial: 0
+        }
+      };
 
       // Active Booster State ('hammer' | 'swap' | null)
       this.activeBooster = null;
@@ -541,6 +570,72 @@
       return `fig-${String(fallbackIdx).padStart(2, '0')}`;
     }
 
+    getEquippedBuddyPerk() {
+      const kit = this.getEquippedCosmeticKit();
+      const fig = kit && kit.figurine;
+      if (!fig) {
+        return { label: '+10% Fever', scoreMult: 1.0, feverMult: 1.1 };
+      }
+      const rarity = String(fig.rarity || 'Common').toLowerCase();
+      const scoreBonus =
+        rarity === 'mythic'
+          ? 0.3
+          : rarity === 'legendary'
+          ? 0.25
+          : rarity === 'epic'
+          ? 0.2
+          : rarity === 'rare'
+          ? 0.18
+          : 0.15;
+      const feverBonus =
+        rarity === 'mythic'
+          ? 0.35
+          : rarity === 'legendary'
+          ? 0.3
+          : rarity === 'epic'
+          ? 0.25
+          : 0.2;
+      return {
+        label: `⚡ +${Math.round(scoreBonus * 100)}% Score · +${Math.round(feverBonus * 100)}% 🔥`,
+        scoreMult: 1 + scoreBonus,
+        feverMult: 1 + feverBonus
+      };
+    }
+
+    chargeKilnFever(baseAmount = 18) {
+      const perk = this.getEquippedBuddyPerk();
+      const scaled = Math.round(baseAmount * (perk.feverMult || 1));
+      if (this.overdriveMovesLeft > 0) {
+        this.kilnFever = 100;
+        return;
+      }
+      this.kilnFever = Math.min(100, (this.kilnFever || 0) + scaled);
+      if (this.kilnFever >= 100) {
+        this.kilnFever = 100;
+        this.overdriveMovesLeft = 3;
+        this.overdriveTotalTriggered = (this.overdriveTotalTriggered || 0) + 1;
+        this.triggerBoardShake(6.5, 240);
+        this.setOllieReaction('🔥 KILN OVERDRIVE! 2× Score for 3 Moves!', 'cheer');
+        this.floatingTexts.push({
+          x: this.boardCenterX,
+          y: this.boardCenterY - 38,
+          text: '🔥 KILN OVERDRIVE!',
+          subText: '2× SCORE & THERMAL BLAST (3 MOVES)',
+          color: '#FF5964',
+          life: 0,
+          maxLife: 1050
+        });
+      }
+    }
+
+    triggerBoardShake(intensity = 5, durationMs = 180) {
+      if (this.settings && this.settings.reducedMotion) return;
+      this.boardShake = Math.max(this.boardShake || 0, intensity);
+      this.scheduleTimeout(() => {
+        this.boardShake = 0;
+      }, durationMs);
+    }
+
     applyEquippedCosmeticToDOM() {
       const kit = this.getEquippedCosmeticKit();
       if (this.audio && typeof this.audio.setEquippedFigurineTrack === 'function') {
@@ -556,6 +651,7 @@
       const buddyPill = document.getElementById('btn-board-buddy');
       const buddyDot = document.getElementById('board-buddy-dot');
       const buddyName = document.getElementById('board-buddy-name');
+      const buddyPerkEl = document.getElementById('board-buddy-perk');
       if (buddyPill) {
         if (kit.figurine) {
           buddyPill.classList.remove('hidden');
@@ -565,6 +661,9 @@
           }
           if (buddyName) {
             buddyName.textContent = `🎵 ${kit.figurine.name}`;
+          }
+          if (buddyPerkEl) {
+            buddyPerkEl.textContent = this.getEquippedBuddyPerk().label;
           }
         } else {
           buddyPill.classList.add('hidden');
@@ -1098,6 +1197,11 @@
         btnUndo.addEventListener('click', () => this.undoLastMove());
       }
 
+      const btnHint = document.getElementById('btn-hint');
+      if (btnHint) {
+        btnHint.addEventListener('click', () => this.triggerSmartHint());
+      }
+
       const btnSkipFtue = document.getElementById('btn-skip-ftue');
       if (btnSkipFtue) {
         btnSkipFtue.addEventListener('click', () => {
@@ -1257,6 +1361,14 @@
         });
       }
 
+      const btnUnboxBonusSpin = document.getElementById('btn-unbox-watch-ad-spin');
+      if (btnUnboxBonusSpin) {
+        btnUnboxBonusSpin.addEventListener('click', () => {
+          this.audio.playUiClick();
+          this.triggerRewardedAd('unbox_bonus_spin');
+        });
+      }
+
       const btnUnboxCollect = document.getElementById('btn-unbox-collect');
       if (btnUnboxCollect) {
         btnUnboxCollect.addEventListener('click', () => {
@@ -1370,46 +1482,27 @@
         });
       }
 
-      // Shop & Monetization Actions
+      // Ad-Supported Rewards & Supply Drop Actions (IAP Deferred)
       const btnBuyPass = document.getElementById('btn-buy-collector-pass');
       if (btnBuyPass) {
         btnBuyPass.addEventListener('click', () => {
-          this.profile.collectorPass = true;
-          this.profile.hearts = 5;
-          this.profile.prisms += 50;
-          this.extraSlotUnlocked = true;
-          if (!this.profile.unlockedFigurines.includes('fig-59')) {
-            this.profile.unlockedFigurines.push('fig-59');
-          }
-          this.audio.playLevelComplete(3);
-          this.renderShopUI();
-          this.updateMetaTopBar();
-          this.updateBoosterDockUI();
+          this.audio.playUiClick();
+          this.triggerRewardedAd('vip_pass');
         });
       }
 
       const btnBuyStarter = document.getElementById('btn-buy-starter-bundle');
       if (btnBuyStarter) {
         btnBuyStarter.addEventListener('click', () => {
-          this.profile.starterBundleClaimed = true;
-          this.profile.prisms += 500;
-          this.profile.coins += 1500;
-          this.profile.boosters.hammer += 3;
-          this.profile.boosters.swap += 3;
-          this.profile.boosters.extraslot += 3;
-          if (!this.profile.unlockedFigurines.includes('fig-55')) {
-            this.profile.unlockedFigurines.push('fig-55');
-          }
-          this.audio.playFigurineUnbox();
-          this.renderShopUI();
-          this.updateMetaTopBar();
-          this.updateBoosterDockUI();
+          this.audio.playUiClick();
+          this.triggerRewardedAd('starter_crate');
         });
       }
 
       const btnShopWatchAd = document.getElementById('btn-shop-watch-ad');
       if (btnShopWatchAd) {
         btnShopWatchAd.addEventListener('click', () => {
+          this.audio.playUiClick();
           this.triggerRewardedAd('shop_prisms_hammer');
         });
       }
@@ -1417,22 +1510,31 @@
       const btnShopBoosters = document.getElementById('btn-shop-buy-boosters');
       if (btnShopBoosters) {
         btnShopBoosters.addEventListener('click', () => {
-          if (this.profile.prisms >= 100) this.profile.prisms -= 100;
-          this.profile.boosters.hammer += 1;
-          this.profile.boosters.swap += 1;
-          this.profile.boosters.extraslot += 1;
-          this.audio.playExtraSlotUnlock();
-          this.updateMetaTopBar();
-          this.updateBoosterDockUI();
+          if (this.profile.prisms >= 100) {
+            this.profile.prisms -= 100;
+            this.profile.boosters.hammer += 1;
+            this.profile.boosters.swap += 1;
+            this.profile.boosters.extraslot += 1;
+            this.audio.playExtraSlotUnlock();
+            this.saveProfile();
+            this.updateMetaTopBar();
+            this.updateBoosterDockUI();
+          } else {
+            this.triggerRewardedAd('starter_crate');
+          }
         });
       }
 
       const btnShopHearts = document.getElementById('btn-shop-refill-hearts');
       if (btnShopHearts) {
         btnShopHearts.addEventListener('click', () => {
+          if (this.profile.prisms >= 50) {
+            this.profile.prisms -= 50;
+          }
           this.profile.hearts = 5;
           this.profile.heartRefillEndMs = 0;
           this.audio.playObjectiveCollect();
+          this.saveProfile();
           this.updateMetaTopBar();
         });
       }
@@ -1440,10 +1542,8 @@
       const btnShopPrisms = document.getElementById('btn-shop-buy-prisms');
       if (btnShopPrisms) {
         btnShopPrisms.addEventListener('click', () => {
-          this.profile.prisms += 300;
-          this.profile.keys += 2;
-          this.audio.playFigurineUnbox();
-          this.updateMetaTopBar();
+          this.audio.playUiClick();
+          this.triggerRewardedAd('shop_prisms_vault');
         });
       }
 
@@ -2520,12 +2620,12 @@
       const passStatus = document.getElementById('shop-pass-status');
       const passCta = document.getElementById('btn-pass-cta-text');
       if (passStatus) {
-        passStatus.textContent = this.profile.collectorPass ? '👑 VIP ACTIVE' : 'NOT ACTIVE';
+        passStatus.textContent = this.profile.collectorPass ? '👑 VIP ACTIVE' : 'READY TO CLAIM';
       }
       if (passCta) {
         passCta.textContent = this.profile.collectorPass
-          ? 'COLLECTOR PASS ACTIVE ✓'
-          : 'SUBSCRIBE — $4.99 / MO';
+          ? '👑 VIP PASS ACTIVE ✓ (WATCH AD FOR +100 💎)'
+          : '🎬 WATCH AD — ACTIVATE VIP PASS';
       }
       this.updateMetaTopBar();
     }
@@ -2744,13 +2844,29 @@
       }, 1150);
     }
 
-    advanceToNextRound() {
+    advanceToNextRound(options = {}) {
       const winModal = document.getElementById('level-win-modal');
       const unboxModal = document.getElementById('unboxing-modal');
       const adModal = document.getElementById('rewarded-ad-modal');
       if (winModal) winModal.classList.add('hidden');
       if (unboxModal) unboxModal.classList.add('hidden');
       if (adModal) adModal.classList.add('hidden');
+
+      this.adStats.roundsSinceLastInterstitial = (this.adStats.roundsSinceLastInterstitial || 0) + 1;
+      const shouldShowPacedInterstitial =
+        !options.skipInterstitial &&
+        !this.profile.collectorPass &&
+        !this.adStats.watchedRewardedThisRound &&
+        this.currentLevelNum >= 4 &&
+        this.adStats.roundsSinceLastInterstitial >= 3;
+
+      if (shouldShowPacedInterstitial) {
+        this.adStats.roundsSinceLastInterstitial = 0;
+        this.triggerInterstitialAd(() => {
+          this.advanceToNextRound({ skipInterstitial: true });
+        });
+        return this.currentLevelNum + 1;
+      }
 
       this.unboxFromWin = false;
       const nextLvl = this.isDailyMode
@@ -2838,6 +2954,13 @@
       this.activeMultiplier = 1;
       this.burstStreak = 0;
       this.turnBurstsCount = 0;
+      this.kilnFever = 0;
+      this.overdriveMovesLeft = 0;
+      this.boardShake = 0;
+      this.hintsUsedThisRound = 0;
+      if (this.adStats) {
+        this.adStats.watchedRewardedThisRound = false;
+      }
       this.capsuleFoundThisRound = false;
       this.scoreBreakdown = { bursts: 0, merges: 0, overstack: 0, efficiency: 0 };
       this.cascadeLog = [`Loaded ${levelDef.id}: ${levelDef.name} (${levelDef.gridSlots}-Slot)`];
@@ -3114,14 +3237,24 @@
       const btnSwap = document.getElementById('btn-booster-swap');
       const btnExtra = document.getElementById('btn-booster-extraslot');
 
-      if (bHammer) bHammer.textContent = this.profile.boosters.hammer > 0 ? String(this.profile.boosters.hammer) : '+';
-      if (bSwap) bSwap.textContent = this.profile.boosters.swap > 0 ? String(this.profile.boosters.swap) : '+';
+      if (bHammer) {
+        const hasH = this.profile.boosters.hammer > 0;
+        bHammer.textContent = hasH ? String(this.profile.boosters.hammer) : '🎬 AD';
+        bHammer.classList.toggle('ad-refill', !hasH);
+      }
+      if (bSwap) {
+        const hasS = this.profile.boosters.swap > 0;
+        bSwap.textContent = hasS ? String(this.profile.boosters.swap) : '🎬 AD';
+        bSwap.classList.toggle('ad-refill', !hasS);
+      }
       if (bExtra) {
+        const hasE = this.extraSlotUnlocked || this.profile.boosters.extraslot > 0;
         bExtra.textContent = this.extraSlotUnlocked
           ? '✓'
           : this.profile.boosters.extraslot > 0
           ? String(this.profile.boosters.extraslot)
-          : '+';
+          : '🎬 AD';
+        bExtra.classList.toggle('ad-refill', !hasE);
       }
 
       if (btnHammer) btnHammer.classList.toggle('active', this.activeBooster === 'hammer');
@@ -3140,7 +3273,8 @@
 
       if (type === 'extraslot') {
         if (this.profile.boosters.extraslot <= 0 && !this.extraSlotUnlocked) {
-          this.profile.boosters.extraslot = 1; // Refill in prototype so testing never blocks
+          this.triggerRewardedAd('booster_extraslot');
+          return false;
         }
         if (!this.extraSlotUnlocked) {
           this.profile.boosters.extraslot = Math.max(0, this.profile.boosters.extraslot - 1);
@@ -3153,6 +3287,15 @@
         this.audio.playExtraSlotUnlock();
         this.updateBoosterDockUI();
         return true;
+      }
+
+      if (type === 'hammer' && this.profile.boosters.hammer <= 0) {
+        this.triggerRewardedAd('booster_hammer');
+        return false;
+      }
+      if (type === 'swap' && this.profile.boosters.swap <= 0) {
+        this.triggerRewardedAd('booster_swap');
+        return false;
       }
 
       this.activeBooster = type;
@@ -3304,6 +3447,90 @@
       this.updateFtueBanner();
       this.updateHUD();
       this.updateDebugUI();
+    }
+
+    triggerSmartHint() {
+      if (this.isProcessingCascade || this.isDeadlocked || this.isLevelWon) return null;
+      this.audio.playUiClick();
+
+      if (!this.tray[0] && !this.tray[1] && !this.tray[2]) {
+        this.refillTray(true);
+      }
+
+      const emptyCells = this.cellList.filter(
+        (c) => !c.isAnvil && c.iceHp === 0 && c.stack.length === 0
+      );
+      if (emptyCells.length === 0) return null;
+
+      let bestMove = null;
+      let bestScore = -Infinity;
+      const maxSlot = this.extraSlotUnlocked ? 4 : 3;
+
+      for (let tIdx = 0; tIdx < maxSlot; tIdx++) {
+        const slot = this.tray[tIdx];
+        if (!slot || !slot.discs || slot.discs.length === 0) continue;
+        const topCol = getTopColor(slot.discs);
+        const topCnt = getTopContiguousCount(slot.discs);
+        const slotGroups = getColorGroups(slot.discs);
+        const slotSubCol = slotGroups.length > 1 ? slotGroups[slotGroups.length - 2].color : null;
+
+        for (let cIdx = 0; cIdx < emptyCells.length; cIdx++) {
+          const cell = emptyCells[cIdx];
+          const matches = this.getMatchingNeighbors(cell.q, cell.r, topCol);
+          let sc = matches.length * 140 - cell.ring * 6;
+          let combined = topCnt;
+          matches.forEach((m) => {
+            const mCnt = getTopContiguousCount(m.stack);
+            combined += mCnt;
+            sc += mCnt * 35;
+            const mGroups = getColorGroups(m.stack);
+            if (mGroups.length > 1) {
+              sc += 45; // Exposes a buried sub-color!
+            }
+          });
+          if (combined >= BURST_THRESHOLD) {
+            sc += 350;
+          }
+          if (slotSubCol !== null) {
+            const subMatches = this.getMatchingNeighbors(cell.q, cell.r, slotSubCol);
+            if (subMatches.length > 0) sc += 160;
+          }
+          if (sc > bestScore) {
+            bestScore = sc;
+            bestMove = {
+              trayIndex: tIdx,
+              q: cell.q,
+              r: cell.r,
+              key: cell.key,
+              combined,
+              matchesCount: matches.length
+            };
+          }
+        }
+      }
+
+      if (!bestMove) return null;
+      this.hintsUsedThisRound = (this.hintsUsedThisRound || 0) + 1;
+      this.selectedTrayIndex = bestMove.trayIndex;
+      this.recommendedCellKey = bestMove.key;
+      this.hoveredCellKey = bestMove.key;
+      const targetPos = this.axialToPixel(bestMove.q, bestMove.r);
+      this.floatingTexts.push({
+        x: targetPos.x,
+        y: targetPos.y - 24,
+        text: bestMove.combined >= BURST_THRESHOLD ? '💡 BURST MOVE!' : '💡 BEST MERGE!',
+        subText: `DROP SLOT #${bestMove.trayIndex + 1} HERE`,
+        color: '#2EC4B6',
+        life: 0,
+        maxLife: 950
+      });
+      this.setOllieReaction(
+        bestMove.combined >= BURST_THRESHOLD
+          ? `💡 Drop Slot #${bestMove.trayIndex + 1} on the glowing hex for a 10-Burst!`
+          : `💡 Drop Slot #${bestMove.trayIndex + 1} on the glowing hex!`,
+        'excited'
+      );
+      return bestMove;
     }
 
     // -------------------------------------------------------------------------
@@ -3545,7 +3772,8 @@
 
       this.combo = 0;
       this.turnBurstsCount = 0;
-      this.activeMultiplier = Math.max(1, 1 + this.burstStreak);
+      const overdriveMult = this.overdriveMovesLeft > 0 ? 2 : 1;
+      this.activeMultiplier = Math.max(1, (1 + this.burstStreak) * overdriveMult);
       this.chimeStep = 0;
       this.evaluationQueue = [{ q: cell.q, r: cell.r, reason: 'placement' }];
       this.logCascade(
@@ -3636,6 +3864,7 @@
         this.score += mergePoints;
         this.scoreBreakdown.merges += mergePoints;
         if (this.score > this.bestScore) this.bestScore = this.score;
+        this.chargeKilnFever(18 + plan.transfers.length * 4);
 
         plan.transfers.forEach((tr) => {
           if (tr.donor.stack.length > 0) {
@@ -3677,15 +3906,21 @@
         this.collectBoardCapsule(pos.x, pos.y);
       }
 
-      const basePopPts = Math.round(150 * this.activeMultiplier);
+      const overdriveBonusMult = this.overdriveMovesLeft > 0 ? 2 : 1;
+      const buddyPerkMult = (this.getEquippedBuddyPerk && this.getEquippedBuddyPerk().scoreMult) || 1;
+      const basePopPts = Math.round(150 * this.activeMultiplier * overdriveBonusMult * buddyPerkMult);
       const overstackPts =
         extraDiscs > 0
-          ? Math.round((extraDiscs * 45 + extraDiscs * extraDiscs * 15) * this.activeMultiplier)
+          ? Math.round((extraDiscs * 45 + extraDiscs * extraDiscs * 15) * this.activeMultiplier * overdriveBonusMult)
           : 0;
       this.score += basePopPts + overstackPts;
       this.scoreBreakdown.bursts += basePopPts;
       this.scoreBreakdown.overstack += overstackPts;
       if (this.score > this.bestScore) this.bestScore = this.score;
+      this.chargeKilnFever(42);
+      if (this.overdriveMovesLeft > 0) {
+        this.profile.prisms += 5;
+      }
 
       // Crack adjacent Frozen Clay tiles
       this.crackAdjacentFrozenCells(cell, false);
@@ -3952,6 +4187,7 @@
       this.score += mergePoints;
       this.scoreBreakdown.merges += mergePoints;
       if (this.score > this.bestScore) this.bestScore = this.score;
+      this.chargeKilnFever(18 + plan.transfers.length * 4);
 
       const receiver = plan.receiver;
       const receiverPos = this.axialToPixel(receiver.q, receiver.r);
@@ -4097,10 +4333,12 @@
       this.activeMultiplier = Math.max(1, this.combo + this.burstStreak + overstackMultBonus);
       if (this.activeMultiplier > this.maxCombo) this.maxCombo = this.activeMultiplier;
 
-      const basePopPts = Math.round(150 * this.activeMultiplier);
+      const overdriveBonusMult = this.overdriveMovesLeft > 0 ? 2 : 1;
+      const buddyPerkMult = (this.getEquippedBuddyPerk && this.getEquippedBuddyPerk().scoreMult) || 1;
+      const basePopPts = Math.round(150 * this.activeMultiplier * overdriveBonusMult * buddyPerkMult);
       const overstackPts =
         extraDiscs > 0
-          ? Math.round((extraDiscs * 45 + extraDiscs * extraDiscs * 15) * this.activeMultiplier)
+          ? Math.round((extraDiscs * 45 + extraDiscs * extraDiscs * 15) * this.activeMultiplier * overdriveBonusMult)
           : 0;
       const pointsEarned = basePopPts + overstackPts;
 
@@ -4139,6 +4377,11 @@
                 this.turnBurstsCount++;
                 this.totalDiscsCleared += burstCount;
                 this.clearedByColor[colorKey] = (this.clearedByColor[colorKey] || 0) + burstCount;
+                this.chargeKilnFever(42);
+                this.triggerBoardShake(5.5, 190);
+                if (overdriveBonusMult > 1) {
+                  this.profile.prisms += 5;
+                }
 
                 if (cell.hasCapsule) {
                   this.collectBoardCapsule(pos.x, pos.y);
@@ -4333,6 +4576,14 @@
       this.isProcessingCascade = false;
       this.debugVisualHint = null;
 
+      // Decrement Kiln Overdrive move counter at end of turn
+      if (this.overdriveMovesLeft > 0) {
+        this.overdriveMovesLeft = Math.max(0, this.overdriveMovesLeft - 1);
+        if (this.overdriveMovesLeft === 0) {
+          this.kilnFever = 0;
+        }
+      }
+
       // Update turn-to-turn hot streak multiplier ONLY when the turn triggered a multi-cascade
       // or multi-burst chain (so basic single-merge clears stay at ×1 unless chained!)
       if (this.turnBurstsCount >= 2 || (this.turnBurstsCount >= 1 && this.combo >= 2)) {
@@ -4340,7 +4591,8 @@
       } else if (this.turnBurstsCount === 0) {
         this.burstStreak = 0;
       }
-      this.activeMultiplier = Math.max(1, 1 + this.burstStreak);
+      const overdriveMult = this.overdriveMovesLeft > 0 ? 2 : 1;
+      this.activeMultiplier = Math.max(1, (1 + this.burstStreak) * overdriveMult);
 
       // 1. Check if Level Color Target Objective is Complete!
       if (Catalog.isObjectiveComplete(this, this.currentLevelDef)) {
@@ -4364,7 +4616,43 @@
     }
 
     refillTray(immediate = false) {
-      const wave = Catalog.generateTrayWave(this, this.rng, this.currentLevelDef, this.waveIndex++);
+      const waveIdx = this.waveIndex++;
+      const wave = Catalog.generateTrayWave(this, this.rng, this.currentLevelDef, waveIdx);
+
+      // Clutch Near-Miss Pacing & Dynamic Tray Mercy:
+      // When empty placeable sockets drop to <= 3 (and we are past pre-scripted static waves),
+      // guarantee at least 1 Clutch Catalyst stack matching the board's largest accessible stack!
+      const staticWavesCount =
+        this.currentLevelDef && Array.isArray(this.currentLevelDef.staticTrayWaves)
+          ? this.currentLevelDef.staticTrayWaves.length
+          : 0;
+      const emptyCount = this.cellList.filter(
+        (c) => !c.isAnvil && c.iceHp === 0 && c.stack.length === 0
+      ).length;
+
+      if (emptyCount > 0 && emptyCount <= 3 && waveIdx >= staticWavesCount) {
+        const accessibleStacks = this.cellList
+          .filter((c) => {
+            if (c.isAnvil || c.iceHp > 0 || c.stack.length === 0) return false;
+            return AXIAL_DIRS.some((d) => {
+              const adj = this.cells.get(cellKey(c.q + d.dq, c.r + d.dr));
+              return adj && !adj.isAnvil && adj.iceHp === 0 && adj.stack.length === 0;
+            });
+          })
+          .sort((a, b) => getTopContiguousCount(b.stack) - getTopContiguousCount(a.stack));
+
+        if (accessibleStacks.length > 0) {
+          const bestTarget = accessibleStacks[0];
+          const neededColor = getTopColor(bestTarget.stack);
+          const alreadyHasTopColor = wave.some((st) => st && getTopColor(st) === neededColor);
+          if (!alreadyHasTopColor && wave[0]) {
+            const topRunNeeded = Math.max(2, Math.min(4, BURST_THRESHOLD - getTopContiguousCount(bestTarget.stack)));
+            const baseDisc = wave[0][0] !== undefined ? wave[0][0] : neededColor;
+            wave[0] = [baseDisc, ...Array(topRunNeeded).fill(neededColor)];
+          }
+        }
+      }
+
       for (let i = 0; i < 3; i++) {
         const discs = wave[i];
         this.tray[i] = {
@@ -4640,9 +4928,18 @@
       const btnUnbox = document.getElementById('btn-win-unbox-now');
       const btnNext = document.getElementById('btn-win-next-level');
       const btnReplay = document.getElementById('btn-win-replay');
+      const btnWinAd2x = document.getElementById('btn-win-watch-ad-2x');
+      const btnWinAd2xText = document.getElementById('btn-win-watch-ad-2x-text');
       if (btnUnbox) btnUnbox.classList.toggle('hidden', !anyChestReady);
       if (btnNext) btnNext.classList.toggle('hidden', anyChestReady);
       if (btnReplay) btnReplay.classList.toggle('hidden', anyChestReady || earnedStarsThisRun >= 3);
+      if (btnWinAd2x) {
+        btnWinAd2x.disabled = false;
+        btnWinAd2x.classList.remove('hidden');
+      }
+      if (btnWinAd2xText) {
+        btnWinAd2xText.textContent = '🎬 Watch Ad: 2× Score & +1 Gasha Key 🪙';
+      }
 
       this.updateHUD();
       this.updateMetaTopBar();
@@ -4816,6 +5113,11 @@
       }
       if (revealView) revealView.classList.add('hidden');
       if (equipNowBtn) equipNowBtn.classList.add('hidden');
+      const bonusSpinBtn = document.getElementById('btn-unbox-watch-ad-spin');
+      if (bonusSpinBtn) bonusSpinBtn.classList.add('hidden');
+      if (!options.isBonusSpin) {
+        this.bonusSpinUsedThisUnbox = false;
+      }
       if (collectBtn) {
         collectBtn.classList.add('hidden');
         collectBtn.innerHTML = `<span class="cta-main-text">${this.unboxFromWin ? 'CONTINUE' : 'COLLECT'}</span>`;
@@ -5159,6 +5461,10 @@
         equipNowBtn.classList.toggle('hidden', isAlreadyEquipped);
         equipNowBtn.textContent = `✨ EQUIP`;
       }
+      const bonusSpinBtn = document.getElementById('btn-unbox-watch-ad-spin');
+      if (bonusSpinBtn) {
+        bonusSpinBtn.classList.toggle('hidden', !!this.bonusSpinUsedThisUnbox);
+      }
       if (collectBtn) {
         collectBtn.classList.remove('hidden');
         collectBtn.innerHTML = `<span class="cta-main-text">${this.unboxFromWin || this.isLevelWon ? 'CONTINUE' : 'COLLECT'}</span>`;
@@ -5195,10 +5501,83 @@
     }
 
     // -------------------------------------------------------------------------
-    // Opt-In 3-Second Studio Sponsor Preview Player
+    // Ad Revenue Architecture: Rewarded Video + Paced Interstitials (IAP Deferred)
     // -------------------------------------------------------------------------
+    recordAdImpression(placement, isRewarded = true) {
+      if (!this.adStats) return;
+      if (isRewarded) {
+        this.adStats.rewardedAdsWatched = (this.adStats.rewardedAdsWatched || 0) + 1;
+        this.adStats.watchedRewardedThisRound = true;
+        this.adStats.estimatedRevenueUsd = Number(
+          ((this.adStats.estimatedRevenueUsd || 0) + 0.035).toFixed(4)
+        );
+      } else {
+        this.adStats.interstitialAdsShown = (this.adStats.interstitialAdsShown || 0) + 1;
+        this.adStats.estimatedRevenueUsd = Number(
+          ((this.adStats.estimatedRevenueUsd || 0) + 0.015).toFixed(4)
+        );
+      }
+      this.adStats.lastPlacement = placement;
+      if (this.adStats.placements) {
+        this.adStats.placements[placement] = (this.adStats.placements[placement] || 0) + 1;
+      }
+    }
+
+    triggerInterstitialAd(onDone) {
+      const modal = document.getElementById('rewarded-ad-modal');
+      const sponsorTag = modal ? modal.querySelector('.ad-sponsor-tag') : null;
+      const titleEl = document.getElementById('ad-modal-title');
+      const timerPill = document.getElementById('ad-countdown-pill');
+      const fillEl = document.getElementById('ad-progress-fill');
+      const descEl = document.getElementById('ad-reward-desc');
+      const claimBtn = document.getElementById('btn-ad-claim-close');
+      const claimText = document.getElementById('btn-ad-claim-text');
+
+      if (!modal) {
+        if (typeof onDone === 'function') onDone();
+        return;
+      }
+
+      if (sponsorTag) sponsorTag.textContent = '📺 BETWEEN-ROUND SPONSOR BREAK';
+      if (titleEl) titleEl.textContent = 'Art Toy Atelier — Next Round Loading';
+      if (descEl) {
+        descEl.textContent = 'Thanks for supporting PopStacks! Bonus +15 💎 Prisms added.';
+      }
+      modal.classList.remove('hidden');
+
+      this.activeAdCallback = () => {
+        this.recordAdImpression('between_round_interstitial', false);
+        this.profile.prisms += 15;
+        this.saveProfile();
+        this.updateMetaTopBar();
+        if (typeof onDone === 'function') onDone();
+      };
+
+      const durationMs = 700;
+      if (claimBtn) claimBtn.disabled = true;
+      if (claimText) claimText.textContent = 'Next Round in 2s...';
+      if (fillEl) fillEl.style.width = '0%';
+
+      const start = performance.now();
+      const stepInterstitial = (now) => {
+        const p = Math.min(1, (now - start) / durationMs);
+        if (fillEl) fillEl.style.width = `${Math.round(p * 100)}%`;
+        const rem = Math.max(0, Math.ceil((1 - p) * 2));
+        if (timerPill) timerPill.textContent = rem > 0 ? `${rem}s` : 'SKIP ▶';
+        if (p < 1) {
+          requestAnimationFrame(stepInterstitial);
+        } else {
+          if (claimBtn) claimBtn.disabled = false;
+          if (claimText) claimText.textContent = 'CONTINUE TO NEXT ROUND ▶';
+        }
+      };
+      requestAnimationFrame(stepInterstitial);
+    }
+
     triggerRewardedAd(rewardType = 'shop_prisms_hammer') {
       const modal = document.getElementById('rewarded-ad-modal');
+      const sponsorTag = modal ? modal.querySelector('.ad-sponsor-tag') : null;
+      const titleEl = document.getElementById('ad-modal-title');
       const timerPill = document.getElementById('ad-countdown-pill');
       const fillEl = document.getElementById('ad-progress-fill');
       const descEl = document.getElementById('ad-reward-desc');
@@ -5207,39 +5586,118 @@
 
       if (!modal) return;
       modal.classList.remove('hidden');
+      if (sponsorTag) sponsorTag.textContent = '🎬 OPT-IN REWARDED VIDEO';
+      if (titleEl) titleEl.textContent = 'Art Toy Atelier — Golden Kiln Showcase';
 
+      const REWARD_COPY = {
+        deadlock_rescue: 'Reward unlocking: Free Revive (+1 Extra Slot & Clear 3 Crowded Stacks)!',
+        win_2x_prisms: 'Reward unlocking: 2× Round Score, +50 💎 Prisms & +1 Gasha Key 🪙!',
+        unbox_bonus_spin: 'Reward unlocking: Instant Bonus Gacha Capsule Spin!',
+        booster_hammer: 'Reward unlocking: +2 🔨 Ceramic Hammers!',
+        booster_swap: 'Reward unlocking: +2 🔄 Spatula Swaps!',
+        booster_extraslot: 'Reward unlocking: Unlock 4th Tray Slot + 1 Extra Slot Booster!',
+        vip_pass: 'Reward unlocking: 👑 Atelier VIP Pass (Unlimited Hearts, 4th Slot & +200 💎)!',
+        starter_crate: 'Reward unlocking: Supply Crate (+150 💎 Prisms & +1 of Every Booster)!',
+        shop_prisms_vault: 'Reward unlocking: +150 💎 Prisms & +1 Gasha Key 🪙!',
+        shop_prisms_hammer: 'Reward unlocking: +75 💎 Prisms, +1 🪙 Key & +1 🔨 Hammer!'
+      };
       if (descEl) {
-        if (rewardType === 'deadlock_rescue') {
-          descEl.textContent = 'Reward unlocking: +1 Extra Tray Slot & Clear 2 Crowded Stacks!';
-        } else if (rewardType === 'win_2x_prisms') {
-          descEl.textContent = 'Reward unlocking: 2× Round Prisms (+50 💎), +1 Key & Next Round!';
-        } else {
-          descEl.textContent = 'Reward unlocking: +50 💎 Prisms & +1 🔨 Ceramic Hammer!';
-        }
+        descEl.textContent = REWARD_COPY[rewardType] || REWARD_COPY.shop_prisms_hammer;
       }
 
       this.activeAdCallback = () => {
+        this.recordAdImpression(rewardType, true);
         if (rewardType === 'deadlock_rescue') {
-          this.executeDeadlockRescue(2);
+          this.executeDeadlockRescue(3);
         } else if (rewardType === 'win_2x_prisms') {
+          this.score = Math.round(this.score * 2);
+          if (this.score > this.bestScore) this.bestScore = this.score;
+          this.profile.levelBestScores[this.currentLevelNum] = Math.max(
+            this.profile.levelBestScores[this.currentLevelNum] || 0,
+            this.score
+          );
           this.profile.prisms += 50;
-          this.profile.keys = Math.min(3, this.profile.keys + 1);
+          this.profile.keys = Math.min(3, (this.profile.keys || 0) + 1);
+          this.profile.moldProgress = Math.round(((this.profile.keys || 0) / 3) * 100);
+          const finalScoreEl = document.getElementById('win-final-score');
+          if (finalScoreEl) finalScoreEl.textContent = this.score.toLocaleString();
+          const btnWinAd2x = document.getElementById('btn-win-watch-ad-2x');
+          const btnWinAd2xText = document.getElementById('btn-win-watch-ad-2x-text');
+          if (btnWinAd2x) btnWinAd2x.disabled = true;
+          if (btnWinAd2xText) btnWinAd2xText.textContent = '✓ 2× SCORE & +1 KEY CLAIMED!';
           this.audio.playFigurineUnbox();
+          this.saveProfile();
           this.updateMetaTopBar();
-          if (this.isLevelWon) {
-            this.advanceToNextRound();
+          this.updateHUD();
+        } else if (rewardType === 'unbox_bonus_spin') {
+          this.bonusSpinUsedThisUnbox = true;
+          this.triggerUnboxingModal(null, {
+            boosted: true,
+            fromWin: this.unboxFromWin,
+            isBonusSpin: true
+          });
+        } else if (rewardType === 'booster_hammer') {
+          this.profile.boosters.hammer = (this.profile.boosters.hammer || 0) + 2;
+          this.audio.playExtraSlotUnlock();
+          this.saveProfile();
+          this.updateBoosterDockUI();
+        } else if (rewardType === 'booster_swap') {
+          this.profile.boosters.swap = (this.profile.boosters.swap || 0) + 2;
+          this.audio.playExtraSlotUnlock();
+          this.saveProfile();
+          this.updateBoosterDockUI();
+        } else if (rewardType === 'booster_extraslot') {
+          this.extraSlotUnlocked = true;
+          this.profile.boosters.extraslot = (this.profile.boosters.extraslot || 0) + 1;
+          if (!this.tray[3]) {
+            const discs = Catalog.generateSmartTrayStack(this, this.rng, this.currentLevelDef);
+            this.tray[3] = { discs, scale: 1, offsetY: 0 };
           }
+          this.audio.playExtraSlotUnlock();
+          this.saveProfile();
+          this.updateBoosterDockUI();
+        } else if (rewardType === 'vip_pass') {
+          this.profile.collectorPass = true;
+          this.profile.hearts = 5;
+          this.profile.prisms += 200;
+          this.profile.keys = Math.min(3, (this.profile.keys || 0) + 1);
+          this.extraSlotUnlocked = true;
+          this.audio.playLevelComplete(3);
+          this.saveProfile();
+          this.renderShopUI();
+          this.updateMetaTopBar();
+          this.updateBoosterDockUI();
+        } else if (rewardType === 'starter_crate') {
+          this.profile.starterBundleClaimed = true;
+          this.profile.prisms += 150;
+          this.profile.coins += 500;
+          this.profile.boosters.hammer += 1;
+          this.profile.boosters.swap += 1;
+          this.profile.boosters.extraslot += 1;
+          this.audio.playFigurineUnbox();
+          this.saveProfile();
+          this.renderShopUI();
+          this.updateMetaTopBar();
+          this.updateBoosterDockUI();
+        } else if (rewardType === 'shop_prisms_vault') {
+          this.profile.prisms += 150;
+          this.profile.keys = Math.min(3, (this.profile.keys || 0) + 1);
+          this.audio.playFigurineUnbox();
+          this.saveProfile();
+          this.updateMetaTopBar();
         } else {
-          this.profile.prisms += 50;
+          this.profile.prisms += 75;
+          this.profile.keys = Math.min(3, (this.profile.keys || 0) + 1);
           this.profile.boosters.hammer += 1;
           this.audio.playExtraSlotUnlock();
+          this.saveProfile();
           this.updateMetaTopBar();
           this.updateBoosterDockUI();
         }
       };
 
-      // If Collector Pass VIP is active, instant skip!
-      const durationMs = this.profile.collectorPass ? 150 : 1200;
+      // If Collector Pass VIP is active, instant 150ms fast-forward!
+      const durationMs = this.profile.collectorPass ? 150 : 950;
       if (claimBtn) claimBtn.disabled = true;
       if (claimText) claimText.textContent = 'Previewing Atelier Showcase...';
       if (fillEl) fillEl.style.width = '0%';
@@ -5445,6 +5903,12 @@
 
       // Clip zoomed board to the workbench region between top HUD badges and bottom Dispenser Tray
       ctx.save();
+      if (typeof this.boardShake === 'number' && this.boardShake > 0.1) {
+        const sx = Math.sin(now * 0.085) * this.boardShake;
+        const sy = Math.cos(now * 0.11) * (this.boardShake * 0.65);
+        ctx.translate(sx, sy);
+        this.boardShake *= 0.88;
+      }
       if (this.boardZoom > 1.01) {
         const clipTop = 42;
         const trayH = Math.max(88, Math.min(108, this.height * 0.18));
@@ -6059,13 +6523,37 @@
 
       ctx.setLineDash([]);
       const willBurst = totalCombined >= BURST_THRESHOLD;
+      // Check 2-step chain reaction foresight: if top color bursts, does the exposed sub-layer match a neighbor?
+      let willChain = false;
+      if (willBurst) {
+        const previewGroups = getColorGroups(previewInfo.discs);
+        let subColorAfterBurst = previewGroups.length > 1 ? previewGroups[previewGroups.length - 2].color : null;
+        if (subColorAfterBurst === null) {
+          for (const nCell of matches) {
+            const nGroups = getColorGroups(nCell.stack);
+            if (nGroups.length > 1) {
+              subColorAfterBurst = nGroups[nGroups.length - 2].color;
+              break;
+            }
+          }
+        }
+        if (subColorAfterBurst !== null) {
+          const secondMatches = this.getMatchingNeighbors(previewInfo.q, previewInfo.r, subColorAfterBurst);
+          if (secondMatches.length > 0) {
+            willChain = true;
+          }
+        }
+      }
       const surroundBonus =
         matches.length >= 4 ? 4 : matches.length === 3 ? 2 : matches.length === 2 ? 1 : 0;
       const extraDiscs = Math.max(0, totalCombined - BURST_THRESHOLD);
       const overstackBonus = willBurst ? Math.floor(extraDiscs / 2) : 0;
-      const projMult = Math.max(1, 1 + this.burstStreak + surroundBonus + overstackBonus);
+      const overdriveMult = this.overdriveMovesLeft > 0 ? 2 : 1;
+      const projMult = Math.max(1, 1 + this.burstStreak + surroundBonus + overstackBonus) * overdriveMult;
       const badgeLabel = willBurst
-        ? matches.length >= 2
+        ? willChain
+          ? `💥 ${totalCombined}/10 + 🔗 CHAIN ×${projMult + 1}!`
+          : matches.length >= 2
           ? `💥 ${totalCombined}/10 (${matches.length}-WAY · ×${projMult}!)`
           : `💥 ${totalCombined}/10 BURST (×${projMult})`
         : matches.length >= 2
@@ -6123,8 +6611,11 @@
 
       if (showBadge && discs.length > 0) {
         const topCount = getTopContiguousCount(discs);
+        const groups = getColorGroups(discs);
+        const subColorMeta =
+          groups.length > 1 ? this.getDiscColorMeta(groups[groups.length - 2].color) : null;
         const topDiscY = baseY - (discs.length - 1) * dz;
-        this.drawStackCountBadge(ctx, baseX, topDiscY, rx, ry, topCount);
+        this.drawStackCountBadge(ctx, baseX, topDiscY, rx, ry, topCount, subColorMeta);
       }
 
       ctx.restore();
@@ -6688,16 +7179,18 @@
       ctx.restore();
     }
 
-    drawStackCountBadge(ctx, cx, cy, rx, ry, topCount) {
+    drawStackCountBadge(ctx, cx, cy, rx, ry, topCount, subColorMeta = null) {
       const bx = cx + rx * 0.56;
       const by = cy - ry * 0.48;
       const isNearBurst = topCount >= 7;
       const label = isNearBurst ? `${topCount}/10` : `${topCount}`;
+      const hasSubDot = !!subColorMeta;
 
       ctx.save();
       ctx.font = '800 9.5px "Plus Jakarta Sans", sans-serif';
       const textW = ctx.measureText(label).width;
-      const pillW = Math.max(16, textW + 7);
+      const dotExtra = hasSubDot ? 8 : 0;
+      const pillW = Math.max(16, textW + 7 + dotExtra);
       const pillH = 14;
 
       ctx.fillStyle = isNearBurst ? '#FF9F1C' : '#231F20';
@@ -6709,10 +7202,21 @@
       ctx.fill();
       ctx.stroke();
 
+      if (hasSubDot) {
+        const dotX = bx - pillW / 2 + 6;
+        ctx.fillStyle = subColorMeta.top;
+        ctx.strokeStyle = '#FFFDF7';
+        ctx.lineWidth = 1.1;
+        ctx.beginPath();
+        ctx.arc(dotX, by, 3.1, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+      }
+
       ctx.fillStyle = isNearBurst ? '#231F20' : '#FAF7F2';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(label, bx, by + 0.5);
+      ctx.fillText(label, bx + (hasSubDot ? 3.5 : 0), by + 0.5);
       ctx.restore();
     }
 
@@ -7229,14 +7733,34 @@
       }
 
       const multBadge = document.getElementById('hud-mult-badge');
-      const liveMult = Math.max(1, this.activeMultiplier || 1, this.combo + this.burstStreak);
+      const overdriveFactor = this.overdriveMovesLeft > 0 ? 2 : 1;
+      const liveMult = Math.max(1, this.activeMultiplier || 1, (this.combo + this.burstStreak) * overdriveFactor);
       if (multBadge) {
         multBadge.textContent = `×${liveMult}`;
         multBadge.classList.toggle('mult-hot', liveMult >= 2);
       }
 
+      const feverRow = document.getElementById('hud-fever-row');
+      const feverLabel = document.getElementById('hud-fever-label');
+      const feverFill = document.getElementById('hud-fever-fill');
+      if (feverRow && feverLabel && feverFill) {
+        const isOverdrive = this.overdriveMovesLeft > 0;
+        feverRow.classList.toggle('overdrive-active', isOverdrive);
+        if (isOverdrive) {
+          feverLabel.textContent = `🔥 OVERDRIVE ×2 (${this.overdriveMovesLeft} MOVES)`;
+          feverFill.style.width = '100%';
+        } else {
+          const fPct = Math.max(0, Math.min(100, Math.round(this.kilnFever || 0)));
+          feverLabel.textContent = `🔥 FEVER ${fPct}%`;
+          feverFill.style.width = `${fPct}%`;
+        }
+      }
+
       if (comboEl) {
-        if (liveMult > 1) {
+        if (this.overdriveMovesLeft > 0) {
+          comboEl.textContent = `🔥 KILN OVERDRIVE ×2 (${this.overdriveMovesLeft} MOVES LEFT!)`;
+          comboEl.classList.remove('hidden');
+        } else if (liveMult > 1) {
           comboEl.textContent =
             this.burstStreak > 0
               ? `🔥 ×${liveMult} COMBO · ${this.burstStreak} STREAK!`
@@ -7356,7 +7880,7 @@
         staticTrayWavesCount: this.currentLevelDef && Array.isArray(this.currentLevelDef.staticTrayWaves)
           ? this.currentLevelDef.staticTrayWaves.length
           : 0,
-        activeTextureStyle: this.getActiveBoardCosmetic().textureStyle,
+        activeTextureStyle: this.getEquippedCosmeticKit().discStyle || 'classic',
         clearedByColor: { ...this.clearedByColor },
         totalDiscsCleared: this.totalDiscsCleared,
         isObjectiveComplete: Catalog.isObjectiveComplete(this, this.currentLevelDef),
@@ -7365,6 +7889,16 @@
         clears: this.clears,
         combo: this.combo,
         maxCombo: this.maxCombo,
+        kilnFever: this.kilnFever,
+        overdriveMovesLeft: this.overdriveMovesLeft,
+        overdriveTotalTriggered: this.overdriveTotalTriggered,
+        equippedBuddyPerk: this.getEquippedBuddyPerk(),
+        adStats: {
+          rewardedAdsWatched: this.adStats.rewardedAdsWatched,
+          interstitialAdsShown: this.adStats.interstitialAdsShown,
+          estimatedRevenueUsd: this.adStats.estimatedRevenueUsd,
+          placements: { ...this.adStats.placements }
+        },
         isProcessingCascade: this.isProcessingCascade,
         isDeadlocked: this.isDeadlocked,
         isLevelWon: this.isLevelWon,
@@ -7444,6 +7978,9 @@
       triggerUnboxingModal: (fig, opts) => game.triggerUnboxingModal(fig, opts),
       revealBlindBoxFigurine: () => game.revealBlindBoxFigurine(),
       triggerRewardedAd: (type) => game.triggerRewardedAd(type),
+      triggerInterstitialAd: (placement) => game.triggerInterstitialAd(placement),
+      triggerSmartHint: () => game.triggerSmartHint(),
+      chargeKilnFever: (amt) => game.chargeKilnFever(amt),
       inspectFigurine: (id) => game.inspectFigurine(id),
       equipFigurine: (id) => game.equipFigurine(id),
       claimStarMilestoneChest: () => game.claimStarMilestoneChest(),
@@ -7461,6 +7998,12 @@
       resumeCascades: () => game.resumeCascades(),
       checkDeadlock: () => game.checkDeadlock(),
       getTelemetry: () => game.getState().telemetry
+    };
+
+    window.PopStacksAds = {
+      triggerRewardedAd: (placement) => game.triggerRewardedAd(placement),
+      triggerInterstitialAd: (placement) => game.triggerInterstitialAd(placement),
+      getAdStats: () => ({ ...game.adStats, placements: { ...game.adStats.placements } })
     };
   });
 })();

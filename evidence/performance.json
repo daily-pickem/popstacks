@@ -1,6 +1,6 @@
 {
   "game": "PopStacks: Art Toy Atelier",
-  "evaluatedAt": "2026-10-18T01:00:16.296Z",
+  "evaluatedAt": "2026-11-06T05:27:25.943Z",
   "viewport": {
     "width": 390,
     "height": 844,
@@ -9,20 +9,20 @@
     "hasTouch": true
   },
   "metrics": {
-    "coldStartWallMs": 634,
-    "engineBootColdStartMs": 22,
+    "coldStartWallMs": 1263,
+    "engineBootColdStartMs": 90,
     "coldStartRequirementMs": 2000,
     "coldStartPassed": true,
-    "touchToVisualLatencyMs": 13.1,
+    "touchToVisualLatencyMs": 27.7,
     "touchLatencyRequirementMs": 50,
     "touchLatencyPassed": true,
-    "cascadeBurstFps": 60,
+    "cascadeBurstFps": 42,
     "cascadeSampleFrames": 30,
     "fpsTarget": 60,
-    "fpsStabilityPassed": true,
-    "rewardedAdHeapBeforeBytes": 5737137,
-    "rewardedAdHeapAfterBytes": 6011586,
-    "rewardedAdHeapDeltaKB": 268,
+    "fpsStabilityPassed": false,
+    "rewardedAdHeapBeforeBytes": 21694862,
+    "rewardedAdHeapAfterBytes": 22187237,
+    "rewardedAdHeapDeltaKB": 481,
     "zeroMemoryLeaksAfterAd": true,
     "consoleErrorsCount": 0,
     "pageErrorsCount": 0,
@@ -31,9 +31,57 @@
   "workstreamChecks": {
     "ws01_ftueWonIn3Moves": true,
     "ws02_dragSnappedToCenter": true,
+    "ws02_kilnOverdriveActive": true,
     "ws03_level65SlotCount": 37,
     "ws03_level65AnvilsCount": 3,
     "ws03_level65FrozenCount": 2,
+    "hintAndUndoChecks": {
+      "hintFound": true,
+      "placedMoveIncremented": true,
+      "buddyPerk": {
+        "label": "⚡ +15% Score · +20% 🔥",
+        "scoreMult": 1.15,
+        "feverMult": 1.2
+      }
+    },
+    "boosterAdRefillCheck": {
+      "badgeTextZero": "🎬 AD"
+    },
+    "deadlockAdBtnVisible": true,
+    "winModalAdBtnVisible": true,
+    "unboxBonusSpinBtnVisible": true,
+    "shopMonetizationCheck": {
+      "hasDollarPriceTag": false,
+      "zeroRealMoneyIap": true,
+      "hasBottomNavRewardsTab": true,
+      "navButtons": [
+        "hub",
+        "gallery",
+        "daily",
+        "shop"
+      ]
+    },
+    "adTelemetryAfter": {
+      "rewardedAdsWatched": 1,
+      "interstitialAdsShown": 1,
+      "estimatedRevenueUsd": 0.05,
+      "watchedRewardedThisRound": true,
+      "roundsSinceLastInterstitial": 1,
+      "lastPlacement": "between_round_interstitial",
+      "placements": {
+        "deadlock_rescue": 0,
+        "win_2x_prisms": 0,
+        "unbox_bonus_spin": 0,
+        "booster_hammer": 0,
+        "booster_swap": 0,
+        "booster_extraslot": 0,
+        "vip_pass": 0,
+        "starter_crate": 0,
+        "shop_prisms_hammer": 1,
+        "shop_prisms_vault": 0,
+        "between_round_interstitial": 1
+      }
+    },
     "catalogStats": {
       "levelsCount": 100,
       "chaptersCount": 10,

@@ -83,6 +83,7 @@ async function runEvaluation() {
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
+      '--allow-file-access-from-files',
       '--autoplay-policy=no-user-gesture-required',
       '--enable-precise-memory-info'
     ]
@@ -119,7 +120,7 @@ async function runEvaluation() {
   // 1. Cold Start Measurement & WS01: First 60s FTUE Onboarding
   // ---------------------------------------------------------------------------
   const navStart = Date.now();
-  await page.goto(`${baseUrl}/index.html`, { waitUntil: 'domcontentloaded' });
+  await page.goto(`file://${path.join(ROOT_DIR, 'index.html')}`, { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => window.__POPSTACKS_DEBUG__ && window.__POPSTACKS_DEBUG__.getState().slotCount === 7);
   const coldStartWallMs = Date.now() - navStart;
   await page.waitForTimeout(250);

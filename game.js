@@ -125,6 +125,7 @@
         maxHearts: 5,
         heartRefillEndMs: 0,
         collectorPass: false,
+        vipExpiresAt: 0,
         starterBundleClaimed: false,
         boosters: {
           hammer: 3,
@@ -818,6 +819,13 @@
           if (typeof data.keys === 'number') {
             this.profile.keys = Math.max(0, Math.min(3, Math.floor(data.keys)));
           }
+          if (typeof data.prisms === 'number') {
+            this.profile.prisms = Math.max(0, Math.floor(data.prisms));
+          }
+          if (typeof data.vipExpiresAt === 'number') {
+            this.profile.vipExpiresAt = Math.max(0, Math.floor(data.vipExpiresAt));
+            this.profile.collectorPass = this.profile.vipExpiresAt > Date.now();
+          }
           if (typeof data.moldProgress === 'number') {
             this.profile.moldProgress = data.moldProgress;
           }
@@ -847,11 +855,31 @@
             gachaPullCount: this.profile.gachaPullCount,
             recentPullIds: this.profile.recentPullIds,
             keys: this.profile.keys,
+            prisms: this.profile.prisms,
+            vipExpiresAt: this.profile.vipExpiresAt || 0,
             moldProgress: this.profile.moldProgress,
             currentMoldFigurineId: this.profile.currentMoldFigurineId
           })
         );
       } catch (_e) {}
+    }
+
+    isVipActive() {
+      if (this.profile.vipExpiresAt && this.profile.vipExpiresAt > 0) {
+        const active = Date.now() < this.profile.vipExpiresAt;
+        this.profile.collectorPass = active;
+        return active;
+      }
+      return !!this.profile.collectorPass;
+    }
+
+    getVipRemainingLabel() {
+      if (!this.isVipActive()) return '';
+      const remMs = Math.max(0, (this.profile.vipExpiresAt || Date.now() + 86400000) - Date.now());
+      const totalMins = Math.max(1, Math.ceil(remMs / 60000));
+      const hrs = Math.floor(totalMins / 60);
+      const mins = totalMins % 60;
+      return hrs > 0 ? `${hrs}H ${mins}M LEFT` : `${mins}M LEFT`;
     }
 
     parseInitialUrlParams() {
@@ -1474,21 +1502,34 @@
         });
       }
 
-      // Gallery Gashapon Machine Button
-      const btnGalleryUnbox = document.getElementById('btn-gallery-unbox-now');
-      if (btnGalleryUnbox) {
-        btnGalleryUnbox.addEventListener('click', () => {
-          this.audio.playUiClick();
-          const hasTokens = (this.profile.keys || 0) >= 3;
-          if (!hasTokens) {
-            if (this.profile.prisms >= 120) {
-              this.profile.prisms -= 120;
-            }
-          }
+      // Gallery & Shop Gashapon Machine Buttons (Spend 3/3 Keys or 120 Prisms to Unbox Figurine)
+      const triggerCapsuleUnboxFromUI = () => {
+        this.audio.playUiClick();
+        const hasTokens = (this.profile.keys || 0) >= 3;
+        if (hasTokens) {
           this.saveProfile();
           this.updateMetaTopBar();
-          this.triggerUnboxingModal(null, { boosted: hasTokens, fromWin: false });
-        });
+          this.triggerUnboxingModal(null, { boosted: true, fromWin: false });
+        } else if (this.profile.prisms >= 120) {
+          this.profile.prisms -= 120;
+          this.saveProfile();
+          this.updateMetaTopBar();
+          this.renderGalleryUI();
+          this.renderShopUI();
+          this.triggerUnboxingModal(null, { boosted: false, fromWin: false });
+        } else {
+          this.triggerRewardedAd('shop_prisms_vault');
+        }
+      };
+
+      const btnGalleryUnbox = document.getElementById('btn-gallery-unbox-now');
+      if (btnGalleryUnbox) {
+        btnGalleryUnbox.addEventListener('click', triggerCapsuleUnboxFromUI);
+      }
+
+      const btnShopUnbox = document.getElementById('btn-shop-unbox-now');
+      if (btnShopUnbox) {
+        btnShopUnbox.addEventListener('click', triggerCapsuleUnboxFromUI);
       }
 
       // Ad-Supported Rewards & Supply Drop Actions (IAP Deferred)
@@ -1652,7 +1693,7 @@
     // Meta Screens Rendering (Hub, Daily, Gallery, Shop, Hearts)
     // -------------------------------------------------------------------------
     tickHeartTimer() {
-      if (this.profile.collectorPass) {
+      if (this.isVipActive()) {
         this.profile.hearts = 5;
         this.profile.heartRefillEndMs = 0;
       } else if (this.profile.hearts < this.profile.maxHearts) {
@@ -1669,7 +1710,7 @@
     }
 
     consumeHeartOnRetry() {
-      if (this.profile.collectorPass) return;
+      if (this.isVipActive()) return;
       if (this.profile.hearts > 0) {
         this.profile.hearts--;
         if (!this.profile.heartRefillEndMs) {
@@ -1688,9 +1729,9 @@
       const colVal = document.getElementById('top-collection-val');
 
       if (hVal && hSub) {
-        if (this.profile.collectorPass) {
+        if (this.isVipActive()) {
           hVal.textContent = '∞';
-          hSub.textContent = 'VIP';
+          hSub.textContent = '24H VIP';
         } else {
           hVal.textContent = `${this.profile.hearts}/5`;
           if (this.profile.hearts >= 5) {
@@ -2375,11 +2416,10 @@
       }
       if (buddyKit) {
         const shortKit = String(kit.kitTitle || 'Studio Kit').split('·')[0].trim();
-        const trackLabel =
-          this.audio && this.audio.currentTrack && this.audio.currentTrack.instrumentLabel
-            ? ` · ♪ ${this.audio.currentTrack.instrumentLabel}`
-            : '';
-        buddyKit.textContent = `${shortKit}${trackLabel}`;
+        const buddyPerk = this.getEquippedBuddyPerk();
+        buddyKit.textContent = eqFig
+          ? `+${Math.round((buddyPerk.scoreMult - 1) * 100)}% Score · +${Math.round((buddyPerk.feverMult - 1) * 100)}% Fever · ${shortKit}`
+          : `${shortKit}`;
       }
       if (buddySwatches) {
         const pal = kit.discPalette || [];
@@ -2421,7 +2461,7 @@
         };
       }
 
-      // 1B. Japanese Gashapon Machine Bar (Tokens + 天井 Pity + Pickup Series)
+      // 1B. Japanese Gashapon Machine Bar (Tokens + Pity + Pickup Series)
       const gashaPityTag = document.getElementById('gallery-gasha-pity-tag');
       const gashaSub = document.getElementById('gallery-gasha-sub');
       const gashaBtnLabel = document.getElementById('btn-gallery-gasha-label');
@@ -2431,19 +2471,19 @@
       const pickup = this.getFeaturedPickupSeries();
       if (gashaPityTag) {
         if (nextPullNum % 10 === 0) {
-          gashaPityTag.textContent = '★ NEXT: SSR/UR 確定!';
+          gashaPityTag.textContent = '★ NEXT: EPIC+ GUARANTEED';
         } else if (nextPullNum % 5 === 0) {
-          gashaPityTag.textContent = '★ NEXT: SR+ 確定!';
+          gashaPityTag.textContent = '★ NEXT: RARE+ GUARANTEED';
         } else {
-          gashaPityTag.textContent = `天井 ${inFive}/5 to SR+`;
+          gashaPityTag.textContent = `Pity ${inFive}/5 to Rare+`;
         }
       }
       if (gashaSub) {
-        gashaSub.textContent = `★ ${this.profile.keys || 0}/3 Keys · ${pickup.seriesName}`;
+        gashaSub.textContent = `${this.profile.keys || 0}/3 Keys · Unlocks +15–30% Score & ${pickup.seriesName}`;
       }
       if (gashaBtnLabel) {
         gashaBtnLabel.textContent =
-          (this.profile.keys || 0) >= 3 ? '★ SPIN (3 KEYS)' : '★ 120 PRISMS';
+          (this.profile.keys || 0) >= 3 ? `★ UNBOX (${this.profile.keys}/3 KEYS)` : '★ UNBOX (◆ 120)';
       }
 
       // 2. Series Filter Strip
@@ -2628,13 +2668,27 @@
     renderShopUI() {
       const passStatus = document.getElementById('shop-pass-status');
       const passCta = document.getElementById('btn-pass-cta-text');
+      const shopUnboxPrice = document.getElementById('shop-unbox-price');
+      const shopUnboxSub = document.getElementById('shop-unbox-sub');
+      const vipActive = this.isVipActive();
+      const remLabel = this.getVipRemainingLabel();
       if (passStatus) {
-        passStatus.textContent = this.profile.collectorPass ? '★ VIP ACTIVE' : 'READY TO CLAIM';
+        passStatus.textContent = vipActive ? `★ ${remLabel || '24H LEFT'}` : '24H PASS';
       }
       if (passCta) {
-        passCta.textContent = this.profile.collectorPass
-          ? '★ VIP PASS ACTIVE ✓ (WATCH AD FOR +100 PRISMS)'
-          : '▶ WATCH AD — ACTIVATE VIP PASS';
+        passCta.textContent = vipActive
+          ? `✓ 24H VIP ACTIVE (${remLabel}) · EXTEND +24H`
+          : '▶ WATCH AD — ACTIVATE 24H VIP PASS';
+      }
+      if (shopUnboxPrice) {
+        shopUnboxPrice.textContent =
+          (this.profile.keys || 0) >= 3 ? `★ ${this.profile.keys}/3 KEYS` : '◆ 120 PRISMS';
+      }
+      if (shopUnboxSub) {
+        shopUnboxSub.textContent =
+          (this.profile.keys || 0) >= 3
+            ? 'Free Spin Ready!'
+            : `${this.profile.keys || 0}/3 Keys · +15–30% Score`;
       }
       this.updateMetaTopBar();
     }
@@ -5605,7 +5659,7 @@
         booster_hammer: 'Reward unlocking: +2 Ceramic Hammers!',
         booster_swap: 'Reward unlocking: +2 Spatula Swaps!',
         booster_extraslot: 'Reward unlocking: Unlock 4th Tray Slot + 1 Extra Slot Booster!',
-        vip_pass: 'Reward unlocking: Atelier VIP Pass (Unlimited Hearts, 4th Slot & +200 Prisms)!',
+        vip_pass: 'Reward unlocking: 24-Hour Daily VIP Pass (Unlimited Hearts, 4th Slot & +200 Prisms for 24h)!',
         starter_crate: 'Reward unlocking: Supply Crate (+150 Prisms & +1 of Every Booster)!',
         shop_prisms_vault: 'Reward unlocking: +150 Prisms & +1 Gasha Key!',
         shop_prisms_hammer: 'Reward unlocking: +75 Prisms, +1 Key & +1 Hammer!'
@@ -5666,6 +5720,12 @@
           this.saveProfile();
           this.updateBoosterDockUI();
         } else if (rewardType === 'vip_pass') {
+          const nowMs = Date.now();
+          const baseMs = Math.max(nowMs, this.profile.vipExpiresAt || 0);
+          this.profile.vipExpiresAt = Math.min(
+            nowMs + 72 * 60 * 60 * 1000,
+            baseMs + 24 * 60 * 60 * 1000
+          );
           this.profile.collectorPass = true;
           this.profile.hearts = 5;
           this.profile.prisms += 200;

@@ -19,18 +19,29 @@
          PERSISTENT TOP STATUS BAR (Shown on Hub, Daily, Gallery, Rewards Tabs)
          =================================================================== -->
     <header id="meta-top-bar" class="meta-top-bar hidden" aria-label="Status">
-      <button id="btn-top-hearts" class="currency-pill tap-target" type="button" aria-label="Hearts">
+      <button id="btn-top-hearts" class="currency-pill tap-target" type="button" aria-label="Hearts" title="Hearts — Refill in Rewards or activate 24h VIP Pass">
         <span class="pill-icon" id="top-heart-icon" style="color: #E63946;">♥</span>
         <span class="pill-val" id="top-hearts-val">5/5</span>
         <span class="pill-sub" id="top-hearts-timer">FULL</span>
       </button>
 
-      <button id="btn-top-prisms" class="currency-pill prism-pill tap-target" type="button" aria-label="Prisms">
+      <button id="btn-top-prisms" class="currency-pill prism-pill tap-target" type="button" aria-label="Prisms" title="Prisms — Spend on Figurine Capsules (120), Boosters (100), or Hearts (50)">
         <span class="pill-icon" style="color: #00A896;">◆</span>
         <span class="pill-val" id="top-prisms-val">120</span>
       </button>
 
-      <button id="btn-top-collection" class="currency-pill tap-target" type="button" aria-label="Collection">
+      <button id="btn-top-keys" class="currency-pill key-pill tap-target" type="button" aria-label="Capsule Keys" title="Capsule Keys — Collect 3 Keys to unbox a 3D Figurine for free!">
+        <span class="pill-icon" style="color: #D97706; display: inline-flex; align-items: center;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="7.5" cy="15.5" r="5.5"></circle>
+            <path d="m21 2-9.6 9.6"></path>
+            <path d="m15.5 7.5 3 3L22 7l-3-3"></path>
+          </svg>
+        </span>
+        <span class="pill-val" id="top-keys-val">3/3</span>
+      </button>
+
+      <button id="btn-top-collection" class="currency-pill tap-target" type="button" aria-label="Collection" title="Figurine Collection — Equip a Buddy for +15% to +30% Score &amp; custom 3D tiles">
         <span class="pill-icon" style="color: #D9820A;">★</span>
         <span class="pill-val" id="top-collection-val">6/60</span>
       </button>
@@ -284,9 +295,23 @@
               <button type="button" class="buddy-unequip-btn tap-target" id="btn-gallery-buddy-toggle">Classic Birch</button>
             </div>
             <strong class="buddy-card-title" id="gallery-buddy-name">Mossy Sproutling</strong>
-            <span class="buddy-card-sub" id="gallery-buddy-kit">Botanical Forest Kit · Wood-Ring &amp; Leaf Discs</span>
+            <span class="buddy-card-sub" id="gallery-buddy-kit">Botanical Forest Kit · +15% Score &amp; +20% Fever</span>
             <div class="buddy-swatch-row" id="gallery-buddy-swatches" aria-label="Equipped Board &amp; Disc Palette"></div>
           </div>
+        </div>
+
+        <!-- Gashapon Blind-Box Capsule Machine Card (Spend 3 Keys or 120 Prisms) -->
+        <div class="gallery-gasha-bar" id="gallery-gasha-bar">
+          <div class="gallery-gasha-copy">
+            <div class="gallery-gasha-top">
+              <strong>Blind-Box Capsule Machine</strong>
+              <span class="gasha-pity-pill" id="gallery-gasha-pity-tag">★ Guaranteed Rare+</span>
+            </div>
+            <span class="gallery-gasha-sub" id="gallery-gasha-sub">3/3 Keys Ready · Unlocks +15–30% Score &amp; 3D Board Themes</span>
+          </div>
+          <button id="btn-gallery-unbox-now" class="gasha-spin-cta tap-target" type="button">
+            <span id="btn-gallery-gasha-label">★ UNBOX (3 KEYS)</span>
+          </button>
         </div>
 
         <div id="gallery-series-strip" class="series-carousel-strip" role="tablist" aria-label="Series filter"></div>
@@ -301,60 +326,75 @@
       <div class="hub-scroll-content">
         <div class="atelier-card collector-pass-card">
           <div class="pass-badge-row">
-            <span class="gold-vip-tag">★ ATELIER VIP PASS · AD REWARD</span>
-            <span class="pass-status-pill" id="shop-pass-status">READY TO CLAIM</span>
+            <span class="gold-vip-tag">★ 24-HOUR DAILY VIP PASS</span>
+            <span class="pass-status-pill" id="shop-pass-status">24H PASS</span>
           </div>
           <ul class="pass-perks-list">
-            <li>✓ Unlimited hearts &amp; zero wait</li>
-            <li>✓ Permanent 4th tray slot unlocked</li>
-            <li>✓ +200 Prisms ◆ &amp; +1 Gasha Key</li>
+            <li>✓ Unlimited hearts for 24 hours</li>
+            <li>✓ 4th tray slot unlocked for 24 hours</li>
+            <li>✓ Instant +200 Prisms ◆ &amp; +1 Capsule Key</li>
           </ul>
           <button id="btn-buy-collector-pass" class="cta-rewarded-ad full-width tap-target" type="button">
-            <span class="cta-main-text" id="btn-pass-cta-text">▶ WATCH AD — ACTIVATE VIP PASS</span>
+            <span class="cta-main-text" id="btn-pass-cta-text">▶ WATCH AD — ACTIVATE 24H VIP PASS</span>
           </button>
         </div>
 
+        <div class="shop-currency-explainer" id="shop-currency-explainer">
+          <span><strong>Keys (3/3)</strong> &amp; <strong>Prisms (◆)</strong> unbox 3D Figurines (+15–30% Score &amp; Board Themes), Boosters &amp; Hearts</span>
+        </div>
+
         <div class="shop-grid-2x2">
-          <button id="btn-buy-starter-bundle" class="shop-tile shop-tile-free tap-target" type="button">
+          <button id="btn-shop-unbox-now" class="shop-tile shop-tile-unbox tap-target" type="button">
             <img src="assets/art/icon_chest.png" alt="" class="shop-tile-img" />
+            <strong>Unbox Figurine</strong>
+            <span class="shop-tile-sub" id="shop-unbox-sub">+15–30% Score Buddy</span>
+            <span class="shop-tile-price" id="shop-unbox-price">★ 3/3 KEYS</span>
+          </button>
+          <button id="btn-buy-starter-bundle" class="shop-tile shop-tile-free tap-target" type="button">
+            <img src="assets/art/icon_extraslot.png" alt="" class="shop-tile-img" />
             <strong>Supply Crate</strong>
+            <span class="shop-tile-sub">+150 ◆ &amp; All Boosters</span>
             <span class="shop-tile-price">▶ WATCH AD</span>
           </button>
           <button id="btn-shop-watch-ad" class="shop-tile shop-tile-free tap-target" type="button">
             <span class="shop-tile-svg" aria-hidden="true">
-              <svg width="46" height="46" viewBox="0 0 48 48" fill="none">
+              <svg width="42" height="42" viewBox="0 0 48 48" fill="none">
                 <polygon points="24,4 40,18 24,44 8,18" fill="#1FB5A5" stroke="#231F20" stroke-width="2.5" stroke-linejoin="round" />
                 <polygon points="24,4 34,18 24,44 14,18" fill="#5EEAD4" opacity="0.65" />
                 <line x1="8" y1="18" x2="40" y2="18" stroke="#231F20" stroke-width="2.2" />
               </svg>
             </span>
             <strong>+75 Prisms &amp; Key</strong>
+            <span class="shop-tile-sub">+1 Key &amp; +1 Hammer</span>
             <span class="shop-tile-price">▶ FREE AD</span>
-          </button>
-          <button id="btn-shop-buy-boosters" class="shop-tile tap-target" type="button">
-            <img src="assets/art/icon_hammer.png" alt="" class="shop-tile-img" />
-            <strong>Booster Trio</strong>
-            <span class="shop-tile-price">◆ 100</span>
-          </button>
-          <button id="btn-shop-refill-hearts" class="shop-tile tap-target" type="button">
-            <span class="shop-tile-svg" aria-hidden="true">
-              <svg width="46" height="46" viewBox="0 0 48 48" fill="none">
-                <path d="M24 41s-16-9.8-16-21.5C8 13.5 12.8 9 18.5 9c3.4 0 5.5 1.8 5.5 3.8C24 10.8 26.1 9 29.5 9 35.2 9 40 13.5 40 19.5 40 31.2 24 41 24 41z" fill="#FF5A5F" stroke="#231F20" stroke-width="2.5" stroke-linejoin="round" />
-              </svg>
-            </span>
-            <strong>Refill Hearts</strong>
-            <span class="shop-tile-price">◆ 50</span>
           </button>
           <button id="btn-shop-buy-prisms" class="shop-tile shop-tile-free tap-target" type="button">
             <span class="shop-tile-svg" aria-hidden="true">
-              <svg width="40" height="40" viewBox="0 0 48 48" fill="none">
+              <svg width="42" height="42" viewBox="0 0 48 48" fill="none">
                 <polygon points="24,5 39,18 24,43 9,18" fill="#FFB020" stroke="#231F20" stroke-width="2.5" stroke-linejoin="round" />
                 <polygon points="24,5 32,18 24,43 16,18" fill="#FFE082" opacity="0.75" />
                 <line x1="9" y1="18" x2="39" y2="18" stroke="#231F20" stroke-width="2.2" />
               </svg>
             </span>
-            <strong>150 Prisms Drop</strong>
+            <strong>150 Prisms &amp; Key</strong>
+            <span class="shop-tile-sub">+150 ◆ &amp; +1 Key</span>
             <span class="shop-tile-price">▶ WATCH AD</span>
+          </button>
+          <button id="btn-shop-buy-boosters" class="shop-tile tap-target" type="button">
+            <img src="assets/art/icon_hammer.png" alt="" class="shop-tile-img" />
+            <strong>Booster Trio</strong>
+            <span class="shop-tile-sub">Hammer + Swap + Slot</span>
+            <span class="shop-tile-price">◆ 100</span>
+          </button>
+          <button id="btn-shop-refill-hearts" class="shop-tile tap-target" type="button">
+            <span class="shop-tile-svg" aria-hidden="true">
+              <svg width="42" height="42" viewBox="0 0 48 48" fill="none">
+                <path d="M24 41s-16-9.8-16-21.5C8 13.5 12.8 9 18.5 9c3.4 0 5.5 1.8 5.5 3.8C24 10.8 26.1 9 29.5 9 35.2 9 40 13.5 40 19.5 40 31.2 24 41 24 41z" fill="#FF5A5F" stroke="#231F20" stroke-width="2.5" stroke-linejoin="round" />
+              </svg>
+            </span>
+            <strong>Refill Hearts</strong>
+            <span class="shop-tile-sub">Full 5/5 Hearts</span>
+            <span class="shop-tile-price">◆ 50</span>
           </button>
         </div>
       </div>

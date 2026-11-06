@@ -1,6 +1,6 @@
 {
   "game": "PopStacks: Art Toy Atelier",
-  "verifiedAt": "2026-11-06T05:55:47.044Z",
+  "verifiedAt": "2026-11-06T06:16:43.520Z",
   "summary": {
     "totalLevels": 100,
     "passedLevels": 100,
@@ -15,7 +15,7 @@
     "totalCascadesTriggered": 2208,
     "totalBursts10": 582,
     "totalFrozenCleared": 130,
-    "totalSolveTimeMs": 525.19
+    "totalSolveTimeMs": 607.71
   },
   "levels": [
     {
@@ -34,7 +34,7 @@
       "frozenCleared": 0,
       "totalDiscsGoal": 30,
       "totalDiscsCleared": 30,
-      "solveTimeMs": 0.06
+      "solveTimeMs": 0.08
     },
     {
       "level": 2,
@@ -52,7 +52,7 @@
       "frozenCleared": 0,
       "totalDiscsGoal": 30,
       "totalDiscsCleared": 35,
-      "solveTimeMs": 0.32
+      "solveTimeMs": 0.54
     },
     {
       "level": 3,
@@ -70,7 +70,7 @@
       "frozenCleared": 0,
       "totalDiscsGoal": 30,
       "totalDiscsCleared": 31,
-      "solveTimeMs": 0.5
+      "solveTimeMs": 1.25
     },
     {
       "level": 4,
@@ -88,7 +88,7 @@
       "frozenCleared": 0,
       "totalDiscsGoal": 30,
       "totalDiscsCleared": 44,
-      "solveTimeMs": 0.66
+      "solveTimeMs": 0.71
     },
     {
       "level": 5,
@@ -106,7 +106,7 @@
       "frozenCleared": 0,
       "totalDiscsGoal": 30,
       "totalDiscsCleared": 31,
-      "solveTimeMs": 0.53
+      "solveTimeMs": 0.51
     },
     {
       "level": 6,
@@ -124,7 +124,7 @@
       "frozenCleared": 0,
       "totalDiscsGoal": 30,
       "totalDiscsCleared": 33,
-      "solveTimeMs": 2.81
+      "solveTimeMs": 2.85
     },
     {
       "level": 7,
@@ -142,7 +142,7 @@
       "frozenCleared": 0,
       "totalDiscsGoal": 30,
       "totalDiscsCleared": 34,
-      "solveTimeMs": 2.49
+      "solveTimeMs": 2.34
     },
     {
       "level": 8,
@@ -160,7 +160,7 @@
       "frozenCleared": 0,
       "totalDiscsGoal": 40,
       "totalDiscsCleared": 46,
-      "solveTimeMs": 3.03
+      "solveTimeMs": 4.75
     },
     {
       "level": 9,
@@ -178,7 +178,7 @@
       "frozenCleared": 0,
       "totalDiscsGoal": 40,
       "totalDiscsCleared": 46,
-      "solveTimeMs": 3.63
+      "solveTimeMs": 5.07
     },
     {
       "level": 10,
@@ -196,7 +196,7 @@
       "frozenCleared": 0,
       "totalDiscsGoal": 40,
       "totalDiscsCleared": 42,
-      "solveTimeMs": 4.43
+      "solveTimeMs": 4.95
     },
     {
       "level": 11,
@@ -214,7 +214,7 @@
       "frozenCleared": 0,
       "totalDiscsGoal": 40,
       "totalDiscsCleared": 56,
-      "solveTimeMs": 4.56
+      "solveTimeMs": 5.44
     },
     {
       "level": 12,
@@ -232,7 +232,7 @@
       "frozenCleared": 0,
       "totalDiscsGoal": 40,
       "totalDiscsCleared": 54,
-      "solveTimeMs": 3.78
+      "solveTimeMs": 4.17
     },
     {
       "level": 13,
@@ -250,7 +250,7 @@
       "frozenCleared": 0,
       "totalDiscsGoal": 40,
       "totalDiscsCleared": 41,
-      "solveTimeMs": 2.25
+      "solveTimeMs": 3.48
     },
     {
       "level": 14,
@@ -268,7 +268,7 @@
       "frozenCleared": 0,
       "totalDiscsGoal": 40,
       "totalDiscsCleared": 51,
-      "solveTimeMs": 1.67
+      "solveTimeMs": 3.45
     },
     {
       "level": 15,
@@ -286,7 +286,7 @@
       "frozenCleared": 0,
       "totalDiscsGoal": 40,
       "totalDiscsCleared": 54,
-      "solveTimeMs": 2.1
+      "solveTimeMs": 2.91
     },
     {
       "level": 16,
@@ -304,7 +304,7 @@
       "frozenCleared": 0,
       "totalDiscsGoal": 40,
       "totalDiscsCleared": 52,
-      "solveTimeMs": 2.32
+      "solveTimeMs": 3.83
     },
     {
       "level": 17,
@@ -322,7 +322,7 @@
       "frozenCleared": 0,
       "totalDiscsGoal": 40,
       "totalDiscsCleared": 45,
-      "solveTimeMs": 1.77
+      "solveTimeMs": 3.26
     },
     {
       "level": 18,
@@ -340,7 +340,7 @@
       "frozenCleared": 0,
       "totalDiscsGoal": 40,
       "totalDiscsCleared": 55,
-      "solveTimeMs": 2
+      "solveTimeMs": 2.47
     },
     {
       "level": 19,
@@ -358,7 +358,7 @@
       "frozenCleared": 0,
       "totalDiscsGoal": 40,
       "totalDiscsCleared": 43,
-      "solveTimeMs": 3.38
+      "solveTimeMs": 3.76
     },
     {
       "level": 20,
@@ -376,7 +376,7 @@
       "frozenCleared": 0,
       "totalDiscsGoal": 40,
       "totalDiscsCleared": 44,
-      "solveTimeMs": 1.39
+      "solveTimeMs": 2.09
     },
     {
       "level": 21,
@@ -394,7 +394,7 @@
       "frozenCleared": 0,
       "totalDiscsGoal": 40,
       "totalDiscsCleared": 42,
-      "solveTimeMs": 1.8
+      "solveTimeMs": 1.85
     },
     {
       "level": 22,
@@ -412,7 +412,7 @@
       "frozenCleared": 0,
       "totalDiscsGoal": 40,
       "totalDiscsCleared": 46,
-      "solveTimeMs": 2.67
+      "solveTimeMs": 3.14
     },
     {
       "level": 23,
@@ -430,7 +430,7 @@
       "frozenCleared": 0,
       "totalDiscsGoal": 40,
       "totalDiscsCleared": 51,
-      "solveTimeMs": 1.72
+      "solveTimeMs": 2.81
     },
     {
       "level": 24,
@@ -448,7 +448,7 @@
       "frozenCleared": 0,
       "totalDiscsGoal": 40,
       "totalDiscsCleared": 43,
-      "solveTimeMs": 2.05
+      "solveTimeMs": 2.41
     },
     {
       "level": 25,
@@ -466,7 +466,7 @@
       "frozenCleared": 0,
       "totalDiscsGoal": 50,
       "totalDiscsCleared": 58,
-      "solveTimeMs": 2.58
+      "solveTimeMs": 4.32
     },
     {
       "level": 26,
@@ -484,7 +484,7 @@
       "frozenCleared": 0,
       "totalDiscsGoal": 50,
       "totalDiscsCleared": 54,
-      "solveTimeMs": 2.47
+      "solveTimeMs": 3.51
     },
     {
       "level": 27,
@@ -502,7 +502,7 @@
       "frozenCleared": 0,
       "totalDiscsGoal": 50,
       "totalDiscsCleared": 55,
-      "solveTimeMs": 1.96
+      "solveTimeMs": 3.24
     },
     {
       "level": 28,
@@ -520,7 +520,7 @@
       "frozenCleared": 0,
       "totalDiscsGoal": 50,
       "totalDiscsCleared": 56,
-      "solveTimeMs": 2.43
+      "solveTimeMs": 3.05
     },
     {
       "level": 29,
@@ -538,7 +538,7 @@
       "frozenCleared": 0,
       "totalDiscsGoal": 50,
       "totalDiscsCleared": 54,
-      "solveTimeMs": 2.93
+      "solveTimeMs": 3.34
     },
     {
       "level": 30,
@@ -556,7 +556,7 @@
       "frozenCleared": 0,
       "totalDiscsGoal": 50,
       "totalDiscsCleared": 63,
-      "solveTimeMs": 3.36
+      "solveTimeMs": 3.94
     },
     {
       "level": 31,
@@ -574,7 +574,7 @@
       "frozenCleared": 1,
       "totalDiscsGoal": 40,
       "totalDiscsCleared": 42,
-      "solveTimeMs": 1.74
+      "solveTimeMs": 1.93
     },
     {
       "level": 32,
@@ -592,7 +592,7 @@
       "frozenCleared": 1,
       "totalDiscsGoal": 40,
       "totalDiscsCleared": 52,
-      "solveTimeMs": 2.53
+      "solveTimeMs": 2.46
     },
     {
       "level": 33,
@@ -610,7 +610,7 @@
       "frozenCleared": 1,
       "totalDiscsGoal": 40,
       "totalDiscsCleared": 55,
-      "solveTimeMs": 2.6
+      "solveTimeMs": 2.63
     },
     {
       "level": 34,
@@ -628,7 +628,7 @@
       "frozenCleared": 1,
       "totalDiscsGoal": 40,
       "totalDiscsCleared": 42,
-      "solveTimeMs": 2.38
+      "solveTimeMs": 2.18
     },
     {
       "level": 35,
@@ -646,7 +646,7 @@
       "frozenCleared": 1,
       "totalDiscsGoal": 40,
       "totalDiscsCleared": 41,
-      "solveTimeMs": 2.4
+      "solveTimeMs": 2.79
     },
     {
       "level": 36,
@@ -664,7 +664,7 @@
       "frozenCleared": 1,
       "totalDiscsGoal": 40,
       "totalDiscsCleared": 52,
-      "solveTimeMs": 3.31
+      "solveTimeMs": 3.04
     },
     {
       "level": 37,
@@ -682,7 +682,7 @@
       "frozenCleared": 1,
       "totalDiscsGoal": 40,
       "totalDiscsCleared": 54,
-      "solveTimeMs": 2.16
+      "solveTimeMs": 2.39
     },
     {
       "level": 38,
@@ -700,7 +700,7 @@
       "frozenCleared": 1,
       "totalDiscsGoal": 40,
       "totalDiscsCleared": 41,
-      "solveTimeMs": 2.51
+      "solveTimeMs": 2.52
     },
     {
       "level": 39,
@@ -718,7 +718,7 @@
       "frozenCleared": 1,
       "totalDiscsGoal": 40,
       "totalDiscsCleared": 40,
-      "solveTimeMs": 2.2
+      "solveTimeMs": 2.35
     },
     {
       "level": 40,
@@ -736,7 +736,7 @@
       "frozenCleared": 1,
       "totalDiscsGoal": 40,
       "totalDiscsCleared": 63,
-      "solveTimeMs": 2.49
+      "solveTimeMs": 3.06
     },
     {
       "level": 41,
@@ -754,7 +754,7 @@
       "frozenCleared": 1,
       "totalDiscsGoal": 50,
       "totalDiscsCleared": 53,
-      "solveTimeMs": 2.87
+      "solveTimeMs": 2.68
     },
     {
       "level": 42,
@@ -772,7 +772,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 50,
       "totalDiscsCleared": 54,
-      "solveTimeMs": 2.17
+      "solveTimeMs": 2.59
     },
     {
       "level": 43,
@@ -790,7 +790,7 @@
       "frozenCleared": 1,
       "totalDiscsGoal": 50,
       "totalDiscsCleared": 73,
-      "solveTimeMs": 4.13
+      "solveTimeMs": 4.45
     },
     {
       "level": 44,
@@ -808,7 +808,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 50,
       "totalDiscsCleared": 58,
-      "solveTimeMs": 2.46
+      "solveTimeMs": 3.97
     },
     {
       "level": 45,
@@ -826,7 +826,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 50,
       "totalDiscsCleared": 64,
-      "solveTimeMs": 2.39
+      "solveTimeMs": 3.34
     },
     {
       "level": 46,
@@ -844,7 +844,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 50,
       "totalDiscsCleared": 58,
-      "solveTimeMs": 2.09
+      "solveTimeMs": 2.54
     },
     {
       "level": 47,
@@ -862,7 +862,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 50,
       "totalDiscsCleared": 55,
-      "solveTimeMs": 2.62
+      "solveTimeMs": 2.72
     },
     {
       "level": 48,
@@ -880,7 +880,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 50,
       "totalDiscsCleared": 62,
-      "solveTimeMs": 1.73
+      "solveTimeMs": 2.82
     },
     {
       "level": 49,
@@ -898,7 +898,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 50,
       "totalDiscsCleared": 52,
-      "solveTimeMs": 1.33
+      "solveTimeMs": 2.1
     },
     {
       "level": 50,
@@ -916,7 +916,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 50,
       "totalDiscsCleared": 55,
-      "solveTimeMs": 1.6
+      "solveTimeMs": 3.34
     },
     {
       "level": 51,
@@ -934,7 +934,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 60,
       "totalDiscsCleared": 76,
-      "solveTimeMs": 2.88
+      "solveTimeMs": 10.89
     },
     {
       "level": 52,
@@ -952,7 +952,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 60,
       "totalDiscsCleared": 85,
-      "solveTimeMs": 11.47
+      "solveTimeMs": 12.67
     },
     {
       "level": 53,
@@ -970,7 +970,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 60,
       "totalDiscsCleared": 61,
-      "solveTimeMs": 5.78
+      "solveTimeMs": 5.05
     },
     {
       "level": 54,
@@ -988,7 +988,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 60,
       "totalDiscsCleared": 106,
-      "solveTimeMs": 7.7
+      "solveTimeMs": 7.1
     },
     {
       "level": 55,
@@ -1006,7 +1006,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 60,
       "totalDiscsCleared": 77,
-      "solveTimeMs": 4.15
+      "solveTimeMs": 6.27
     },
     {
       "level": 56,
@@ -1024,7 +1024,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 60,
       "totalDiscsCleared": 72,
-      "solveTimeMs": 3.39
+      "solveTimeMs": 5.42
     },
     {
       "level": 57,
@@ -1042,7 +1042,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 60,
       "totalDiscsCleared": 76,
-      "solveTimeMs": 3.08
+      "solveTimeMs": 4.13
     },
     {
       "level": 58,
@@ -1060,7 +1060,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 60,
       "totalDiscsCleared": 61,
-      "solveTimeMs": 2.44
+      "solveTimeMs": 3.48
     },
     {
       "level": 59,
@@ -1078,7 +1078,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 60,
       "totalDiscsCleared": 77,
-      "solveTimeMs": 2.95
+      "solveTimeMs": 4.01
     },
     {
       "level": 60,
@@ -1096,7 +1096,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 60,
       "totalDiscsCleared": 74,
-      "solveTimeMs": 2.45
+      "solveTimeMs": 3.75
     },
     {
       "level": 61,
@@ -1114,7 +1114,7 @@
       "frozenCleared": 1,
       "totalDiscsGoal": 50,
       "totalDiscsCleared": 50,
-      "solveTimeMs": 7.66
+      "solveTimeMs": 9.72
     },
     {
       "level": 62,
@@ -1132,7 +1132,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 50,
       "totalDiscsCleared": 52,
-      "solveTimeMs": 5.69
+      "solveTimeMs": 7.07
     },
     {
       "level": 63,
@@ -1150,7 +1150,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 50,
       "totalDiscsCleared": 50,
-      "solveTimeMs": 6.8
+      "solveTimeMs": 6.61
     },
     {
       "level": 64,
@@ -1168,7 +1168,7 @@
       "frozenCleared": 1,
       "totalDiscsGoal": 50,
       "totalDiscsCleared": 56,
-      "solveTimeMs": 12.27
+      "solveTimeMs": 10.01
     },
     {
       "level": 65,
@@ -1186,7 +1186,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 50,
       "totalDiscsCleared": 50,
-      "solveTimeMs": 5.85
+      "solveTimeMs": 5.6
     },
     {
       "level": 66,
@@ -1204,7 +1204,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 50,
       "totalDiscsCleared": 51,
-      "solveTimeMs": 7
+      "solveTimeMs": 7.36
     },
     {
       "level": 67,
@@ -1222,7 +1222,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 50,
       "totalDiscsCleared": 52,
-      "solveTimeMs": 5.34
+      "solveTimeMs": 6.18
     },
     {
       "level": 68,
@@ -1240,7 +1240,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 50,
       "totalDiscsCleared": 58,
-      "solveTimeMs": 4.18
+      "solveTimeMs": 4.54
     },
     {
       "level": 69,
@@ -1258,7 +1258,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 50,
       "totalDiscsCleared": 54,
-      "solveTimeMs": 4.37
+      "solveTimeMs": 4.62
     },
     {
       "level": 70,
@@ -1276,7 +1276,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 50,
       "totalDiscsCleared": 83,
-      "solveTimeMs": 9.55
+      "solveTimeMs": 10.99
     },
     {
       "level": 71,
@@ -1294,7 +1294,7 @@
       "frozenCleared": 1,
       "totalDiscsGoal": 60,
       "totalDiscsCleared": 61,
-      "solveTimeMs": 12.33
+      "solveTimeMs": 14.34
     },
     {
       "level": 72,
@@ -1312,7 +1312,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 60,
       "totalDiscsCleared": 68,
-      "solveTimeMs": 9.58
+      "solveTimeMs": 9.33
     },
     {
       "level": 73,
@@ -1330,7 +1330,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 60,
       "totalDiscsCleared": 62,
-      "solveTimeMs": 7.4
+      "solveTimeMs": 9.5
     },
     {
       "level": 74,
@@ -1348,7 +1348,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 60,
       "totalDiscsCleared": 69,
-      "solveTimeMs": 1.66
+      "solveTimeMs": 2.5
     },
     {
       "level": 75,
@@ -1366,7 +1366,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 60,
       "totalDiscsCleared": 73,
-      "solveTimeMs": 9.49
+      "solveTimeMs": 11.21
     },
     {
       "level": 76,
@@ -1384,7 +1384,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 60,
       "totalDiscsCleared": 62,
-      "solveTimeMs": 6.79
+      "solveTimeMs": 7.06
     },
     {
       "level": 77,
@@ -1402,7 +1402,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 60,
       "totalDiscsCleared": 77,
-      "solveTimeMs": 8.95
+      "solveTimeMs": 10.22
     },
     {
       "level": 78,
@@ -1420,7 +1420,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 60,
       "totalDiscsCleared": 84,
-      "solveTimeMs": 4.53
+      "solveTimeMs": 4.08
     },
     {
       "level": 79,
@@ -1438,7 +1438,7 @@
       "frozenCleared": 1,
       "totalDiscsGoal": 60,
       "totalDiscsCleared": 62,
-      "solveTimeMs": 9.52
+      "solveTimeMs": 9.88
     },
     {
       "level": 80,
@@ -1456,7 +1456,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 60,
       "totalDiscsCleared": 75,
-      "solveTimeMs": 10.37
+      "solveTimeMs": 10.73
     },
     {
       "level": 81,
@@ -1474,7 +1474,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 70,
       "totalDiscsCleared": 101,
-      "solveTimeMs": 11.18
+      "solveTimeMs": 14.27
     },
     {
       "level": 82,
@@ -1492,7 +1492,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 70,
       "totalDiscsCleared": 98,
-      "solveTimeMs": 10.29
+      "solveTimeMs": 11.08
     },
     {
       "level": 83,
@@ -1510,7 +1510,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 70,
       "totalDiscsCleared": 72,
-      "solveTimeMs": 10.2
+      "solveTimeMs": 9.22
     },
     {
       "level": 84,
@@ -1528,7 +1528,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 70,
       "totalDiscsCleared": 81,
-      "solveTimeMs": 4.36
+      "solveTimeMs": 3.34
     },
     {
       "level": 85,
@@ -1546,7 +1546,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 70,
       "totalDiscsCleared": 79,
-      "solveTimeMs": 9.07
+      "solveTimeMs": 9.82
     },
     {
       "level": 86,
@@ -1564,7 +1564,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 70,
       "totalDiscsCleared": 74,
-      "solveTimeMs": 8.95
+      "solveTimeMs": 8.45
     },
     {
       "level": 87,
@@ -1582,7 +1582,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 70,
       "totalDiscsCleared": 77,
-      "solveTimeMs": 7.71
+      "solveTimeMs": 10.91
     },
     {
       "level": 88,
@@ -1600,7 +1600,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 70,
       "totalDiscsCleared": 76,
-      "solveTimeMs": 2.87
+      "solveTimeMs": 3.6
     },
     {
       "level": 89,
@@ -1618,7 +1618,7 @@
       "frozenCleared": 1,
       "totalDiscsGoal": 70,
       "totalDiscsCleared": 84,
-      "solveTimeMs": 10.92
+      "solveTimeMs": 15.9
     },
     {
       "level": 90,
@@ -1636,7 +1636,7 @@
       "frozenCleared": 3,
       "totalDiscsGoal": 70,
       "totalDiscsCleared": 101,
-      "solveTimeMs": 16
+      "solveTimeMs": 19.3
     },
     {
       "level": 91,
@@ -1654,7 +1654,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 80,
       "totalDiscsCleared": 88,
-      "solveTimeMs": 13.66
+      "solveTimeMs": 13.37
     },
     {
       "level": 92,
@@ -1672,7 +1672,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 80,
       "totalDiscsCleared": 104,
-      "solveTimeMs": 15.25
+      "solveTimeMs": 13.66
     },
     {
       "level": 93,
@@ -1690,7 +1690,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 80,
       "totalDiscsCleared": 87,
-      "solveTimeMs": 10.03
+      "solveTimeMs": 11.32
     },
     {
       "level": 94,
@@ -1708,7 +1708,7 @@
       "frozenCleared": 3,
       "totalDiscsGoal": 80,
       "totalDiscsCleared": 86,
-      "solveTimeMs": 9.81
+      "solveTimeMs": 9.99
     },
     {
       "level": 95,
@@ -1726,7 +1726,7 @@
       "frozenCleared": 3,
       "totalDiscsGoal": 80,
       "totalDiscsCleared": 103,
-      "solveTimeMs": 12.91
+      "solveTimeMs": 14.8
     },
     {
       "level": 96,
@@ -1744,7 +1744,7 @@
       "frozenCleared": 3,
       "totalDiscsGoal": 80,
       "totalDiscsCleared": 103,
-      "solveTimeMs": 8.94
+      "solveTimeMs": 10.11
     },
     {
       "level": 97,
@@ -1762,7 +1762,7 @@
       "frozenCleared": 2,
       "totalDiscsGoal": 80,
       "totalDiscsCleared": 86,
-      "solveTimeMs": 14
+      "solveTimeMs": 14.19
     },
     {
       "level": 98,
@@ -1780,7 +1780,7 @@
       "frozenCleared": 3,
       "totalDiscsGoal": 80,
       "totalDiscsCleared": 100,
-      "solveTimeMs": 13.89
+      "solveTimeMs": 14.66
     },
     {
       "level": 99,
@@ -1798,7 +1798,7 @@
       "frozenCleared": 3,
       "totalDiscsGoal": 80,
       "totalDiscsCleared": 93,
-      "solveTimeMs": 11.62
+      "solveTimeMs": 13.5
     },
     {
       "level": 100,
@@ -1816,7 +1816,7 @@
       "frozenCleared": 3,
       "totalDiscsGoal": 90,
       "totalDiscsCleared": 105,
-      "solveTimeMs": 12.55
+      "solveTimeMs": 16.48
     }
   ]
 }

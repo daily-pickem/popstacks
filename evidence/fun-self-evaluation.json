@@ -1,6 +1,6 @@
 {
   "game": "PopStacks: Art Toy Atelier",
-  "evaluatedAt": "2026-11-06T05:59:52.212Z",
+  "evaluatedAt": "2026-11-06T06:18:43.403Z",
   "targetChanceOfSuccessPct": 80,
   "finalChanceOfSuccessPct": 88,
   "status": "PASSED (88% >= 80% Target)",
@@ -73,7 +73,7 @@
       "baselineScore": 80,
       "finalScore": 90,
       "verifiedSignals": [
-        "Cold start 1262ms (< 2000ms budget), touch latency 29ms",
+        "Cold start 1050ms (< 2000ms budget), touch latency 23.9ms",
         "41 FPS sustained during multi-step 10-disc burst cascades",
         "0 console errors, 0 page errors, 0 failed asset requests"
       ]

@@ -1,6 +1,6 @@
 {
   "game": "PopStacks: Art Toy Atelier",
-  "evaluatedAt": "2026-11-06T07:19:00.724Z",
+  "evaluatedAt": "2026-11-06T07:48:26.222Z",
   "viewport": {
     "width": 390,
     "height": 844,
@@ -9,20 +9,20 @@
     "hasTouch": true
   },
   "metrics": {
-    "coldStartWallMs": 1381,
-    "engineBootColdStartMs": 54,
+    "coldStartWallMs": 1375,
+    "engineBootColdStartMs": 99,
     "coldStartRequirementMs": 2000,
     "coldStartPassed": true,
-    "touchToVisualLatencyMs": 32.9,
+    "touchToVisualLatencyMs": 40.7,
     "touchLatencyRequirementMs": 50,
     "touchLatencyPassed": true,
-    "cascadeBurstFps": 41,
+    "cascadeBurstFps": 39,
     "cascadeSampleFrames": 30,
     "fpsTarget": 60,
     "fpsStabilityPassed": false,
-    "rewardedAdHeapBeforeBytes": 24920741,
-    "rewardedAdHeapAfterBytes": 25412491,
-    "rewardedAdHeapDeltaKB": 480,
+    "rewardedAdHeapBeforeBytes": 25485734,
+    "rewardedAdHeapAfterBytes": 25978116,
+    "rewardedAdHeapDeltaKB": 481,
     "zeroMemoryLeaksAfterAd": true,
     "consoleErrorsCount": 0,
     "pageErrorsCount": 0,
@@ -45,7 +45,8 @@
       }
     },
     "boosterAdRefillCheck": {
-      "badgeTextZero": "▶ AD"
+      "badgeTextZero": "▶ AD",
+      "hammerSmashVerified": true
     },
     "deadlockAdBtnVisible": true,
     "winModalAdBtnVisible": true,

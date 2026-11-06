@@ -1108,19 +1108,25 @@ body {
   padding: 4px 10px;
 }
 
-/* Screen 4: Booster Active Banner */
+/* Screen 4: Booster Active Banner (Floating pill so #stage-container never shifts) */
 .booster-active-banner {
-  margin: 6px 12px 0 12px;
-  padding: 8px 12px;
-  border-radius: var(--radius-card);
-  background: var(--bg-hud-espresso);
+  position: absolute;
+  top: 96px;
+  left: 12px;
+  right: 12px;
+  margin: 0;
+  padding: 8px 14px;
+  border-radius: 20px;
+  background: rgba(35, 27, 21, 0.94);
+  backdrop-filter: blur(8px);
   color: #FFFFFF;
   border: 2px solid var(--accent-cta-amber);
+  box-shadow: 0 12px 28px rgba(35, 25, 15, 0.28);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  z-index: 15;
+  z-index: 30;
 }
 
 .booster-banner-left {
@@ -6376,6 +6382,16 @@ p { text-wrap: pretty; }
   border-radius: 50% !important;
   background: #FFFFFF !important;
   box-shadow: 0 10px 20px -4px rgba(35, 25, 15, 0.12), inset 0 2px 0 #FFFFFF !important;
+  touch-action: none !important;
+  user-select: none !important;
+  -webkit-user-drag: none !important;
+}
+
+.booster-btn .booster-sprite-img,
+.booster-btn .booster-badge {
+  pointer-events: none !important;
+  user-select: none !important;
+  -webkit-user-drag: none !important;
 }
 
 .booster-btn.active {

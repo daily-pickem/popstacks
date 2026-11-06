@@ -258,9 +258,42 @@ async function runEvaluation() {
   await page.waitForTimeout(200);
   await page.screenshot({ path: path.join(EVIDENCE_DIR, 'ws05_booster_hammer_active.png') });
   console.log('Captured ws05_booster_hammer_active.png');
-  await page.evaluate(() => {
-    window.__POPSTACKS_DEBUG__.cancelBoosterMode();
+
+  // Verify Ceramic Hammer actually smashes a 3D stack when clicking its top reticle
+  const hammerSmashCheck = await page.evaluate(() => {
+    const g = window.__POPSTACKS_DEBUG__.game;
+    const rect = g.canvas.getBoundingClientRect();
+    const targetCell = g.cellList.find((c) => c.stack.length > 0);
+    if (!targetCell) return { passed: false, reason: 'no_stack' };
+    const pos = g.axialToPixel(targetCell.q, targetCell.r);
+    const topY = pos.y - Math.max(0, targetCell.stack.length - 1) * g.discThickness;
+    const scaleX = rect.width / (g.width || rect.width);
+    const scaleY = rect.height / (g.height || rect.height);
+    return {
+      key: targetCell.key,
+      beforeLen: targetCell.stack.length,
+      beforeHammerCount: g.profile.boosters.hammer,
+      clickX: rect.left + pos.x * scaleX,
+      clickY: rect.top + topY * scaleY
+    };
   });
+  if (hammerSmashCheck.clickX) {
+    await page.mouse.click(hammerSmashCheck.clickX, hammerSmashCheck.clickY);
+    await page.waitForTimeout(120);
+  }
+  const hammerSmashAfter = await page.evaluate((key) => {
+    const g = window.__POPSTACKS_DEBUG__.game;
+    const cell = g.cells.get(key);
+    return {
+      afterLen: cell ? cell.stack.length : -1,
+      afterHammerCount: g.profile.boosters.hammer,
+      activeBooster: g.activeBooster
+    };
+  }, hammerSmashCheck.key);
+  boosterAdRefillCheck.hammerSmashVerified =
+    hammerSmashAfter.afterLen === 0 &&
+    hammerSmashAfter.afterHammerCount === hammerSmashCheck.beforeHammerCount - 1 &&
+    hammerSmashAfter.activeBooster === null;
 
   // ---------------------------------------------------------------------------
   // 5. WS04: Out-of-Moves Deadlock Warning & Rewarded Ad Rescue Modal

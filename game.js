@@ -1243,11 +1243,33 @@
         });
       }
 
-      // Bottom 3-Booster Dock Controls
+      // Bottom 3-Booster Dock Controls (supports both Tap-then-Tap AND Drag-to-Board!)
       const btnHammer = document.getElementById('btn-booster-hammer');
       const btnSwap = document.getElementById('btn-booster-swap');
       const btnExtraSlot = document.getElementById('btn-booster-extraslot');
-      if (btnHammer) btnHammer.addEventListener('click', () => this.activateBooster('hammer'));
+      if (btnHammer) {
+        btnHammer.addEventListener('dragstart', (e) => e.preventDefault());
+        btnHammer.addEventListener('pointerdown', (e) => {
+          if (this.profile.boosters.hammer > 0 && !this.isProcessingCascade) {
+            this.boosterDragState = {
+              type: 'hammer',
+              startX: e.clientX,
+              startY: e.clientY,
+              lastX: e.clientX,
+              lastY: e.clientY,
+              moved: false
+            };
+          }
+        });
+        btnHammer.addEventListener('click', () => {
+          if (this.boosterDragState && this.boosterDragState.moved) {
+            this.boosterDragState = null;
+            return;
+          }
+          this.boosterDragState = null;
+          this.activateBooster('hammer');
+        });
+      }
       if (btnSwap) btnSwap.addEventListener('click', () => this.activateBooster('swap'));
       if (btnExtraSlot) btnExtraSlot.addEventListener('click', () => this.activateBooster('extraslot'));
 
@@ -3359,6 +3381,10 @@
 
       this.activeBooster = type;
       this.swapSourceCellKey = null;
+      this.selectedTrayIndex = -1;
+      this.hoveredCellKey = null;
+      this.recommendedCellKey = null;
+      this.dragState.active = false;
 
       const overlay = document.getElementById('booster-overlay');
       const iconEl = document.getElementById('booster-active-icon');
@@ -3370,7 +3396,7 @@
       if (type === 'hammer') {
         if (iconEl) iconEl.textContent = '◆';
         if (titleEl) titleEl.textContent = 'Ceramic Hammer';
-        if (descEl) descEl.textContent = 'Tap any stack on the board to smash it';
+        if (descEl) descEl.textContent = 'Tap any stack or obstacle on the board to smash it';
         if (btnReroll) btnReroll.classList.add('hidden');
       } else if (type === 'swap') {
         if (iconEl) iconEl.textContent = '↻';
@@ -3392,7 +3418,7 @@
     }
 
     executeHammerOnCell(cell) {
-      if (!cell || cell.isAnvil || cell.stack.length === 0) return false;
+      if (!cell || (cell.stack.length === 0 && !cell.isAnvil && cell.iceHp === 0)) return false;
       this.saveUndoSnapshot();
 
       if (this.profile.boosters.hammer > 0) {
@@ -3400,35 +3426,63 @@
       }
 
       const pos = this.axialToPixel(cell.q, cell.r);
-      const topColId = getTopColor(cell.stack) || 0;
+      const stackH = Math.max(1, cell.stack.length) * this.discThickness;
+      const topY = pos.y - stackH + this.discThickness;
+      const topColId = getTopColor(cell.stack) ?? 0;
       const colObj = VINYL_COLORS[topColId] || VINYL_COLORS[0];
 
-      // Credit all smashed discs toward level color objectives & Pigment Vat
-      cell.stack.forEach((cId) => {
+      // Credit all smashed discs toward level color objectives
+      const smashedDiscs = [...cell.stack];
+      smashedDiscs.forEach((cId, idx) => {
         const key = getColorKey(cId);
         this.clearedByColor[key] = (this.clearedByColor[key] || 0) + 1;
-        this.profile.pigments[key] = (this.profile.pigments[key] || 0) + 1;
         this.totalDiscsCleared++;
+        const discCol = VINYL_COLORS[cId] || colObj;
+        const discY = pos.y - idx * this.discThickness;
+        this.spawnSingleDiscPeelEffect(pos.x, discY, discCol);
       });
 
-      const smashedCount = cell.stack.length;
+      const smashedCount = Math.max(1, smashedDiscs.length);
       cell.stack = [];
+      if (cell.isAnvil) {
+        cell.isAnvil = false;
+      }
       if (cell.hasCapsule) {
         this.collectBoardCapsule(pos.x, pos.y);
       }
       if (cell.iceHp > 0) {
         cell.iceHp = 0;
         this.frozenCleared++;
+        this.spawnClayCrackParticles(pos.x, topY, true);
       }
 
-      this.score += smashedCount * 25;
-      this.clears++;
-      this.audio.playHammerSmash();
-      this.spawnBurstEffects(pos.x, pos.y - 16, colObj, smashedCount * 25, 1);
-      this.spawnObjectiveFlyingDiscs(pos.x, pos.y - 16, colObj, Math.min(4, smashedCount));
+      // Also crack any adjacent Frozen Clay tiles from the hammer shockwave!
+      this.crackAdjacentFrozenCells(cell, true);
 
+      const pts = smashedCount * 35;
+      this.score += pts;
+      if (this.score > this.bestScore) this.bestScore = this.score;
+      this.clears++;
+      this.chargeKilnFever(25);
+      this.triggerBoardShake(4.8, 160);
+      this.audio.playHammerSmash();
+      this.spawnBurstEffects(pos.x, topY - 8, colObj, pts, 1, smashedCount);
+      this.spawnObjectiveFlyingDiscs(pos.x, topY - 8, colObj, Math.min(4, smashedCount));
+
+      this.floatingTexts.push({
+        x: pos.x,
+        y: topY - 26,
+        text: '★ HAMMER SMASH!',
+        subText: `+${pts} PTS · CLEARED!`,
+        color: '#FF9F1C',
+        life: 0,
+        maxLife: 900
+      });
+
+      this.saveProfile();
       this.cancelBoosterMode();
-      this.finishTurn(false);
+      this.isProcessingCascade = true;
+      this.processNextCascadeStep();
       return true;
     }
 
@@ -3440,6 +3494,7 @@
         const discs = Catalog.generateSmartTrayStack(this, this.rng, this.currentLevelDef);
         this.tray[i] = { discs, scale: 1, offsetY: 0 };
       }
+      this.saveProfile();
       this.audio.playTraySwap();
       this.cancelBoosterMode();
       this.updateHUD();
@@ -3454,7 +3509,8 @@
       this.cellList.forEach((c) => {
         cellsCopy[c.key] = {
           stack: [...c.stack],
-          iceHp: c.iceHp
+          iceHp: c.iceHp,
+          isAnvil: !!c.isAnvil
         };
       });
       const trayCopy = this.tray.map((slot) => (slot ? [...slot.discs] : null));
@@ -3483,6 +3539,7 @@
         if (snap) {
           c.stack = [...snap.stack];
           c.iceHp = snap.iceHp;
+          c.isAnvil = !!snap.isAnvil;
         }
         c.scaleX = 1;
         c.scaleY = 1;
@@ -3609,9 +3666,11 @@
 
     getCanvasCoords(e) {
       const rect = this.canvas.getBoundingClientRect();
+      const scaleX = rect.width > 0 ? this.width / rect.width : 1;
+      const scaleY = rect.height > 0 ? this.height / rect.height : 1;
       return {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top
+        x: (e.clientX - rect.left) * scaleX,
+        y: (e.clientY - rect.top) * scaleY
       };
     }
 
@@ -3653,6 +3712,51 @@
       return bestCell;
     }
 
+    /**
+     * 3D stack-aware hit testing for Ceramic Hammer & Spatula Swap.
+     * Accounts for the vertical height of stacked discs (`topY` to `pos.y`) so tapping
+     * the pulsing target reticle at the top of a tall stack never hits the empty cell behind it.
+     */
+    findBoosterTargetCellAt(x, y, mode = 'hammer') {
+      const maxHitRadius = this.hexRadius * 1.65;
+      let bestCell = null;
+      let bestScore = maxHitRadius;
+
+      for (let i = 0; i < this.cellList.length; i++) {
+        const cell = this.cellList[i];
+        if (mode === 'hammer') {
+          if (cell.stack.length === 0 && cell.iceHp === 0 && !cell.isAnvil) continue;
+        } else if (mode === 'swap-source') {
+          if (cell.isAnvil || cell.iceHp > 0 || cell.stack.length === 0) continue;
+        }
+
+        const pos = this.axialToPixel(cell.q, cell.r);
+        const stackHeight = cell.isAnvil
+          ? this.discThickness * 1.4
+          : Math.max(0, cell.stack.length - 1) * this.discThickness;
+        const topY = pos.y - stackHeight;
+
+        // Distance to top face (where the target reticle & count badge live)
+        const distTop = Math.hypot(x - pos.x, (y - topY) / Y_TILT);
+        // Distance to vertical 3D cylinder column between topY and pos.y
+        const clampedY = Math.max(topY, Math.min(pos.y, y));
+        const distCol = Math.hypot(x - pos.x, (y - clampedY) / Y_TILT);
+        const rawDist = Math.min(distTop, distCol);
+        if (rawDist > maxHitRadius) continue;
+
+        // Prioritize hitting the top face or 3D column of foreground stacks
+        let score = Math.min(distTop * 0.88, distCol) - cell.r * 0.35;
+        if (cell.isAnvil && cell.stack.length === 0 && rawDist > this.hexRadius * 0.55) {
+          score += 6;
+        }
+        if (score < bestScore) {
+          bestScore = score;
+          bestCell = cell;
+        }
+      }
+      return bestCell;
+    }
+
     findNearestEmptyCell(x, y, maxRadius) {
       let bestKey = null;
       let bestDist = maxRadius;
@@ -3687,34 +3791,58 @@
 
       const pt = this.getCanvasCoords(e);
 
-      // 0. Handle Active Booster Click on Board
+      // 0. Handle Active Booster Click on Board (3D stack-height aware!)
       if (this.activeBooster === 'hammer') {
-        const tappedCell = this.findCellAt(pt.x, pt.y, this.hexRadius * 1.3);
-        if (tappedCell && !tappedCell.isAnvil && tappedCell.stack.length > 0) {
+        const tappedCell = this.findBoosterTargetCellAt(pt.x, pt.y, 'hammer');
+        if (tappedCell) {
           this.executeHammerOnCell(tappedCell);
         }
         return;
       }
 
       if (this.activeBooster === 'swap') {
-        const tappedCell = this.findCellAt(pt.x, pt.y, this.hexRadius * 1.3);
-        if (tappedCell && !tappedCell.isAnvil && tappedCell.iceHp === 0) {
-          if (!this.swapSourceCellKey && tappedCell.stack.length > 0) {
-            this.swapSourceCellKey = tappedCell.key;
+        if (!this.swapSourceCellKey) {
+          const srcCandidate = this.findBoosterTargetCellAt(pt.x, pt.y, 'swap-source');
+          if (srcCandidate) {
+            this.swapSourceCellKey = srcCandidate.key;
             this.audio.playPickup();
-          } else if (this.swapSourceCellKey && tappedCell.stack.length === 0) {
-            const srcCell = this.cells.get(this.swapSourceCellKey);
-            if (srcCell && srcCell.stack.length > 0) {
+            const descEl = document.getElementById('booster-active-desc');
+            if (descEl) descEl.textContent = 'Stack selected! Tap an empty hex or another stack';
+          }
+        } else {
+          const srcCell = this.cells.get(this.swapSourceCellKey);
+          const emptyKey = this.findNearestEmptyCell(pt.x, pt.y, this.hexRadius * 1.4);
+          const otherStack = this.findBoosterTargetCellAt(pt.x, pt.y, 'swap-source');
+          if (srcCell && srcCell.stack.length > 0 && emptyKey) {
+            const destCell = this.cells.get(emptyKey);
+            if (destCell && destCell.stack.length === 0) {
               this.saveUndoSnapshot();
               if (this.profile.boosters.swap > 0) this.profile.boosters.swap--;
-              tappedCell.stack = [...srcCell.stack];
+              destCell.stack = [...srcCell.stack];
               srcCell.stack = [];
+              this.saveProfile();
               this.audio.playTraySwap();
               this.cancelBoosterMode();
-              this.enqueueCell(tappedCell.q, tappedCell.r, 'swap-move');
+              this.enqueueCell(destCell.q, destCell.r, 'swap-move');
               this.isProcessingCascade = true;
               this.processNextCascadeStep();
             }
+          } else if (srcCell && otherStack && otherStack.key !== srcCell.key) {
+            this.saveUndoSnapshot();
+            if (this.profile.boosters.swap > 0) this.profile.boosters.swap--;
+            const tmp = [...srcCell.stack];
+            srcCell.stack = [...otherStack.stack];
+            otherStack.stack = tmp;
+            this.saveProfile();
+            this.audio.playTraySwap();
+            this.cancelBoosterMode();
+            this.enqueueCell(otherStack.q, otherStack.r, 'swap-move');
+            this.enqueueCell(srcCell.q, srcCell.r, 'swap-move');
+            this.isProcessingCascade = true;
+            this.processNextCascadeStep();
+          } else if (otherStack && otherStack.key === this.swapSourceCellKey) {
+            this.swapSourceCellKey = null;
+            this.audio.playUiClick();
           }
         }
         return;
@@ -3760,6 +3888,25 @@
 
     onPointerMove(e) {
       if (this.activeScreen !== 'board') return;
+
+      // Support dragging the Ceramic Hammer directly from the dock onto the board
+      if (this.boosterDragState && this.boosterDragState.type === 'hammer') {
+        if (typeof e.clientX === 'number' && e.clientX > 0) {
+          this.boosterDragState.lastX = e.clientX;
+          this.boosterDragState.lastY = e.clientY;
+        }
+        const dist = Math.hypot(
+          this.boosterDragState.lastX - this.boosterDragState.startX,
+          this.boosterDragState.lastY - this.boosterDragState.startY
+        );
+        if (dist > 14 && !this.boosterDragState.moved) {
+          this.boosterDragState.moved = true;
+          if (this.activeBooster !== 'hammer') {
+            this.activateBooster('hammer');
+          }
+        }
+      }
+
       const pt = this.getCanvasCoords(e);
 
       if (!this.dragState.active) {
@@ -3792,6 +3939,23 @@
     }
 
     onPointerUp(e) {
+      if (this.boosterDragState && this.boosterDragState.moved) {
+        const dragState = this.boosterDragState;
+        this.boosterDragState = null;
+        if (dragState.type === 'hammer' && this.activeBooster === 'hammer') {
+          const clientX = typeof e.clientX === 'number' && e.clientX > 0 ? e.clientX : dragState.lastX;
+          const clientY = typeof e.clientY === 'number' && e.clientY > 0 ? e.clientY : dragState.lastY;
+          const pt = this.getCanvasCoords({ clientX, clientY });
+          if (pt.x >= 0 && pt.x <= this.width && pt.y >= 0 && pt.y <= this.height) {
+            const targetCell = this.findBoosterTargetCellAt(pt.x, pt.y, 'hammer');
+            if (targetCell) {
+              this.executeHammerOnCell(targetCell);
+              return;
+            }
+          }
+        }
+      }
+
       if (!this.dragState.active) return;
       this.measureInputLatency(e);
 
@@ -6002,6 +6166,9 @@
 
         if (cell.isAnvil) {
           this.drawBrassAnvil(ctx, pos.x, pos.y);
+          if (this.activeBooster === 'hammer') {
+            this.drawBoosterTargetReticle(ctx, pos.x, pos.y, cell, now);
+          }
           continue;
         }
 
@@ -6469,7 +6636,9 @@
     }
 
     drawBoosterTargetReticle(ctx, baseX, baseY, cell, now) {
-      const topY = baseY - (cell.stack.length - 1) * this.discThickness;
+      const topY = cell.isAnvil
+        ? baseY - this.discThickness * 2.4
+        : baseY - Math.max(0, cell.stack.length - 1) * this.discThickness;
       const pulse = 1 + 0.07 * Math.sin(now * 0.01);
       const rx = this.hexRadius * 0.94 * pulse;
       const ry = rx * Y_TILT;

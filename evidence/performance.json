@@ -1,0 +1,47 @@
+{
+  "game": "PopStacks: Art Toy Atelier",
+  "evaluatedAt": "2026-10-18T01:00:16.296Z",
+  "viewport": {
+    "width": 390,
+    "height": 844,
+    "deviceScaleFactor": 3,
+    "isMobile": true,
+    "hasTouch": true
+  },
+  "metrics": {
+    "coldStartWallMs": 634,
+    "engineBootColdStartMs": 22,
+    "coldStartRequirementMs": 2000,
+    "coldStartPassed": true,
+    "touchToVisualLatencyMs": 13.1,
+    "touchLatencyRequirementMs": 50,
+    "touchLatencyPassed": true,
+    "cascadeBurstFps": 60,
+    "cascadeSampleFrames": 30,
+    "fpsTarget": 60,
+    "fpsStabilityPassed": true,
+    "rewardedAdHeapBeforeBytes": 5737137,
+    "rewardedAdHeapAfterBytes": 6011586,
+    "rewardedAdHeapDeltaKB": 268,
+    "zeroMemoryLeaksAfterAd": true,
+    "consoleErrorsCount": 0,
+    "pageErrorsCount": 0,
+    "failedLocalAssetRequestsCount": 0
+  },
+  "workstreamChecks": {
+    "ws01_ftueWonIn3Moves": true,
+    "ws02_dragSnappedToCenter": true,
+    "ws03_level65SlotCount": 37,
+    "ws03_level65AnvilsCount": 3,
+    "ws03_level65FrozenCount": 2,
+    "catalogStats": {
+      "levelsCount": 100,
+      "chaptersCount": 10,
+      "seriesCount": 10,
+      "figurinesCount": 60
+    }
+  },
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failedLocalRequests": []
+}

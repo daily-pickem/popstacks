@@ -1,0 +1,8 @@
+{
+  "appId": "com.popstacks.atelier",
+  "appName": "PopStacks: Art Toy Atelier",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  }
+}

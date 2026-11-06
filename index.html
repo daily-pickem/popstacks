@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#F7F3EB" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <title>PopStacks: Art Toy Atelier</title>
+  <link rel="icon" type="image/png" href="assets/art/app_icon_512.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css?v=20261020a" />
+</head>
+<body>
+  <div id="app-shell" class="app-shell">
+    <!-- ===================================================================
+         PERSISTENT TOP STATUS BAR (Shown on Hub, Daily, Gallery Tabs)
+         =================================================================== -->
+    <header id="meta-top-bar" class="meta-top-bar hidden" aria-label="Status">
+      <button id="btn-top-hearts" class="currency-pill tap-target" type="button" aria-label="Hearts">
+        <span class="pill-icon" id="top-heart-icon">❤️</span>
+        <span class="pill-val" id="top-hearts-val">5/5</span>
+        <span class="pill-sub" id="top-hearts-timer">FULL</span>
+      </button>
+
+      <button id="btn-top-collection" class="currency-pill tap-target" type="button" aria-label="Collection">
+        <span class="pill-icon">🏺</span>
+        <span class="pill-val" id="top-collection-val">6/60</span>
+      </button>
+
+      <button id="btn-meta-settings" class="icon-btn tap-target" type="button" aria-label="Settings">⚙️</button>
+    </header>
+
+    <!-- ===================================================================
+         SCREEN 1: MAIN WORKSHOP HUB — DUOLINGO-STYLE CONTINUOUS 3D HEX ISLAND PATH
+         =================================================================== -->
+    <section id="screen-hub" class="screen-view hidden" aria-label="Home">
+      <!-- 1A. Sticky Active Island Banner (updates dynamically while scrolling) -->
+      <div id="hub-sticky-unit-banner" class="duo-sticky-unit-banner island-theme-1">
+        <div class="duo-unit-copy">
+          <span class="duo-unit-kicker" id="hub-unit-kicker">ISLAND 1 · LEVELS 1–10</span>
+          <strong class="duo-unit-title" id="hub-unit-title">Botanical Spirits Island</strong>
+        </div>
+        <div class="duo-unit-right">
+          <span class="duo-unit-stars" id="hub-unit-stars">⭐ 0/30</span>
+          <button id="btn-hub-jump-current" class="duo-jump-curr-btn tap-target" type="button" title="Jump to Current Level">
+            🎯 Lv. 1
+          </button>
+        </div>
+      </div>
+
+      <!-- 1B. One Continuous Vertical Scrolling List of 10 Islands & 100 3D Hex Steps -->
+      <div id="hub-continuous-scroll" class="duo-continuous-scroll">
+        <div id="hub-level-nodes-grid" class="duo-islands-stream"></div>
+      </div>
+
+      <!-- 1C. Clean Bottom Play CTA Dock -->
+      <div class="hub-play-dock duo-play-dock">
+        <button id="btn-hub-play-level" class="cta-primary-amber game-play-giant-btn tap-target" type="button">
+          <span class="shine-sweep" aria-hidden="true"></span>
+          <span class="cta-main-text" id="btn-hub-play-title">PLAY LEVEL 1</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         SCREEN 2: PUZZLE BOARD MID-SOLVE VIEW (Active Gameplay Screen)
+         =================================================================== -->
+    <section id="screen-board" class="screen-view active-screen" aria-label="Puzzle Workbench Board">
+      <!-- 2A. 3D Carved Wood & Brass Game Stage HUD (0-13% H) -->
+      <div id="board-top-hud" class="board-top-hud">
+        <button id="btn-board-hub" class="hud-square-btn tap-target" type="button" aria-label="Home">🏠</button>
+
+        <div id="hud-objective-card" class="hud-objective-card" aria-live="polite">
+          <div class="obj-header-row">
+            <span class="obj-title" id="hud-level-badge">LEVEL 1</span>
+            <span class="hud-score-pill" id="hud-score-pill" title="Score, Live Stars & Active Combo Multiplier">
+              <span class="hud-stars-live" id="hud-stars-live">☆☆☆</span>
+              <strong id="hud-score">0</strong>
+              <span class="hud-mult-badge" id="hud-mult-badge">×1</span>
+            </span>
+            <span class="obj-total-counter" id="hud-obj-counter">0/30</span>
+          </div>
+          <div id="hud-target-chips" class="obj-target-chips"></div>
+          <div class="obj-progress-bar">
+            <div id="hud-obj-fill" class="obj-progress-fill" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <button id="btn-board-settings" class="hud-square-btn tap-target" type="button" aria-label="Settings">⚙️</button>
+      </div>
+
+      <!-- SCREEN 10: Interactive FTUE Onboarding Banner (Shown on Level 1) -->
+      <div id="ftue-overlay" class="ftue-banner hidden" role="status" aria-live="polite">
+        <p class="ftue-step-text" id="ftue-step-text">Drag a stack onto the glowing hex</p>
+        <button id="btn-skip-ftue" class="ftue-skip-btn tap-target" type="button">Skip</button>
+      </div>
+
+      <!-- SCREEN 4: Booster Tool Active Overlay Banner -->
+      <div id="booster-overlay" class="booster-active-banner hidden" role="status" aria-live="assertive">
+        <div class="booster-banner-left">
+          <span class="booster-banner-icon" id="booster-active-icon">🔨</span>
+          <div class="booster-banner-copy">
+            <strong id="booster-active-title">Ceramic Mallet Active</strong>
+            <span id="booster-active-desc">Tap any stack on the board to smash it</span>
+          </div>
+        </div>
+        <div class="booster-banner-actions">
+          <button id="btn-booster-reroll-now" class="booster-action-pill teal tap-target hidden" type="button">
+            🔄 Reroll
+          </button>
+          <button id="btn-booster-cancel" class="booster-action-pill dark tap-target" type="button">
+            ✕ Cancel
+          </button>
+        </div>
+      </div>
+
+      <!-- Step-by-Step Cascade Debugger Banner -->
+      <div id="step-mode-banner" class="step-mode-banner hidden">
+        <span>⏸ Cascade Step Mode Active</span>
+        <div class="step-banner-btns">
+          <button id="btn-banner-step" class="mini-btn tap-target" type="button">Step Next ▶</button>
+          <button id="btn-banner-resume" class="mini-btn tap-target" type="button">Resume ⏩</button>
+        </div>
+      </div>
+
+      <!-- Low-Space Warning Pill (1 Empty Hex Remaining) -->
+      <div id="low-space-banner" class="low-space-banner hidden">
+        ⚠️ 1 EMPTY SOCKET LEFT — MERGE STACKS SOON!
+      </div>
+
+      <!-- 2B & 2C. Center Isometric Hexagonal Workbench & 3+1 Dispenser Tray Canvas -->
+      <div id="stage-container" class="stage-container">
+        <canvas id="game-canvas"></canvas>
+
+        <!-- Floating Score / Combo Ribbons + Equipped Buddy + Zoom Reset Pill -->
+        <div class="canvas-hud-badges">
+          <button id="btn-board-buddy" class="board-buddy-pill tap-target hidden" type="button" title="Equipped Figurine Buddy — Tap to view Collection">
+            <span class="board-buddy-dot" id="board-buddy-dot"></span>
+            <span class="board-buddy-name" id="board-buddy-name">Mossy Sproutling</span>
+          </button>
+          <span id="hud-combo" class="combo-pill hidden">x2 COMBO!</span>
+          <button id="btn-zoom-reset" class="zoom-reset-pill tap-target hidden" type="button" aria-label="Reset board zoom">
+            🔍 <span id="zoom-val-label">1.5×</span> · Reset
+          </button>
+        </div>
+
+        <!-- Animated Round-to-Round Transition Celebration Banner -->
+        <div id="round-transition-banner" class="round-transition-banner hidden" aria-live="assertive">
+          <div class="round-banner-card">
+            <div class="round-banner-copy">
+              <span class="round-banner-tag" id="round-banner-title">🎉 ROUND 2</span>
+              <strong class="round-banner-sub" id="round-banner-sub">Warm Terracotta Wheel — Ready, Sculpt!</strong>
+            </div>
+            <img src="assets/art/icon_chest.png" alt="" class="round-banner-chest" />
+          </div>
+        </div>
+      </div>
+
+      <!-- 2D. Bottom 3-Booster Toy Capsule Dock (86-98% H, >=48x48dp ergonomic targets) -->
+      <div id="booster-dock" class="booster-dock" role="toolbar" aria-label="Boosters">
+        <button id="btn-booster-hammer" class="booster-btn booster-capsule-coral tap-target" type="button" aria-label="Hammer: smash a stack">
+          <img src="assets/art/icon_hammer.png" alt="" class="booster-sprite-img" />
+          <span class="booster-badge" id="badge-booster-hammer">3</span>
+        </button>
+        <button id="btn-booster-swap" class="booster-btn booster-capsule-mint tap-target" type="button" aria-label="Swap: reroll tray">
+          <img src="assets/art/icon_swap.png" alt="" class="booster-sprite-img" />
+          <span class="booster-badge" id="badge-booster-swap">3</span>
+        </button>
+        <button id="btn-booster-extraslot" class="booster-btn booster-capsule-gold tap-target" type="button" aria-label="Extra slot">
+          <img src="assets/art/icon_extraslot.png" alt="" class="booster-sprite-img" />
+          <span class="booster-badge" id="badge-booster-extraslot">2</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         SCREEN 6: DAILY ARTISAN CHALLENGE & GLOBAL LEADERBOARD TAB
+         =================================================================== -->
+    <section id="screen-daily" class="screen-view hidden" aria-label="Daily Challenge">
+      <div class="hub-scroll-content">
+        <div class="atelier-card daily-hero-card">
+          <div class="daily-header-row">
+            <h1 class="card-heading-l" id="daily-title-text">Daily Challenge</h1>
+            <div class="streak-pill" id="daily-streak-pill">🔥 5</div>
+          </div>
+
+          <div class="daily-segmented-toggle" role="tablist">
+            <button id="btn-daily-tab-puzzle" class="seg-btn tap-target active" type="button">Today</button>
+            <button id="btn-daily-tab-board" class="seg-btn tap-target" type="button">Leaderboard</button>
+          </div>
+
+          <div id="daily-puzzle-panel" class="daily-subpanel">
+            <div class="daily-modifier-box">
+              <div class="mod-top-row">
+                <h3 class="mod-title" id="daily-mod-name">Kiln Overdrive</h3>
+                <span class="grid-size-badge" id="daily-grid-badge">19</span>
+              </div>
+              <p class="mod-desc" id="daily-mod-desc"></p>
+              <span class="hidden" id="daily-date-label"></span>
+            </div>
+
+            <div class="calendar-section">
+              <div class="cal-header">
+                <span>October</span>
+                <strong id="daily-cal-count">17 / 31</strong>
+              </div>
+              <div id="daily-calendar-grid" class="daily-calendar-grid"></div>
+            </div>
+
+            <button id="btn-play-daily-challenge" class="cta-primary-amber tap-target" type="button">
+              <span class="cta-main-text">PLAY</span>
+            </button>
+          </div>
+
+          <div id="daily-leaderboard-panel" class="daily-subpanel daily-lb-combined hidden">
+            <div id="daily-leaderboard-list" class="leaderboard-list"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         SCREEN 7: TOY SHOWCASE GALLERY TAB (60 Unique Vinyl Figurines)
+         =================================================================== -->
+    <section id="screen-gallery" class="screen-view hidden" aria-label="Collection">
+      <div class="hub-scroll-content" id="gallery-scroll-content">
+        <div class="gallery-header-row">
+          <h1 class="card-heading-l">Collection</h1>
+          <span class="collection-count-pill" id="gallery-count-pill">1 / 60</span>
+        </div>
+
+        <!-- Celebratory Equip Confirmation Banner (pops in when equipping a figurine) -->
+        <div id="gallery-equip-banner" class="gallery-equip-banner hidden" role="status" aria-live="polite">
+          <span class="equip-banner-burst-icon">✨</span>
+          <div class="equip-banner-copy">
+            <strong id="gallery-equip-banner-title">Figurine Equipped!</strong>
+            <span id="gallery-equip-banner-sub">Board Theme, 3D Tiles &amp; Soundtrack Active</span>
+          </div>
+          <span class="equip-banner-check">✓ ACTIVE</span>
+        </div>
+
+        <!-- Equipped Companion Showcase Card (Themed Active Loadout Showcase) -->
+        <div class="gallery-buddy-card" id="gallery-buddy-card">
+          <div class="buddy-fx-layer" id="gallery-buddy-fx-layer" aria-hidden="true"></div>
+          <div class="buddy-card-left" id="gallery-buddy-avatar"></div>
+          <div class="buddy-card-body">
+            <div class="buddy-card-top">
+              <span class="personalize-kicker" id="gallery-buddy-kicker">✨ EQUIPPED COMPANION</span>
+              <button type="button" class="buddy-unequip-btn tap-target" id="btn-gallery-buddy-toggle">Classic Birch</button>
+            </div>
+            <strong class="buddy-card-title" id="gallery-buddy-name">Mossy Sproutling</strong>
+            <span class="buddy-card-sub" id="gallery-buddy-kit">Botanical Forest Kit · Wood-Ring &amp; Leaf Discs</span>
+            <div class="buddy-swatch-row" id="gallery-buddy-swatches" aria-label="Equipped Board & Disc Palette"></div>
+          </div>
+        </div>
+
+        <div id="gallery-series-strip" class="series-carousel-strip" role="tablist" aria-label="Series filter"></div>
+        <div id="gallery-shelves-container" class="gallery-shelves-container"></div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         SCREEN 8: ATELIER SHOP & ETHICAL MONETIZATION TAB
+         =================================================================== -->
+    <section id="screen-shop" class="screen-view hidden" aria-label="Shop">
+      <div class="hub-scroll-content">
+        <div class="atelier-card collector-pass-card">
+          <div class="pass-badge-row">
+            <span class="gold-vip-tag">👑 COLLECTOR PASS</span>
+            <span class="pass-status-pill" id="shop-pass-status">NOT ACTIVE</span>
+          </div>
+          <ul class="pass-perks-list">
+            <li>♾️ Unlimited hearts</li>
+            <li>➕ Permanent extra slot</li>
+            <li>🏺 Exclusive monthly figurine</li>
+          </ul>
+          <button id="btn-buy-collector-pass" class="cta-primary-amber tap-target" type="button">
+            <span class="cta-main-text" id="btn-pass-cta-text">$4.99 / MONTH</span>
+          </button>
+        </div>
+
+        <div class="shop-grid-2x2">
+          <button id="btn-buy-starter-bundle" class="shop-tile tap-target" type="button">
+            <img src="assets/art/icon_chest.png" alt="" class="shop-tile-img" />
+            <strong>Starter Bundle</strong>
+            <span class="shop-tile-price">$2.99</span>
+          </button>
+          <button id="btn-shop-watch-ad" class="shop-tile shop-tile-free tap-target" type="button">
+            <span class="shop-tile-emoji">🎬</span>
+            <strong>+50 💎</strong>
+            <span class="shop-tile-price">FREE</span>
+          </button>
+          <button id="btn-shop-buy-boosters" class="shop-tile tap-target" type="button">
+            <img src="assets/art/icon_hammer.png" alt="" class="shop-tile-img" />
+            <strong>Booster Trio</strong>
+            <span class="shop-tile-price">💎 100</span>
+          </button>
+          <button id="btn-shop-refill-hearts" class="shop-tile tap-target" type="button">
+            <span class="shop-tile-emoji">❤️</span>
+            <strong>Refill Hearts</strong>
+            <span class="shop-tile-price">💎 50</span>
+          </button>
+          <button id="btn-shop-buy-prisms" class="shop-tile tap-target" type="button">
+            <span class="shop-tile-emoji">💎</span>
+            <strong>300 Gems</strong>
+            <span class="shop-tile-price">$1.99</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         PERSISTENT 3-TAB BOTTOM NAVIGATION BAR (56px+ height, >=48x48px tabs)
+         =================================================================== -->
+    <nav id="bottom-nav-bar" class="bottom-nav-bar hidden" aria-label="Primary navigation">
+      <button class="nav-tab-btn tap-target active" data-nav-screen="hub" type="button">
+        <span class="nav-icon">🏠</span>
+        <span class="nav-label">Home</span>
+      </button>
+      <button class="nav-tab-btn tap-target" data-nav-screen="gallery" type="button">
+        <span class="nav-icon">🏺</span>
+        <span class="nav-label">Collection</span>
+      </button>
+      <button class="nav-tab-btn tap-target" data-nav-screen="daily" type="button">
+        <span class="nav-icon">📅</span>
+        <span class="nav-label">Daily</span>
+      </button>
+    </nav>
+
+    <!-- ===================================================================
+         SCREEN 3: OUT-OF-MOVES DEADLOCK WARNING & RESCUE MODAL
+         =================================================================== -->
+    <div id="deadlock-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="deadlock-modal-title">
+      <button id="btn-deadlock-peek" class="peek-board-pill tap-target" type="button">👁️ Peek</button>
+      <div class="modal-card rescue-modal-card">
+        <h2 id="deadlock-modal-title" class="modal-title-clean">Out of space!</h2>
+        <p class="modal-sub-clean" id="deadlock-progress-headline">You're so close — keep going?</p>
+        <span class="hidden" id="deadlock-progress-sub"></span>
+
+        <div class="rescue-actions-stack">
+          <button id="btn-rescue-use-prisms" class="cta-primary-amber full-width tap-target" type="button">
+            <span class="cta-main-text">✨ Continue (+1 Slot &amp; Clear 2)</span>
+          </button>
+          <div class="rescue-secondary-row">
+            <button id="btn-modal-undo" class="ghost-btn tap-target" type="button">↩️ Undo</button>
+            <button id="btn-modal-reset" class="ghost-btn tap-target" type="button">🔄 Retry</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================================================================
+         SCREEN 5: LEVEL COMPLETE CELEBRATION MODAL
+         =================================================================== -->
+    <div id="level-win-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="win-modal-title">
+      <div class="modal-sunburst-rays" aria-hidden="true"></div>
+      <div class="modal-card win-modal-card">
+        <div class="stars-row" id="win-stars-row" aria-label="3 stars">
+          <span class="star-icon earned">⭐</span>
+          <span class="star-icon earned big">⭐</span>
+          <span class="star-icon earned">⭐</span>
+        </div>
+        <h2 id="win-modal-title" class="win-banner-title">3-Star Clear!</h2>
+        <div id="win-star-req-note" class="win-star-req-note hidden">Finish in ≤ 10 turns for 3⭐</div>
+
+        <div id="win-score-social-card" class="win-clean-stats-grid">
+          <div class="win-stat-tile">
+            <span class="win-stat-label">TURNS</span>
+            <strong class="win-stat-value" id="win-turns-val">9</strong>
+            <span class="win-stat-sub" id="win-turns-par-sub">3⭐ Par: ≤ 10</span>
+          </div>
+          <div class="win-stat-tile">
+            <span class="win-stat-label">SCORE</span>
+            <strong class="win-stat-value" id="win-final-score">4,850</strong>
+            <span class="win-stat-sub" id="win-score-sub">🏆 New Best</span>
+          </div>
+        </div>
+
+        <div class="win-cta-stack">
+          <button id="btn-win-unbox-now" class="cta-primary-amber game-play-giant-btn full-width tap-target hidden" type="button">
+            <span class="shine-sweep" aria-hidden="true"></span>
+            <span class="cta-main-text" id="btn-win-unbox-label">🎁 OPEN CAPSULE</span>
+          </button>
+          <div class="win-next-row">
+            <button id="btn-win-replay" class="ghost-btn win-replay-btn tap-target hidden" type="button">
+              🔄 Replay
+            </button>
+            <button id="btn-win-next-level" class="cta-primary-amber game-play-giant-btn full-width tap-target" type="button">
+              <span class="shine-sweep" aria-hidden="true"></span>
+              <span class="cta-main-text" id="btn-win-next-label">CONTINUE</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================================================================
+         SCREEN 5B: SYMBOLIC GACHA CAPSULE BALL UNBOXING MODAL
+         =================================================================== -->
+    <div id="unboxing-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="unbox-modal-title">
+      <div class="modal-sunburst-rays" aria-hidden="true"></div>
+      <div class="modal-card unbox-modal-card gasha-modal-card" id="unbox-modal-card">
+        <h2 id="unbox-modal-title" class="win-banner-title gasha-main-title">Tap to open!</h2>
+
+        <div id="unbox-interactive-stage" class="unbox-stage gasha-stage">
+          <!-- 3D Hunyuan3D Material Gacha Vessel Selector & Multi-Tap Cracker (#btn-blind-box-tap) -->
+          <button id="btn-blind-box-tap" class="blind-box-crate gasha-ball-tap-area tap-target" type="button" aria-label="Tap 3D Gacha vessel to open">
+            <!-- 5 Shuffling Sculpted Vessels during random selection roulette -->
+            <div class="gasha-shuffle-ring" id="gasha-shuffle-ring" aria-hidden="true">
+              <img class="shuffle-mini-vessel v-c1" src="assets/art/gacha_vessels/vessel-01.webp" alt="" />
+              <img class="shuffle-mini-vessel v-c2" src="assets/art/gacha_vessels/vessel-02.webp" alt="" />
+              <img class="shuffle-mini-vessel v-c3" src="assets/art/gacha_vessels/vessel-04.webp" alt="" />
+              <img class="shuffle-mini-vessel v-c4" src="assets/art/gacha_vessels/vessel-07.webp" alt="" />
+              <img class="shuffle-mini-vessel v-c5" src="assets/art/gacha_vessels/vessel-10.webp" alt="" />
+            </div>
+
+            <!-- The Selected Hero 3D Hunyuan3D Material Gacha Vessel -->
+            <div class="gasha-hero-ball-wrap" id="gasha-hero-ball-wrap">
+              <div class="gasha-tap-sparks" id="gasha-tap-sparks" aria-hidden="true"></div>
+              <div class="gasha-hero-vessel" id="gasha-hero-ball">
+                <span class="vessel-aura-halo" id="gasha-vessel-halo"></span>
+                <div class="gasha-vessel-3d-stage" id="gasha-vessel-3d-stage">
+                  <img id="gasha-vessel-cutout" class="vessel-2d-fallback" src="assets/art/gacha_vessels/vessel-07.webp" alt="3D Gacha Vessel" />
+                </div>
+                <!-- Glowing Kintsugi Fracture Seams that appear as you tap -->
+                <svg class="ball-crack-svg" viewBox="0 0 180 180" aria-hidden="true">
+                  <path class="crack-path crack-p1" d="M 62 46 L 82 74 L 70 94 L 96 118" />
+                  <path class="crack-path crack-p2" d="M 118 54 L 94 82 L 112 104 L 84 134" />
+                </svg>
+              </div>
+            </div>
+
+            <div class="vessel-material-tag" id="unbox-vessel-mat-tag">FORGED BRASS VESSEL</div>
+
+            <!-- 3-Tap Progress Dots -->
+            <div class="gasha-tap-dots" id="gasha-tap-dots" aria-hidden="true">
+              <span class="tap-dot"></span>
+              <span class="tap-dot"></span>
+              <span class="tap-dot"></span>
+            </div>
+          </button>
+
+          <!-- 3D Figurine Reveal View -->
+          <div id="unbox-reveal-view" class="unbox-reveal-view gasha-reveal-view hidden">
+            <div class="rarity-rays"></div>
+
+            <div id="unbox-trophy" class="trophy-host"></div>
+
+            <div class="unbox-badges-row">
+              <span class="rarity-pill" id="unbox-rarity-pill">RARE</span>
+              <span class="unbox-dup-badge" id="unbox-dup-badge">✨ NEW!</span>
+            </div>
+            <h3 class="card-heading-l" id="unbox-fig-name">Mossy Sproutling</h3>
+            <p class="hidden" id="unbox-fig-lore"></p>
+          </div>
+        </div>
+
+        <div class="unbox-footer-actions gasha-footer-actions">
+          <button id="btn-unbox-equip-now" class="ghost-btn gasha-equip-btn tap-target hidden" type="button">
+            ✨ EQUIP
+          </button>
+          <button id="btn-unbox-collect" class="cta-primary-amber game-play-giant-btn full-width tap-target hidden" type="button">
+            <span class="cta-main-text" id="btn-unbox-collect-text">CONTINUE</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================================================================
+         SCREEN 7D: 3D TURNTABLE FIGURINE INSPECTOR MODAL
+         =================================================================== -->
+    <div id="turntable-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="turntable-fig-name">
+      <div class="modal-card turntable-modal-card">
+        <div class="modal-top-bar">
+          <div>
+            <span class="eyebrow-tag" id="turntable-series-label">SERIES 1 · #01</span>
+            <h2 id="turntable-fig-name" class="card-heading-l">Mossy Sproutling</h2>
+          </div>
+          <button id="btn-turntable-close" class="icon-btn tap-target" type="button" aria-label="Close Inspector">✕</button>
+        </div>
+
+        <div class="turntable-canvas-wrap trophy-display-case">
+          <div id="inspector-trophy" class="trophy-host inspector-host"></div>
+          <span class="turntable-drag-hint" id="turntable-spin-hint">Drag to spin 360° · Pinch to zoom</span>
+        </div>
+
+        <div class="turntable-meta-box">
+          <div class="turntable-badges">
+            <span class="rarity-pill" id="turntable-rarity-badge">Common</span>
+            <span class="meta-tag" id="turntable-unlock-badge">Unlocks Lv. 1</span>
+          </div>
+          <p id="turntable-lore-blurb" class="turntable-lore">
+            A dew-kissed vinyl seedling sculpted from soft mint clay.
+          </p>
+          <div id="turntable-cosmetic-preview" class="turntable-cosmetic-preview hidden"></div>
+          <button id="btn-turntable-equip" class="cta-primary-amber full-width tap-target hidden" type="button">
+            <span class="cta-main-text" id="btn-turntable-equip-text">✨ Equip Figurine</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================================================================
+         OPT-IN 3-SECOND REWARDED AD PREVIEW MODAL
+         =================================================================== -->
+    <div id="rewarded-ad-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="ad-modal-title">
+      <div class="modal-card ad-modal-card">
+        <div class="ad-top-strip">
+          <span class="ad-sponsor-tag">🎬 OPT-IN STUDIO PREVIEW</span>
+          <span id="ad-countdown-pill" class="ad-timer-pill">3s</span>
+        </div>
+        <h3 id="ad-modal-title" class="card-heading-m">Art Toy Atelier — Golden Kiln Showcase</h3>
+        <div class="ad-stage-art">
+          <img src="assets/art/feature_graphic_1024x500.png" alt="PopStacks Atelier Showcase" class="ad-banner-img" />
+        </div>
+        <div class="mold-progress-track large">
+          <div id="ad-progress-fill" class="mold-progress-fill" style="width: 0%"></div>
+        </div>
+        <p id="ad-reward-desc" class="ad-reward-desc">Reward unlocking: +50 💎 Prisms &amp; +1 🔨 Hammer</p>
+        <button id="btn-ad-claim-close" class="cta-primary-amber game-play-giant-btn full-width tap-target" type="button" disabled>
+          <span class="cta-main-text" id="btn-ad-claim-text">Please Wait (3s)...</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ===================================================================
+         SCREEN 9: SETTINGS & ACCESSIBILITY MODAL
+         =================================================================== -->
+    <div id="settings-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="settings-modal-title">
+      <div class="modal-card settings-modal-card">
+        <div class="modal-top-bar">
+          <h2 id="settings-modal-title" class="card-heading-l">Settings</h2>
+          <button id="btn-settings-close" class="icon-btn tap-target" type="button" aria-label="Close">✕</button>
+        </div>
+
+        <div class="settings-section">
+          <label class="settings-row tap-target"><span>🔊 Sound</span><input type="checkbox" id="set-sfx-toggle" checked /></label>
+          <label class="settings-row tap-target"><span>🎵 Music</span><input type="checkbox" id="set-bgm-toggle" checked /></label>
+          <label class="settings-row tap-target"><span>📳 Vibration</span><input type="checkbox" id="set-haptics-toggle" checked /></label>
+          <label class="settings-row tap-target"><span>👁️ Colorblind symbols</span><input type="checkbox" id="set-colorblind-toggle" /></label>
+          <label class="settings-row tap-target"><span>✨ Reduce motion</span><input type="checkbox" id="set-reduced-motion-toggle" /></label>
+          <div class="settings-row thumb-reach-row">
+            <span>👍 Tray</span>
+            <div class="thumb-reach-btns">
+              <button class="reach-btn tap-target" data-reach="left" type="button">L</button>
+              <button class="reach-btn tap-target active" data-reach="center" type="button">C</button>
+              <button class="reach-btn tap-target" data-reach="right" type="button">R</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-footer-btns">
+          <button id="btn-settings-restart" class="ghost-btn tap-target" type="button">🔄 Restart</button>
+          <button id="btn-settings-hub" class="cta-primary-amber tap-target" type="button">🏠 Home</button>
+        </div>
+        <button id="btn-meta-debug" class="text-link-btn dev-link tap-target" type="button">🛠 Developer tools</button>
+      </div>
+    </div>
+
+    <!-- ===================================================================
+         DEVELOPER & AUTOMATION DEBUG DRAWER (window.__POPSTACKS_DEBUG__)
+         =================================================================== -->
+    <aside id="debug-drawer" class="debug-drawer hidden" aria-label="Developer Debug Drawer">
+      <div class="dbg-header">
+        <strong>🛠 PopStacks Atelier Telemetry &amp; Debug</strong>
+        <button id="btn-debug-close" class="icon-btn tap-target" type="button" aria-label="Close Debug Drawer">✕</button>
+      </div>
+
+      <div class="dbg-telemetry-grid">
+        <div class="dbg-stat"><span>FPS</span><strong id="dbg-fps">60 FPS</strong></div>
+        <div class="dbg-stat"><span>Touch Latency</span><strong id="dbg-latency">0.8 ms</strong></div>
+        <div class="dbg-stat"><span>Cold Start</span><strong id="dbg-coldstart">120 ms</strong></div>
+        <div class="dbg-stat"><span>Active Tweens</span><strong id="dbg-tweens">0</strong></div>
+        <div class="dbg-stat"><span>Haptic</span><strong id="dbg-haptic">Ready</strong></div>
+        <div class="dbg-stat"><span>Queue / Combo</span><strong><span id="dbg-queue-count">0</span> / <span id="dbg-combo-depth">x1</span></strong></div>
+      </div>
+
+      <div class="dbg-group">
+        <span class="dbg-label">Screen Jumper</span>
+        <div class="dbg-btn-row">
+          <button class="dbg-btn tap-target" data-dbg-screen="hub" type="button">Hub</button>
+          <button class="dbg-btn tap-target" data-dbg-screen="board" type="button">Board</button>
+          <button class="dbg-btn tap-target" data-dbg-screen="daily" type="button">Daily</button>
+          <button class="dbg-btn tap-target" data-dbg-screen="gallery" type="button">Gallery</button>
+          <button class="dbg-btn tap-target" data-dbg-screen="shop" type="button">Shop</button>
+        </div>
+      </div>
+
+      <div class="dbg-group">
+        <span class="dbg-label">Level &amp; Grid Size Switcher (1..100)</span>
+        <div class="dbg-btn-row">
+          <input type="number" id="dbg-level-input" min="1" max="100" value="1" class="dbg-input" />
+          <button id="dbg-load-level" class="dbg-btn tap-target" type="button">Load Lv</button>
+          <button id="dbg-auto-step" class="dbg-btn tap-target" type="button">Solver Move</button>
+          <button id="dbg-auto-win" class="dbg-btn accent tap-target" type="button">Auto-Win</button>
+        </div>
+        <div class="dbg-btn-row">
+          <button id="dbg-grid-7" class="dbg-btn tap-target" type="button">7-Slot (L1)</button>
+          <button id="dbg-grid-19" class="dbg-btn tap-target" type="button">19-Slot (L32)</button>
+          <button id="dbg-grid-37" class="dbg-btn tap-target" type="button">37-Slot (L65)</button>
+        </div>
+      </div>
+
+      <div class="dbg-group">
+        <span class="dbg-label">Presets &amp; Modal Triggers</span>
+        <div class="dbg-btn-row">
+          <button id="dbg-preset-cascade" class="dbg-btn tap-target" type="button">3× Cascade</button>
+          <button id="dbg-preset-burst10" class="dbg-btn tap-target" type="button">10-Burst</button>
+          <button id="dbg-preset-deadlock" class="dbg-btn tap-target" type="button">Deadlock</button>
+          <button id="dbg-trigger-unbox" class="dbg-btn tap-target" type="button">Unbox Box</button>
+        </div>
+      </div>
+
+      <div class="dbg-group">
+        <span class="dbg-label">Step-by-Step Cascade Debugger</span>
+        <div class="dbg-btn-row">
+          <label class="dbg-check"><input type="checkbox" id="dbg-step-toggle" /> Pause Queue</label>
+          <button id="dbg-step-next" class="dbg-btn tap-target" type="button" disabled>Step Next</button>
+          <button id="dbg-step-resume" class="dbg-btn tap-target" type="button" disabled>Resume</button>
+        </div>
+        <pre id="dbg-queue-log" class="dbg-log">Ready.</pre>
+      </div>
+    </aside>
+  </div>
+
+  <script src="audio.js?v=20261020a"></script>
+  <script src="levels.js?v=20261020a"></script>
+  <script src="assets/vendor/three-glb-viewer.js?v=20261020a"></script>
+  <script src="game.js?v=20261020a"></script>
+</body>
+</html>

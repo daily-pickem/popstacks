@@ -1,0 +1,24 @@
+{
+  "name": "popstacks-art-toy-atelier",
+  "version": "1.0.0",
+  "description": "PopStacks: Art Toy Atelier — Hexagonal vinyl disc sorting puzzle & designer toy workshop (100 solver-verified levels)",
+  "private": true,
+  "scripts": {
+    "dev": "python3 -m http.server 8091 --bind 0.0.0.0",
+    "build:viewer": "npx --yes esbuild scripts/three-viewer-entry.mjs --bundle --format=iife --minify --outfile=assets/vendor/three-glb-viewer.js",
+    "build": "node scripts/build-dist.mjs",
+    "glb:modal": "modal run scripts/modal_hunyuan3d.py",
+    "glb:hf": "python3 scripts/generate-glb-hf.py",
+    "glb:cloud": "node scripts/generate-glb-cloud.mjs",
+    "test": "node scripts/verify-100-levels.mjs",
+    "cap:sync": "npm run build && npx cap sync android"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.5.3",
+    "@capacitor/core": "8.5.3",
+    "three": "^0.186.1"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.5.3"
+  }
+}

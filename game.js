@@ -1618,6 +1618,9 @@
       if (btnAdClaim) {
         btnAdClaim.addEventListener('click', () => {
           document.getElementById('rewarded-ad-modal').classList.add('hidden');
+          if (this.audio && typeof this.audio.setAdPlaying === 'function') {
+            this.audio.setAdPlaying(false);
+          }
           if (this.activeAdCallback) {
             const cb = this.activeAdCallback;
             this.activeAdCallback = null;
@@ -2932,6 +2935,9 @@
       if (winModal) winModal.classList.add('hidden');
       if (unboxModal) unboxModal.classList.add('hidden');
       if (adModal) adModal.classList.add('hidden');
+      if (this.audio && typeof this.audio.setAdPlaying === 'function') {
+        this.audio.setAdPlaying(false);
+      }
 
       this.adStats.roundsSinceLastInterstitial = (this.adStats.roundsSinceLastInterstitial || 0) + 1;
       const shouldShowPacedInterstitial =
@@ -5767,8 +5773,14 @@
         descEl.textContent = 'Thanks for supporting PopStacks! Bonus +15 Prisms added.';
       }
       modal.classList.remove('hidden');
+      if (this.audio && typeof this.audio.setAdPlaying === 'function') {
+        this.audio.setAdPlaying(true);
+      }
 
       this.activeAdCallback = () => {
+        if (this.audio && typeof this.audio.setAdPlaying === 'function') {
+          this.audio.setAdPlaying(false);
+        }
         this.recordAdImpression('between_round_interstitial', false);
         this.profile.prisms += 15;
         this.saveProfile();
@@ -5809,6 +5821,9 @@
 
       if (!modal) return;
       modal.classList.remove('hidden');
+      if (this.audio && typeof this.audio.setAdPlaying === 'function') {
+        this.audio.setAdPlaying(true);
+      }
       if (sponsorTag) sponsorTag.textContent = '▶ OPT-IN REWARDED VIDEO';
       if (titleEl) titleEl.textContent = 'Art Toy Atelier — Golden Kiln Showcase';
 

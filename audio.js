@@ -778,6 +778,7 @@
   class PopStacksAudio {
     constructor() {
       this.ctx = null;
+      this.masterGain = null;
       this.masterSfxGain = null;
       this.musicBusGain = null;
       this.musicFilter = null;
@@ -793,6 +794,13 @@
       this.lastHaptic = 'Ready';
       this.hapticTimer = null;
 
+      // Mobile web browser & app lifecycle tracking
+      this.hidden =
+        typeof document !== 'undefined'
+          ? !!(document.hidden || document.visibilityState === 'hidden')
+          : false;
+      this.adPlaying = false;
+
       // Sequencer & Figurine Track state
       this.musicTimer = null;
       this.bgmPlaying = false;
@@ -804,17 +812,117 @@
       this.stepDurationSec = 60 / this.currentTrack.bpm / 4;
 
       this._bindGlobalGestureUnlock();
+      this._bindLifecycleListeners();
+    }
+
+    _bindLifecycleListeners() {
+      if (typeof window === 'undefined' || typeof document === 'undefined') return;
+
+      const handleVisibility = (hidden) => {
+        this.setHidden(hidden);
+      };
+
+      // 1. Standard HTML5 Page Visibility API (Desktop & Mobile Web)
+      document.addEventListener(
+        'visibilitychange',
+        () => {
+          handleVisibility(!!(document.hidden || document.visibilityState === 'hidden'));
+        },
+        { passive: true }
+      );
+
+      // 2. Mobile Safari / BFCache page lifecycle
+      window.addEventListener('pagehide', () => handleVisibility(true), { passive: true });
+      window.addEventListener('pageshow', () => handleVisibility(false), { passive: true });
+
+      // 3. W3C Page Lifecycle API (Modern Chromium / Android Web)
+      document.addEventListener('freeze', () => handleVisibility(true), { passive: true });
+      document.addEventListener('resume', () => handleVisibility(false), { passive: true });
+
+      // 4. Mobile webview / Cordova / Capacitor fallback events
+      document.addEventListener('pause', () => handleVisibility(true), { passive: true });
+      document.addEventListener('resume', () => handleVisibility(false), { passive: true });
+
+      // 5. Capacitor Native App plugin if present
+      try {
+        if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
+          window.Capacitor.Plugins.App.addListener('appStateChange', (state) => {
+            handleVisibility(!state.isActive);
+          });
+          window.Capacitor.Plugins.App.addListener('pause', () => handleVisibility(true));
+          window.Capacitor.Plugins.App.addListener('resume', () => handleVisibility(false));
+        }
+      } catch (_e) {}
+    }
+
+    setHidden(hidden) {
+      const isHidden = !!hidden;
+      if (this.hidden === isHidden) return;
+      this.hidden = isHidden;
+      this._syncPlaybackState();
+    }
+
+    setAdPlaying(playing) {
+      const isAd = !!playing;
+      if (this.adPlaying === isAd) return;
+      this.adPlaying = isAd;
+      this._syncPlaybackState();
+    }
+
+    _syncPlaybackState() {
+      const shouldSilence = this.hidden || this.adPlaying || this.muted;
+      const shouldSuspend = this.hidden || this.adPlaying;
+
+      if (shouldSilence) {
+        if (this.ctx && this.masterGain) {
+          try {
+            const now = this.ctx.currentTime;
+            this.masterGain.gain.cancelScheduledValues(now);
+            this.masterGain.gain.setValueAtTime(0, now);
+            this.masterGain.gain.value = 0;
+          } catch (_e) {}
+        }
+      } else {
+        if (this.ctx && this.masterGain) {
+          try {
+            const now = this.ctx.currentTime;
+            this.masterGain.gain.cancelScheduledValues(now);
+            this.masterGain.gain.setValueAtTime(0, now);
+            this.masterGain.gain.linearRampToValueAtTime(1.0, now + 0.05);
+          } catch (_e) {}
+        }
+      }
+
+      if (shouldSuspend) {
+        if (this.musicTimer) {
+          clearInterval(this.musicTimer);
+          this.musicTimer = null;
+        }
+        if (this.ctx && this.ctx.state === 'running') {
+          this.ctx.suspend().catch(() => {});
+        }
+      } else {
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume().catch(() => {});
+        }
+        if (this.ambientEnabled && !this.muted && !this.musicTimer) {
+          if (this.ctx) {
+            this.nextNoteTime = this.ctx.currentTime + 0.05;
+          }
+          this.startStudioAmbient();
+        }
+      }
     }
 
     _bindGlobalGestureUnlock() {
       if (typeof window === 'undefined') return;
       const unlockHandler = () => {
-        if (this.muted) return;
+        if (this.muted || this.hidden || this.adPlaying) return;
         const ctx = this.initContext(false);
         if (ctx && ctx.state === 'suspended') {
           ctx.resume().then(() => {
             this.unlocked = true;
-            if (this.ambientEnabled && !this.muted) {
+            if (this.ambientEnabled && !this.muted && !this.hidden && !this.adPlaying) {
               if (!this.musicTimer) {
                 this.startStudioAmbient();
               } else if (this.nextNoteTime < ctx.currentTime) {
@@ -830,6 +938,7 @@
     }
 
     initContext(skipAutoMusic = false) {
+      if (this.hidden || this.adPlaying) return null;
       if (this.ctx) {
         if (this.ctx.state === 'suspended') {
           this.ctx.resume().then(() => {
@@ -840,7 +949,7 @@
           }).catch(() => {});
         }
         this.unlocked = this.ctx.state === 'running';
-        if (!skipAutoMusic && this.ambientEnabled && !this.muted && !this.musicTimer) {
+        if (!skipAutoMusic && this.ambientEnabled && !this.muted && !this.musicTimer && !this.hidden && !this.adPlaying) {
           this.startStudioAmbient();
         }
         return this.ctx;
@@ -849,9 +958,13 @@
       if (!AudioCtx) return null;
       try {
         this.ctx = new AudioCtx();
+        this.masterGain = this.ctx.createGain();
+        this.masterGain.gain.setValueAtTime((this.muted || this.hidden || this.adPlaying) ? 0 : 1.0, this.ctx.currentTime);
+        this.masterGain.connect(this.ctx.destination);
+
         this.masterSfxGain = this.ctx.createGain();
         this.masterSfxGain.gain.setValueAtTime(1.0, this.ctx.currentTime);
-        this.masterSfxGain.connect(this.ctx.destination);
+        this.masterSfxGain.connect(this.masterGain);
 
         this.musicFilter = this.ctx.createBiquadFilter();
         this.musicFilter.type = 'lowpass';
@@ -885,13 +998,13 @@
         this.musicDelayFilter.connect(this.musicWetGain);
         this.musicWetGain.connect(this.musicBusGain);
 
-        this.musicBusGain.connect(this.ctx.destination);
+        this.musicBusGain.connect(this.masterGain);
 
         if (this.ctx.state === 'suspended') {
           this.ctx.resume().catch(() => {});
         }
         this.unlocked = true;
-        if (!skipAutoMusic && this.ambientEnabled && !this.muted && !this.musicTimer) {
+        if (!skipAutoMusic && this.ambientEnabled && !this.muted && !this.musicTimer && !this.hidden && !this.adPlaying) {
           this.startStudioAmbient();
         }
       } catch (e) {
@@ -920,9 +1033,9 @@
         }
       }
 
-      if (playPreviewFlourish && !this.muted) {
+      if (playPreviewFlourish && !this.muted && !this.hidden && !this.adPlaying) {
         this.playFigurineEquipFanfare(figOrId);
-      } else if (this.ambientEnabled && !this.muted && this.ctx && !this.musicTimer) {
+      } else if (this.ambientEnabled && !this.muted && !this.hidden && !this.adPlaying && this.ctx && !this.musicTimer) {
         this.startStudioAmbient();
       }
       return this.currentTrack;
@@ -932,8 +1045,8 @@
      * Substantial celebratory audio + haptic fanfare when equipping a figurine companion.
      */
     playFigurineEquipFanfare(figOrId) {
+      if (this.muted || this.hidden || this.adPlaying) return;
       this.triggerHaptic([22, 30, 50], 'FigurineEquipped');
-      if (this.muted) return;
       const ctx = this.initContext();
       if (!ctx) return;
 
@@ -1003,7 +1116,7 @@
         );
         this.musicFilter.frequency.exponentialRampToValueAtTime(targetCutoff, now + 0.28);
       }
-      if (this.ambientEnabled && !this.muted && this.ctx && !this.musicTimer) {
+      if (this.ambientEnabled && !this.muted && !this.hidden && !this.adPlaying && this.ctx && !this.musicTimer) {
         this.startStudioAmbient();
       }
       return this.musicContextMode;
@@ -1011,11 +1124,7 @@
 
     setMuted(muted) {
       this.muted = !!muted;
-      if (this.muted) {
-        this.stopStudioAmbient(true);
-      } else if (this.ambientEnabled) {
-        this.startStudioAmbient();
-      }
+      this._syncPlaybackState();
       return this.muted;
     }
 
@@ -1026,7 +1135,7 @@
 
     toggleMute() {
       this.setMuted(!this.muted);
-      if (!this.muted) {
+      if (!this.muted && !this.hidden && !this.adPlaying) {
         this.initContext();
         this.playUiClick();
       }
@@ -1037,8 +1146,11 @@
       if (this.ambientEnabled) {
         this.stopStudioAmbient(false);
       } else {
-        this.startStudioAmbient();
-        this.playUiClick();
+        this.ambientEnabled = true;
+        if (!this.hidden && !this.adPlaying && !this.muted) {
+          this.startStudioAmbient();
+          this.playUiClick();
+        }
       }
       return this.ambientEnabled;
     }
@@ -1047,7 +1159,7 @@
      * Temporarily ducks background music so big SFX & fanfares pop cleanly without killing the focus loop
      */
     duckMusic(duckGain = 0.22, holdSec = 0.25, releaseSec = 0.35) {
-      if (!this.ctx || !this.musicBusGain) return;
+      if (!this.ctx || !this.musicBusGain || this.hidden || this.adPlaying) return;
       const now = this.ctx.currentTime;
       const restoreGain = this.musicContextMode === 'meta' ? 0.18 : 0.56;
       const safeDuck = Math.max(0.14, Math.min(duckGain, restoreGain * 0.65));
@@ -1063,6 +1175,7 @@
     }
 
     triggerHaptic(pattern, label) {
+      if (this.hidden) return;
       this.lastHaptic = label || (Array.isArray(pattern) ? `Burst [${pattern.join(',')}]` : `${pattern}ms`);
       if (this.hapticsEnabled) {
         try {
@@ -1089,7 +1202,7 @@
     }
 
     _playTone(freq, endFreq, durationSec, type = 'sine', peakGain = 0.15, delaySec = 0, dest = null) {
-      if (this.muted) return;
+      if (this.muted || this.hidden || this.adPlaying) return;
       const ctx = this.initContext();
       if (!ctx) return;
 
@@ -1108,7 +1221,7 @@
       gain.gain.exponentialRampToValueAtTime(0.0005, start + durationSec);
 
       osc.connect(gain);
-      gain.connect(dest || this.masterSfxGain || ctx.destination);
+      gain.connect(dest || this.masterSfxGain || this.masterGain || ctx.destination);
       osc.onended = () => {
         try {
           osc.disconnect();
@@ -1141,7 +1254,7 @@
       peakGain = 0.12,
       delaySec = 0
     ) {
-      if (this.muted || peakGain <= 0 || startHz <= 0) return;
+      if (this.muted || this.hidden || this.adPlaying || peakGain <= 0 || startHz <= 0) return;
       const ctx = this.initContext();
       if (!ctx) return;
 
@@ -1169,7 +1282,7 @@
 
       noise.connect(filter);
       filter.connect(noiseGain);
-      noiseGain.connect(this.masterSfxGain || ctx.destination);
+      noiseGain.connect(this.masterSfxGain || this.masterGain || ctx.destination);
       noise.onended = () => {
         try {
           noise.disconnect();
@@ -1629,8 +1742,8 @@
     // ('board' = 16-Bar Themed Focus Loop | 'meta' = Subtle Lounge Wind-Chimes)
     // =========================================================================
     _scheduleMusicStep(stepIdx, rawTime) {
-      if (!this.ctx || this.muted || !this.ambientEnabled) return;
-      const dest = this.musicFilter || this.musicBusGain || this.ctx.destination;
+      if (!this.ctx || this.muted || !this.ambientEnabled || this.hidden || this.adPlaying) return;
+      const dest = this.musicFilter || this.musicBusGain || this.masterGain || this.ctx.destination;
       const track = this.currentTrack || buildFigurineMusicTrack('classic');
       const arch = track.arch || SERIES_MUSIC_ARCHETYPES.classic;
       const style = track.style || FIGURINE_ARRANGEMENT_STYLES[0];
@@ -1915,7 +2028,7 @@
 
     startStudioAmbient() {
       this.ambientEnabled = true;
-      if (this.muted) return;
+      if (this.muted || this.hidden || this.adPlaying) return;
       if (this.musicTimer) {
         this.bgmPlaying = true;
         if (this.ctx && this.ctx.state === 'suspended') {
@@ -1924,13 +2037,14 @@
         return;
       }
       const ctx = this.initContext(true);
-      if (!ctx) return;
+      if (!ctx || this.hidden || this.adPlaying) return;
 
       this.bgmPlaying = true;
       this.nextNoteTime = ctx.currentTime + 0.03;
       this.musicTimer = setInterval(() => {
-        if (!this.ctx || this.muted || !this.ambientEnabled) return;
+        if (!this.ctx || this.muted || !this.ambientEnabled || this.hidden || this.adPlaying) return;
         if (this.ctx.state !== 'running') {
+          if (this.hidden || this.adPlaying) return;
           this.ctx.resume().catch(() => {});
           return;
         }
@@ -1944,6 +2058,7 @@
             ? this.currentTrack.melodySteps.length
             : 256;
         while (this.nextNoteTime < now + 0.22) {
+          if (this.hidden || this.adPlaying) break;
           try {
             this._scheduleMusicStep(this.musicStep, this.nextNoteTime);
           } catch (_e) {}

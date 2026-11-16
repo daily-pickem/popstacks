@@ -6488,3 +6488,163 @@ p { text-wrap: pretty; }
 
 
 
+
+
+/* === 2026-11-16 MOBILE & STORE READINESS FIXES === */
+.hidden,
+.bottom-nav-bar.hidden,
+.meta-top-bar.hidden,
+.screen-view.hidden,
+.modal-backdrop.hidden,
+.text-link-btn.hidden {
+  display: none !important;
+}
+
+.screen-view {
+  animation: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+  min-height: 0 !important;
+}
+
+#screen-hub {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+#hub-continuous-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.nav-tab-btn {
+  transition: none !important;
+}
+
+.nav-tab-btn:not(.active) {
+  background: transparent !important;
+  color: #6E5D4F !important;
+}
+
+.nav-tab-btn:not(.active) .nav-icon,
+.nav-tab-btn:not(.active) .nav-label {
+  color: #6E5D4F !important;
+  opacity: 0.9 !important;
+}
+
+.nav-tab-btn.active {
+  background: #231B15 !important;
+  color: #FFFFFF !important;
+}
+
+.nav-tab-btn.active .nav-icon,
+.nav-tab-btn.active .nav-label {
+  color: #FFFFFF !important;
+  opacity: 1 !important;
+}
+
+.modal-backdrop .modal-card {
+  max-height: calc(100dvh - 24px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+#board-top-hud {
+  padding-top: max(6px, env(safe-area-inset-top));
+}
+
+#booster-dock {
+  padding-bottom: max(8px, env(safe-area-inset-bottom));
+}
+
+@media (max-height: 700px) {
+  #board-top-hud {
+    padding: max(4px, env(safe-area-inset-top)) 8px 2px !important;
+    gap: 6px !important;
+  }
+  .hud-objective-card {
+    padding: 5px 9px !important;
+  }
+  #ftue-overlay {
+    margin: 2px 10px 0 !important;
+    padding: 4px 10px !important;
+    min-height: 32px !important;
+  }
+  #canvas-hud-badges {
+    top: 2px !important;
+    padding: 0 8px !important;
+  }
+  .board-buddy-pill,
+  .board-tool-pill {
+    min-height: 28px !important;
+    height: 28px !important;
+    padding: 0 8px !important;
+    font-size: 11px !important;
+  }
+  #booster-dock {
+    min-height: 52px !important;
+    padding: 2px 12px max(6px, env(safe-area-inset-bottom)) !important;
+    gap: 10px !important;
+  }
+  .booster-btn {
+    width: 48px !important;
+    height: 48px !important;
+    min-height: 48px !important;
+  }
+  .turntable-canvas-wrap.trophy-display-case {
+    height: 185px !important;
+    min-height: 185px !important;
+    overflow: hidden !important;
+    padding: 8px !important;
+    justify-content: space-between !important;
+  }
+  .turntable-canvas-wrap .trophy-stage.size-inspect {
+    --trophy-w: 135px !important;
+    max-height: 142px !important;
+  }
+  .turntable-modal-card {
+    padding: 12px !important;
+    gap: 8px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .meta-top-bar {
+    padding: 6px 8px 4px !important;
+    gap: 4px !important;
+  }
+  .currency-pill {
+    padding: 0 7px !important;
+    font-size: 11.5px !important;
+    min-width: 0 !important;
+  }
+  .obj-header-row {
+    gap: 4px !important;
+  }
+  .obj-title {
+    font-size: 11.5px !important;
+  }
+  .hud-score-pill {
+    font-size: 11px !important;
+    padding: 2px 6px !important;
+    gap: 3px !important;
+  }
+  .board-buddy-name {
+    max-width: 72px !important;
+  }
+  .hud-objective-card {
+    min-width: 0 !important;
+    padding: 5px 7px !important;
+  }
+  .obj-total-counter {
+    font-size: 11px !important;
+    flex-shrink: 0 !important;
+  }
+  .hud-stars-live {
+    display: none !important;
+  }
+}

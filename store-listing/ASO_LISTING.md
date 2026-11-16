@@ -1,7 +1,7 @@
 # Google Play Store Listing — PopStacks: Art Toy Atelier
 
 ## App Identity
-- **Package Name / Application ID:** `com.popstacks.atelier`
+- **Package Name / Application ID:** `com.askquip.popstacks`
 - **App Title (30 chars max):** `PopStacks: Art Toy Atelier` (26 chars)
 - **Category:** Puzzle / Logic Sorting
 - **Content Rating:** Everyone (PEGI 3 / ESRB E)
@@ -31,14 +31,14 @@ When a stack reaches **10 identical vinyl discs**, it peels and pops in a tactil
 - **Workshop & 3D Shelf Customization:** Arrange your unboxed vinyl toys on customizable studio shelves (*Warm Oak*, *Sage Terrazzo*, *Terracotta Kiln*, and *Midnight Gallery*).
 - **Daily Artisan Challenge & Global Leaderboard:** Compete on a fresh, deterministically seeded daily board to build your sculpting streak and climb the global artisan ranks.
 - **Colorblind-First Readability:** Every vinyl color is paired with a high-contrast embossed geometric stamp (`Circle`, `Triangle`, `Diamond`, `Cross`, `Star`, `Hexagon`) so you can sort effortlessly in any lighting condition.
-- **Sacred Flow State — Zero Forced Interstitial Ads:** We never interrupt your puzzle concentration with surprise mid-level pop-up ads. Boosters (*Ceramic Hammer*, *Tray Swap*, and *Extra Staging Slot*) and rewarded rescues are 100% player-initiated.
+- **Player-Friendly Rewards & Boosters:** Unlock bonus Prisms, Capsule Keys, 24-Hour Daily VIP Passes, and studio boosters (*Ceramic Hammer*, *Tray Swap*, and *Extra Staging Slot*) through skill clears and optional rewarded previews.
 - **Play Anywhere Offline:** No Wi-Fi required—enjoy the complete 100-level workshop campaign and figurine collection on planes, commutes, or cozy evenings at home.
 
 ### 🛠 STUDIO TOOLS & COLLECTOR PASS
 - **🔨 Ceramic Hammer:** Smash and clear any single stack or Frozen Clay tile on the board.
 - **🔄 Tray Swap:** Re-roll your dispenser tray with a fresh set of vinyl stacks.
 - **➕ Extra Staging Slot:** Unlock a 4th pedestal in your dispenser tray for complex multi-step setups.
-- **👑 Collector Pass & Starter Atelier Bundle:** Optional studio upgrades granting unlimited hearts, bonus Prisms, and exclusive Golden Apron Ollie figurines.
+- **★ 24-Hour Daily VIP Pass & Supply Crate:** Earn or unlock unlimited hearts, a 4th tray slot, and bonus Prisms & Capsule Keys through daily play and optional rewarded previews.
 
 Ready to sort, cascade, and sculpt your dream toy collection? Download **PopStacks: Art Toy Atelier** today!
 

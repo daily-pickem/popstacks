@@ -14,7 +14,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.resolve(__dirname, '..');
 const SCREENSHOTS_DIR = path.join(ROOT_DIR, 'store-listing', 'screenshots');
 const EVIDENCE_DIR = path.join(ROOT_DIR, 'evidence');
-const CHROME_PATH = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+const CHROME_PATH = ['/home/mike/agents/team-agents/bin/google-chrome', '/usr/bin/google-chrome', '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'].find((p) => fs.existsSync(p));
 
 fs.mkdirSync(SCREENSHOTS_DIR, { recursive: true });
 fs.mkdirSync(EVIDENCE_DIR, { recursive: true });
@@ -28,14 +28,23 @@ const MIME_TYPES = {
   '.png': 'image/png',
   '.jpg': 'image/jpeg',
   '.jpeg': 'image/jpeg',
-  '.svg': 'image/svg+xml'
+  '.svg': 'image/svg+xml',
+  '.webp': 'image/webp',
+  '.glb': 'model/gltf-binary'
 };
+
+let currentFrameHtml = '<html><body></body></html>';
 
 function startStaticServer(rootDir) {
   return new Promise((resolve) => {
     const server = http.createServer((req, res) => {
       const reqUrl = new URL(req.url, 'http://127.0.0.1');
       let relPath = decodeURIComponent(reqUrl.pathname);
+      if (relPath === '/__store_frame.html') {
+        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' });
+        res.end(currentFrameHtml);
+        return;
+      }
       if (relPath === '/') relPath = '/index.html';
       const filePath = path.join(rootDir, relPath);
       if (!filePath.startsWith(rootDir) || !fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
@@ -58,7 +67,9 @@ function launchChrome() {
     const userDataDir = path.join('/tmp', `popstacks-chrome-${Date.now()}`);
     const proc = spawn(CHROME_PATH, [
       '--headless=new',
-      '--disable-gpu',
+      '--use-angle=swiftshader',
+      '--enable-unsafe-swiftshader',
+      '--enable-webgl',
       '--no-sandbox',
       '--no-first-run',
       '--no-default-browser-check',
@@ -756,106 +767,105 @@ async function main() {
       {
         filename: '01_workshop_hub.png',
         stepNum: 1,
-        badge: '★ ART TOY ATELIER · 100 SOLVER-VERIFIED LEVELS',
-        headline: 'Welcome to the Art Toy Atelier — Craft 60 Collectible Vinyl Figurines!',
-        subhead: '🏺 10 Designer Toy Series · Warm Sunlit Birch Studio · Ollie Mascot Guide',
-        accentColor: '#FF9F1C',
-        bgGradient: 'linear-gradient(160deg, #FBF6EE 0%, #F2E2CE 52%, #E5CBB0 100%)',
-        screenshotBase64: raw01.toString('base64'),
-        calloutLeft: { icon: '🏺', title: '60 Vinyl Figurines', sub: '10 Collectible Series Sets' },
-        calloutRight: { icon: '⭐', title: '100 Verified Levels', sub: '100% Deterministic Solver' }
+        badge: '★ 60 FPS TACTILE CASCADES · 100 VERIFIED LEVELS',
+        headline: 'Drag, Match & Trigger Satisfying 10-Disc Vinyl Cascades!',
+        subhead: '◆ Live Neighbor Match Arcs · 10/10 Burst Previews · Multi-Chain Combos',
+        accentColor: '#FF5A5F',
+        bgGradient: 'linear-gradient(160deg, #FFF5F2 0%, #F8DFD6 52%, #EBC4B5 100%)',
+        screenshotBase64: raw02.toString('base64'),
+        calloutLeft: { icon: '★', title: '10/10 Vinyl Burst!', sub: 'Cast Molten Vinyl Into Molds' },
+        calloutRight: { icon: '♪', title: 'ASMR Ceramic Clinks', sub: 'Pitch-Escalating Combo Chimes' }
       },
       {
         filename: '02_core_cascade_loop.png',
         stepNum: 2,
-        badge: '⚡ 60 FPS TACTILE CASCADES · ASMR CERAMIC AUDIO',
-        headline: 'Drag, Match & Trigger Satisfying 10-Disc Vinyl Cascades!',
-        subhead: '💥 Live Neighbor Match Arcs · 10/10 Burst Previews · Multi-Chain Combos',
-        accentColor: '#FF5A5F',
-        bgGradient: 'linear-gradient(160deg, #FFF5F2 0%, #F8DFD6 52%, #EBC4B5 100%)',
-        screenshotBase64: raw02.toString('base64'),
-        calloutLeft: { icon: '💥', title: '10/10 Vinyl Burst!', sub: 'Cast Molten Vinyl Into Molds' },
-        calloutRight: { icon: '🔊', title: 'ASMR Ceramic Clinks', sub: 'Pitch-Escalating Combo Chimes' }
+        badge: '★ ART TOY ATELIER · 10 DESIGNER TOY ISLANDS',
+        headline: 'Explore 10 Tactile Islands & Craft 60 Collectible Figurines!',
+        subhead: '◆ 100 Solver-Verified Puzzles · Warm Sunlit Birch Studio · Buddy Perks',
+        accentColor: '#FF9F1C',
+        bgGradient: 'linear-gradient(160deg, #FBF6EE 0%, #F2E2CE 52%, #E5CBB0 100%)',
+        screenshotBase64: raw01.toString('base64'),
+        calloutLeft: { icon: '★', title: '60 Vinyl Figurines', sub: '10 Collectible Series Sets' },
+        calloutRight: { icon: '✓', title: '100 Verified Levels', sub: '100% Deterministic Solver' }
       },
       {
         filename: '03_obstacles_37slot.png',
         stepNum: 3,
-        badge: '❄️ 7, 19 & 37-SLOT WORKBENCHES · STUDIO OBSTACLES',
+        badge: '❄ 7, 19 & 37-SLOT WORKBENCHES · STUDIO OBSTACLES',
         headline: 'Master 7, 19 & 37-Slot Boards with Brass Anvils & Frozen Clay!',
-        subhead: '⚒️ Route Cascades Around Fixed Brass Anvils · Crack Frozen Glaze Shells',
+        subhead: '◆ Route Cascades Around Brass Anvils · Crack Frozen Glaze Shells',
         accentColor: '#1E88E5',
         bgGradient: 'linear-gradient(160deg, #F2F7FC 0%, #DCEAF7 52%, #C3D9EE 100%)',
         screenshotBase64: raw03.toString('base64'),
-        calloutLeft: { icon: '❄️', title: 'Frozen Clay Shells', sub: 'Crack With Adjacent 10-Bursts' },
-        calloutRight: { icon: '⚒️', title: '37-Slot Master Grid', sub: 'Deep Spatial Routing Puzzles' }
+        calloutLeft: { icon: '❄', title: 'Frozen Clay Shells', sub: 'Crack With Adjacent 10-Bursts' },
+        calloutRight: { icon: '◆', title: '37-Slot Master Grid', sub: 'Deep Spatial Routing Puzzles' }
       },
       {
         filename: '04_booster_hammer.png',
         stepNum: 4,
-        badge: '🔨 TACTILE SCULPTOR TOOLS · INSTANT BOARD RESCUE',
+        badge: '◆ TACTILE SCULPTOR TOOLS · INSTANT BOARD RESCUE',
         headline: 'Powerful Studio Boosters: Ceramic Hammer, Spatula Swap & Extra Slot!',
-        subhead: '🔨 Smash Any Stack · 🔄 Reposition or Reroll Tray · ➕ Unlock 4th Staging Slot',
+        subhead: '◆ Smash Any Stack · ↻ Reposition or Reroll Tray · ✚ 4th Staging Slot',
         accentColor: '#F4B942',
         bgGradient: 'linear-gradient(160deg, #FDF9EE 0%, #F5E6C4 52%, #E8CFA0 100%)',
         screenshotBase64: raw04.toString('base64'),
-        calloutLeft: { icon: '🔨', title: 'Ceramic Hammer', sub: 'Smash Any Stack or Frozen Tile' },
-        calloutRight: { icon: '➕', title: '4th Staging Slot', sub: 'Hold Tricky Stacks Safely' }
+        calloutLeft: { icon: '◆', title: 'Ceramic Hammer', sub: 'Smash Any Stack or Frozen Tile' },
+        calloutRight: { icon: '✚', title: '4th Staging Slot', sub: 'Hold Tricky Stacks Safely' }
       },
       {
         filename: '05_figurine_unboxing.png',
         stepNum: 5,
-        badge: '🎁 TACTILE FOIL BLIND-BOX UNBOXING · EVERY 2 LEVELS',
-        headline: 'Cast & Unbox Blind-Box Designer Figurines on Every Clear!',
-        subhead: '✨ Tear Open Foil Packs · Discover Common, Rare, Epic & Mythic Vinyl Toys',
+        badge: '★ 3D BLIND-BOX UNBOXING · COLLECTIBLE VESSELS',
+        headline: 'Crack Sculpted 3D Vessels & Unbox Rare Designer Figurines!',
+        subhead: '★ Spin 10 Artisan Vessels · Discover Common, Rare, Epic & Mythic Toys',
         accentColor: '#9B5DE5',
         bgGradient: 'linear-gradient(160deg, #F9F4FC 0%, #EADCF6 52%, #D6C0EC 100%)',
         screenshotBase64: raw05.toString('base64'),
-        calloutLeft: { icon: '🎁', title: 'Blind-Box Foil Tear', sub: 'Guaranteed New Figurine Reveals' },
-        calloutRight: { icon: '✨', title: 'Mythic Glaze Rarity', sub: 'Collect All 60 Studio Creations' }
+        calloutLeft: { icon: '★', title: '3D Vessel Unboxing', sub: 'Guaranteed Rare+ Pity System' },
+        calloutRight: { icon: '◆', title: 'Mythic Glaze Rarity', sub: 'Collect All 60 Studio Creations' }
       },
       {
         filename: '06_toy_showcase_gallery.png',
         stepNum: 6,
-        badge: '🔄 360° 3D TURNTABLE INSPECTOR · CUSTOM GLAZE FINISHES',
-        headline: 'Collect 10 Toy Series Sets & Inspect in 360° 3D Turntable!',
-        subhead: '🏺 Toggle Matte Vinyl, Kiln Gloss & Iridescent Gold Finishes on Birch Shelves',
+        badge: '↻ 360° 3D TURNTABLE INSPECTOR · ACTIVE BUDDY PERKS',
+        headline: 'Spin Every Figurine in 360° 3D & Equip Active Board Perks!',
+        subhead: '◆ Up to +30% Score & +35% Fever · Custom 3D Board & Disc Themes',
         accentColor: '#00A896',
         bgGradient: 'linear-gradient(160deg, #F1FAF8 0%, #D5EFEA 52%, #B8E1D9 100%)',
         screenshotBase64: raw06.toString('base64'),
-        calloutLeft: { icon: '🔄', title: '360° 3D Turntable', sub: 'Drag to Rotate Every Figurine' },
-        calloutRight: { icon: '✨', title: '3 Custom Glaze Coats', sub: 'Matte, Kiln Gloss & Gold Sheen' }
+        calloutLeft: { icon: '↻', title: '360° 3D Turntable', sub: 'Drag to Rotate Every Figurine' },
+        calloutRight: { icon: '★', title: 'Active Buddy Perks', sub: '+Score% & +Kiln Fever Boosts' }
       },
       {
         filename: '07_daily_artisan_challenge.png',
         stepNum: 7,
-        badge: '📅 SEEDED DAILY KILN RUN · GLOBAL SCULPTOR LEADERBOARD',
+        badge: '★ SEEDED DAILY KILN RUN · GLOBAL SCULPTOR LEADERBOARD',
         headline: 'Daily Artisan Challenge & Global Sculptor Leaderboard!',
-        subhead: '🔥 Earn Monthly Artisan Crown Stamps · Compete on Identical Daily Seeds',
+        subhead: '◆ Earn Monthly Artisan Crown Stamps · Compete on Daily Seeds',
         accentColor: '#FB8500',
         bgGradient: 'linear-gradient(160deg, #FFF7EE 0%, #F7E2CA 52%, #EBC9A6 100%)',
         screenshotBase64: raw07.toString('base64'),
-        calloutLeft: { icon: '📅', title: 'Daily Crown Calendar', sub: '31 Monthly Artisan Stamps' },
-        calloutRight: { icon: '🏆', title: 'Fair Seeded Ranks', sub: 'Same Deterministic Board for All' }
+        calloutLeft: { icon: '★', title: 'Daily Crown Calendar', sub: 'Monthly Artisan Stamps' },
+        calloutRight: { icon: '◆', title: 'Fair Seeded Ranks', sub: 'Same Deterministic Board for All' }
       },
       {
         filename: '08_deadlock_rescue_shop.png',
         stepNum: 8,
-        badge: '🛡️ 100% ETHICAL MONETIZATION · ZERO FORCED ADS',
-        headline: 'Zero Forced Ads — Pure Calm Flow & Optional Studio Upgrades!',
-        subhead: '👑 Collector Pass VIP · Starter Atelier Bundle · 100% Opt-In Reward Previews',
+        badge: '▶ 100% FREE TO PLAY · REWARDS & 24H DAILY VIP PASS',
+        headline: 'Unlock 24H VIP Passes, Prisms & Capsule Keys as You Play!',
+        subhead: '★ Free 24H VIP Pass · Supply Crates · Opt-In Rewarded Boosters',
         accentColor: '#00A896',
         bgGradient: 'linear-gradient(160deg, #FBF8F1 0%, #ECE2CF 52%, #DCD0B8 100%)',
         screenshotBase64: raw08.toString('base64'),
-        calloutLeft: { icon: '🛡️', title: 'Zero Forced Ads', sub: 'Never Interrupted Mid-Level' },
-        calloutRight: { icon: '👑', title: 'Collector VIP Pass', sub: '∞ Hearts + Permanent 4th Slot' }
+        calloutLeft: { icon: '▶', title: '100% Free to Play', sub: 'Earn Prisms & Keys Every Clear' },
+        calloutRight: { icon: '★', title: '24H Daily VIP Pass', sub: '∞ Hearts + 4th Slot Unlocked' }
       }
     ];
 
     for (const frame of frames) {
-      const html = buildMarketingFrameHTML(frame);
-      const dataUrl = 'data:text/html;charset=utf-8,' + encodeURIComponent(html);
-      await cdp.send('Page.navigate', { url: dataUrl });
-      await sleep(450);
+      currentFrameHtml = buildMarketingFrameHTML(frame);
+      await cdp.send('Page.navigate', { url: `http://127.0.0.1:${port}/__store_frame.html` });
+      await sleep(350);
       const pngBuf = await cdp.screenshotPngBuffer({ x: 0, y: 0, width: 1080, height: 1920 });
       const outPath = path.join(SCREENSHOTS_DIR, frame.filename);
       fs.writeFileSync(outPath, pngBuf);

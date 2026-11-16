@@ -8,10 +8,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <title>PopStacks: Art Toy Atelier</title>
   <link rel="icon" type="image/png" href="assets/art/app_icon_512.png" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20261106g" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <link rel="stylesheet" href="styles.css?v=20261116a" />
 </head>
 <body>
   <div id="app-shell" class="app-shell">
@@ -247,7 +245,7 @@
 
             <div class="calendar-section">
               <div class="cal-header">
-                <span>October</span>
+                <span id="daily-cal-month">November</span>
                 <strong id="daily-cal-count">17 / 31</strong>
               </div>
               <div id="daily-calendar-grid" class="daily-calendar-grid"></div>
@@ -679,7 +677,7 @@
           <button id="btn-settings-restart" class="ghost-btn tap-target" type="button">↻ Restart</button>
           <button id="btn-settings-hub" class="cta-primary-amber tap-target" type="button">Home</button>
         </div>
-        <button id="btn-meta-debug" class="text-link-btn dev-link tap-target" type="button">Developer tools</button>
+        <button id="btn-meta-debug" class="text-link-btn dev-link tap-target hidden" type="button">Developer tools</button>
       </div>
     </div>
 
@@ -749,9 +747,10 @@
     </aside>
   </div>
 
-  <script src="audio.js?v=20261110a"></script>
-  <script src="levels.js?v=20261106g"></script>
-  <script src="assets/vendor/three-glb-viewer.js?v=20261106g"></script>
-  <script src="game.js?v=20261110a"></script>
+  <script src="audio.js?v=20261116a"></script>
+  <script src="levels.js?v=20261116a"></script>
+  <script src="assets/vendor/three-glb-viewer.js?v=20261116a"></script>
+  <script src="telemetry.js?v=20261116a"></script>
+  <script src="game.js?v=20261116a"></script>
 </body>
 </html>

@@ -14,7 +14,7 @@ const distDir = path.join(rootDir, 'dist');
 fs.rmSync(distDir, { recursive: true, force: true });
 fs.mkdirSync(distDir, { recursive: true });
 
-const filesToCopy = ['index.html', 'styles.css', 'audio.js', 'levels.js', 'game.js'];
+const filesToCopy = ['index.html', 'styles.css', 'audio.js', 'levels.js', 'telemetry.js', 'game.js'];
 for (const file of filesToCopy) {
   const src = path.join(rootDir, file);
   if (fs.existsSync(src)) {

@@ -64,7 +64,7 @@
       <div class="trophy-stage tier-${tier}${locked ? ' is-locked' : ''}${size}" style="--fig-url: url('${url}')">
         <div class="trophy-glow" aria-hidden="true"></div>
         <div class="trophy-tilt">
-          <img class="trophy-img" src="${url}" alt="${alt}" loading="lazy" decoding="async" draggable="false" />
+          <img class="trophy-img" src="${url}" alt="${alt}" loading="eager" decoding="sync" draggable="false" />
           <div class="trophy-shine" aria-hidden="true"></div>
         </div>
         <div class="trophy-shadow" aria-hidden="true"></div>
@@ -211,6 +211,9 @@
       this.bonusSpinUsedThisUnbox = false;
       this.lowSpaceWarned = false;
       this.undoSnapshot = null;
+      if (window.PopStacksTelemetry) {
+        window.PopStacksTelemetry.track('booster_used', { booster: 'undo', level: this.currentLevelNum || 1 });
+      }
       this.recommendedCellKey = null;
       this.ftueSkipped = false;
 
@@ -332,6 +335,20 @@
         activeTweens: 0
       };
 
+      if (window.PopStacksTelemetry) {
+        window.PopStacksTelemetry.setContextProvider(() => ({
+          level: this.currentLevelNum || 1,
+          grid_slots: Catalog.getSlotsForRadius ? Catalog.getSlotsForRadius(this.gridRadius) : 7,
+          is_daily: !!this.isDailyMode,
+          prisms: this.profile ? this.profile.prisms : 0,
+          keys: this.profile ? this.profile.keys : 0,
+          unlocked_figurines: this.profile && this.profile.unlockedFigurines ? this.profile.unlockedFigurines.length : 1,
+          vip_active: this.isVipActive ? this.isVipActive() : false
+        }));
+        window.PopStacksTelemetry.trackSessionStart({
+          ftue_done: (this.profile && this.profile.highestUnlockedLevel > 1) || false
+        });
+      }
       this.initUI();
       this.parseInitialUrlParams();
       this.handleResize();
@@ -477,6 +494,14 @@
       this.updateHUD();
       this.renderGalleryUI();
       this.triggerGalleryEquipCelebration(this.profile.equippedFigurineId);
+      if (window.PopStacksTelemetry && figIdOrNull) {
+        const eqFig = Catalog.getFigurineById ? Catalog.getFigurineById(figIdOrNull) : null;
+        window.PopStacksTelemetry.trackFirstUpgrade({ kind: 'equip_buddy', item_id: figIdOrNull });
+        window.PopStacksTelemetry.track('figurine_equipped', {
+          figurine_id: figIdOrNull,
+          rarity: eqFig ? eqFig.rarity : 'Common'
+        });
+      }
       return true;
     }
 
@@ -616,6 +641,9 @@
         this.kilnFever = 100;
         this.overdriveMovesLeft = 3;
         this.overdriveTotalTriggered = (this.overdriveTotalTriggered || 0) + 1;
+        if (window.PopStacksTelemetry) {
+          window.PopStacksTelemetry.track('kiln_overdrive_triggered', { level: this.currentLevelNum || 1 });
+        }
         this.triggerBoardShake(6.5, 240);
         this.setOllieReaction('◆ KILN OVERDRIVE! 2× Score for 3 Moves!', 'cheer');
         this.floatingTexts.push({
@@ -1515,7 +1543,7 @@
       const btnPlayDaily = document.getElementById('btn-play-daily-challenge');
       if (btnPlayDaily) {
         btnPlayDaily.addEventListener('click', () => {
-          this.startDailyChallenge('2026-10-17');
+          this.startDailyChallenge(this.getTodayIsoDate());
         });
       }
 
@@ -1579,6 +1607,9 @@
         btnShopBoosters.addEventListener('click', () => {
           if (this.profile.prisms >= 100) {
             this.profile.prisms -= 100;
+            if (window.PopStacksTelemetry) {
+              window.PopStacksTelemetry.track('shop_purchase', { item: 'booster_trio', cost_prisms: 100 });
+            }
             this.profile.boosters.hammer += 1;
             this.profile.boosters.swap += 1;
             this.profile.boosters.extraslot += 1;
@@ -1638,6 +1669,10 @@
       };
       const btnDebugToggle = document.getElementById('btn-debug-toggle');
       const btnMetaDebug = document.getElementById('btn-meta-debug');
+      if (btnMetaDebug) {
+        const allowDebug = typeof location !== 'undefined' && (location.search.includes('debug=1') || location.hash.includes('debug=1'));
+        btnMetaDebug.classList.toggle('hidden', !allowDebug);
+      }
       const btnDebugClose = document.getElementById('btn-debug-close');
       if (btnDebugToggle) btnDebugToggle.addEventListener('click', toggleDebug);
       if (btnMetaDebug) {
@@ -2176,14 +2211,14 @@
           <!-- Primary Floating 3D Contiguous Hex Island Diorama (Right Bend) -->
           <button type="button" class="duo-floating-island-diorama primary-right tap-target" data-fig-id="${heroFig.id}" title="Inspect ${heroFig.name}">
             ${buildContiguousHexIslandClusterSvg(theme.islandColors, true)}
-            <img src="${getFigurineSpriteUrl(heroFig)}" alt="${heroFig.name}" class="duo-island-figurine-sprite hero" loading="lazy" />
+            <img src="${getFigurineSpriteUrl(heroFig)}" alt="${heroFig.name}" class="duo-island-figurine-sprite hero" loading="eager" />
             <span class="duo-island-landmark-tag">${theme.shortBadge}</span>
           </button>
 
           <!-- Secondary Floating 3D Hex Outcrop Island (Left Bend) -->
           <button type="button" class="duo-floating-island-diorama secondary-left tap-target" data-fig-id="${subFig.id}" title="Inspect ${subFig.name}">
             ${buildContiguousHexIslandClusterSvg(theme.islandColors, false)}
-            <img src="${getFigurineSpriteUrl(subFig)}" alt="${subFig.name}" class="duo-island-figurine-sprite sub" loading="lazy" />
+            <img src="${getFigurineSpriteUrl(subFig)}" alt="${subFig.name}" class="duo-island-figurine-sprite sub" loading="eager" />
           </button>
         `;
 
@@ -2306,17 +2341,33 @@
       });
     }
 
+    getTodayIsoDate() {
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
+
     renderDailyUI() {
-      const dateStr = '2026-10-17';
+      const nowD = new Date();
+      const dateStr = this.getTodayIsoDate();
       const dailyCfg = Catalog.getDailyChallengeConfig(dateStr);
+      const monthName = nowD.toLocaleString('en-US', { month: 'long' });
+      const dayNum = nowD.getDate();
+      const daysInMonth = new Date(nowD.getFullYear(), nowD.getMonth() + 1, 0).getDate();
 
       const dateLabel = document.getElementById('daily-date-label');
+      const calMonth = document.getElementById('daily-cal-month');
+      const calCount = document.getElementById('daily-cal-count');
       const gridBadge = document.getElementById('daily-grid-badge');
       const modName = document.getElementById('daily-mod-name');
       const modDesc = document.getElementById('daily-mod-desc');
       const streakPill = document.getElementById('daily-streak-pill');
 
-      if (dateLabel) dateLabel.textContent = `October 17, 2026 · Seed #${dailyCfg.id}`;
+      if (dateLabel) dateLabel.textContent = `${monthName} ${dayNum}, ${nowD.getFullYear()} · Seed #${dailyCfg.id}`;
+      if (calMonth) calMonth.textContent = monthName;
+      if (calCount) calCount.textContent = `${dayNum} / ${daysInMonth}`;
       if (gridBadge) gridBadge.textContent = `${dailyCfg.gridSlots}-Slot`;
       if (modName) modName.textContent = dailyCfg.modifierName;
       if (modDesc) modDesc.textContent = dailyCfg.modifierDesc;
@@ -2326,10 +2377,10 @@
       const calGrid = document.getElementById('daily-calendar-grid');
       if (calGrid) {
         calGrid.innerHTML = '';
-        for (let d = 1; d <= 31; d++) {
+        for (let d = 1; d <= daysInMonth; d++) {
           const cell = document.createElement('div');
-          const isStamped = d <= 16;
-          const isToday = d === 17;
+          const isStamped = d < dayNum;
+          const isToday = d === dayNum;
           cell.className = `cal-day ${isStamped ? 'stamped' : ''} ${isToday ? 'today' : ''}`;
           cell.textContent = isStamped ? `${d}✓` : String(d);
           calGrid.appendChild(cell);
@@ -2728,25 +2779,30 @@
       this.canvas.width = Math.round(this.width * this.dpr);
       this.canvas.height = Math.round(this.height * this.dpr);
 
-      // Compute responsive hex sizing for 7-slot (R=1), 19-slot (R=2), and 37-slot (R=3)
-      const availW = this.width * 0.94;
-      const availBoardH = this.height * 0.65;
+      // 3-Slot + 4th Extra Staging Slot Dispenser Tray Geometry (anchored safely above bottom dock)
+      const trayH = Math.max(78, Math.min(104, this.height * 0.175));
+      this.trayY = Math.max(260, this.height - trayH * 0.50 - 6);
+      const trayTop = this.trayY - trayH * 0.54;
+      const topHudSafe = this.height < 430 ? 38 : 42;
+      const botBoardSafe = trayTop - 16;
 
-      const colsSpan = this.gridRadius === 1 ? 3.18 : this.gridRadius === 2 ? 4.92 : 6.82;
-      const rowsSpan = this.gridRadius === 1 ? 2.95 : this.gridRadius === 2 ? 4.58 : 6.32;
-      const maxHexR = this.gridRadius === 1 ? 52 : this.gridRadius === 2 ? 36 : 25;
-      const minHexR = this.gridRadius === 3 ? 20 : 25;
+      // Compute responsive hex sizing for 7-slot (R=1), 19-slot (R=2), and 37-slot (R=3)
+      const availW = this.width * 0.93;
+      const availBoardH = Math.max(170, botBoardSafe - topHudSafe);
+
+      const colsSpan = this.gridRadius === 1 ? 3.22 : this.gridRadius === 2 ? 4.98 : 6.90;
+      const rowsSpan = this.gridRadius === 1 ? 2.15 : this.gridRadius === 2 ? 3.45 : 4.85;
+      const maxHexR = this.gridRadius === 1 ? 50 : this.gridRadius === 2 ? 35 : 24.5;
+      const minHexR = this.gridRadius === 3 ? 14 : 18;
 
       const radiusByW = availW / (colsSpan * Math.sqrt(3));
-      const radiusByH = availBoardH / (rowsSpan * 1.5 * Y_TILT + 1.3);
+      const radiusByH = availBoardH / (rowsSpan * 1.5 * Y_TILT + 2.45);
       this.baseHexRadius = Math.max(minHexR, Math.min(maxHexR, Math.min(radiusByW, radiusByH)));
       this.baseBoardCenterX = this.width * 0.5;
-      this.baseBoardCenterY = this.height * 0.41;
+      this.baseBoardCenterY = topHudSafe + availBoardH * 0.54;
 
       this.applyBoardZoomTransform();
 
-      // 3-Slot + 4th Extra Staging Slot Dispenser Tray Geometry (anchored at 1.0x scale)
-      this.trayY = this.height * 0.835;
       const reachShift =
         this.settings.thumbReach === 'left' ? -14 : this.settings.thumbReach === 'right' ? 14 : 0;
       const trayW = Math.min(this.width * 0.94, 366);
@@ -3051,6 +3107,17 @@
       this.capsuleFoundThisRound = false;
       this.scoreBreakdown = { bursts: 0, merges: 0, overstack: 0, efficiency: 0 };
       this.cascadeLog = [`Loaded ${levelDef.id}: ${levelDef.name} (${levelDef.gridSlots}-Slot)`];
+      if (window.PopStacksTelemetry) {
+        window.PopStacksTelemetry.resetRunFlags();
+        window.PopStacksTelemetry.track('run_start', {
+          level: levelDef.level || 1,
+          is_daily: !!this.isDailyMode,
+          seed: this.seedString
+        });
+        if ((levelDef.level || 1) >= 3) {
+          window.PopStacksTelemetry.trackMidSessionGate({ level: levelDef.level, trigger: 'level_3' });
+        }
+      }
 
       const btnUndo = document.getElementById('btn-undo');
       if (btnUndo) btnUndo.disabled = true;
@@ -3426,6 +3493,9 @@
     executeHammerOnCell(cell) {
       if (!cell || (cell.stack.length === 0 && !cell.isAnvil && cell.iceHp === 0)) return false;
       this.saveUndoSnapshot();
+      if (window.PopStacksTelemetry) {
+        window.PopStacksTelemetry.track('booster_used', { booster: 'hammer', level: this.currentLevelNum || 1 });
+      }
 
       if (this.profile.boosters.hammer > 0) {
         this.profile.boosters.hammer--;
@@ -4126,6 +4196,15 @@
 
       this.clears++;
       this.bursts10++;
+                if (window.PopStacksTelemetry) {
+                  window.PopStacksTelemetry.trackFirstBurst({ level: this.currentLevelNum || 1, burst_count: burstCount });
+                  window.PopStacksTelemetry.track('stack_burst_10', {
+                    level: this.currentLevelNum || 1,
+                    burst_count: burstCount,
+                    combo: this.activeMultiplier || 1,
+                    overdrive: this.overdriveMovesLeft > 0
+                  });
+                }
       this.turnBurstsCount++;
       this.totalDiscsCleared += count;
       this.clearedByColor[colorKey] = (this.clearedByColor[colorKey] || 0) + count;
@@ -4937,6 +5016,10 @@
         this.isDeadlocked = true;
         this.logCascade('! DEADLOCK DETECTED: 0 empty placeable sockets remain.');
         this.audio.playDeadlock();
+        if (window.PopStacksTelemetry) {
+          window.PopStacksTelemetry.trackReviveOffered({ placement: 'deadlock_rescue', level: this.currentLevelNum || 1 });
+          window.PopStacksTelemetry.track('ad_offered', { ad_type: 'rewarded', placement: 'deadlock_rescue' });
+        }
         this.triggerDeadlockModal();
         return true;
       }
@@ -5172,6 +5255,19 @@
 
       this.updateHUD();
       this.updateMetaTopBar();
+      if (window.PopStacksTelemetry) {
+        if (this.currentLevelNum === 1) {
+          window.PopStacksTelemetry.track('ftue_complete', { method: this.ftueSkipped ? 'skipped' : 'completed', moves: turnsUsed });
+        }
+        window.PopStacksTelemetry.track('round_complete', {
+          level: this.currentLevelNum || 1,
+          stars: earnedStarsThisRun,
+          moves: turnsUsed,
+          score: this.score,
+          is_daily: !!this.isDailyMode
+        });
+        window.PopStacksTelemetry.track('ad_offered', { ad_type: 'rewarded', placement: 'win_2x_prisms' });
+      }
       const modal = document.getElementById('level-win-modal');
       if (modal) modal.classList.remove('hidden');
     }
@@ -5649,6 +5745,14 @@
       this.updateMetaTopBar();
 
       this.audio.playFigurineUnbox(fig.rarity);
+      if (window.PopStacksTelemetry) {
+        window.PopStacksTelemetry.trackFirstUpgrade({ kind: 'unbox_figurine', item_id: fig.id });
+        window.PopStacksTelemetry.track('figurine_unboxed', {
+          figurine_id: fig.id,
+          rarity: fig.rarity,
+          is_new: !wasUnlocked
+        });
+      }
 
       const gachaInfo = this.getGachaGradeInfo(fig.rarity);
       const modalCard = document.getElementById('unbox-modal-card');
@@ -5733,6 +5837,15 @@
     // Ad Revenue Architecture: Rewarded Video + Paced Interstitials (IAP Deferred)
     // -------------------------------------------------------------------------
     recordAdImpression(placement, isRewarded = true) {
+      if (window.PopStacksTelemetry) {
+        window.PopStacksTelemetry.track('ad_completed', {
+          ad_type: isRewarded ? 'rewarded' : 'interstitial',
+          placement
+        });
+        if (placement === 'deadlock_rescue') {
+          window.PopStacksTelemetry.track('revive_ad_watched', { placement });
+        }
+      }
       if (!this.adStats) return;
       if (isRewarded) {
         this.adStats.rewardedAdsWatched = (this.adStats.rewardedAdsWatched || 0) + 1;
